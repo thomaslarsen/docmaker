@@ -18,11 +18,11 @@ public class ConvertText {
 		System.out.println(bd.isDirectory());
 		System.out.println(bd.getName());
 
-		convert(bd, outputDir);
+		//convert(bd, outputDir);
 
 		SAXParser p = SAXParserFactory.newInstance().newSAXParser();
 
-		AssemblyHandler ah = new AssemblyHandler(outputDir + "/sample", outputDir + "/out.html");
+		AssemblyHandler ah = new AssemblyHandler(inputDir, outputDir + "/sample", outputDir + "/out.html");
 		p.parse(new File("/Users/thomaslarsen/workspace/docmaker/src/test/resources/doc.xml"), ah);
 	}
 
