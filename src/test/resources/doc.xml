@@ -1,11 +1,12 @@
 <document>
 	<header title="User manual">
 		<link rel="stylesheet" type="text/css" href="mystyle.css" />
+		<meta property="author" content="Thomas Larsen" />
 	</header>
 	<sections>
 		<section level="1" title="Introduction">
 			<chapers>
-				<chapter level="2" group="common" fragment="intro" />
+				<chapter level="1" group="common" fragment="intro" />
 				<chapter level="2" group="common" fragment="copyright" />
 			</chapers>
 		</section>
@@ -17,6 +18,7 @@
 		<section level="1" title="Installation">
 			<chapters>
 				<chapter level="2" group="installation" fragment="overview" />
+				<chapter level="2" group="installation" fragment="steps" />
 			</chapters>
 		</section>
 	</sections>

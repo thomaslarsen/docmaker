@@ -2,7 +2,6 @@ package net.toften.docmaker;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -13,26 +12,20 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import com.github.rjeschke.txtmark.Processor;
-
-public class AssemblyHandler extends DefaultHandler {
+public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerCallback {
 	private String sectionDir;
 	private String resultFilename;
 	private FileWriter outFile;
+	
 	private int currentSectionLevel;
-	private String inputDir;
+	private String currentSectionName;
+	
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
 	public AssemblyHandler(String sectionsDir, String resultFilename) {
 		this.sectionDir = sectionsDir;
 		this.resultFilename = resultFilename;
-	}
-
-	public AssemblyHandler(String inputDir, String sectionsDir, String resultFilename) {
-		this(sectionsDir, resultFilename);
-
-		this.inputDir = inputDir;
 	}
 
 	@Override
@@ -44,8 +37,8 @@ public class AssemblyHandler extends DefaultHandler {
 		}
 
 		try {
-			outFile.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\">");
-			outFile.write("<html>");
+			outFile.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+			outFile.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
 		} catch (IOException e) {
 			throw new SAXException("Outfile could not be initialised", e);
 		}
@@ -84,10 +77,7 @@ public class AssemblyHandler extends DefaultHandler {
 				switch (dp) {
 				case CHAPTER:
 					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					if (inputDir == null)
-						addFile(sectionDir + File.separator + "sections", attributes.getValue("group"), attributes.getValue("fragment"), chapterLevel);
-					else
-						addAndProcessFile(attributes.getValue("group"), attributes.getValue("fragment"), chapterLevel);
+					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), attributes.getValue("fragment"), chapterLevel);
 					break;
 
 				case HEADER:
@@ -95,20 +85,17 @@ public class AssemblyHandler extends DefaultHandler {
 					break;
 
 				case LINK:
-					outFile.write(
-							"<link" +
-									(attributes.getValue("rel") != null ? " rel=\"" + attributes.getValue("rel") + "\"" : "") +
-									(attributes.getValue("type") != null ? " type=\"" + attributes.getValue("type") + "\"" : "") +
-									(attributes.getValue("href") != null ? " href=\"" + attributes.getValue("href") + "\"" : "") +
-									(attributes.getValue("media") != null ? " media=\"" + attributes.getValue("media") + "\"" : "") +
-							"/>");
+				case META:
+					addElementAndAttributes(outFile, qName, attributes);
 					break;
 
 				case SECTION:
 					currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+					currentSectionName = attributes.getValue("title");
+					outFile.write("<div class=\"section-header\">" + currentSectionName + "</div>");
 					outFile.write(
 							"<h" + currentSectionLevel + " class=\"section\">" +
-									attributes.getValue("title") +
+									currentSectionName +
 									"</h" + currentSectionLevel + ">");
 				}
 			} catch (IOException e) {
@@ -116,7 +103,7 @@ public class AssemblyHandler extends DefaultHandler {
 			}
 		}
 	}
-
+	
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
@@ -129,10 +116,18 @@ public class AssemblyHandler extends DefaultHandler {
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}
+		}	
+	}
+	
+	private void addElementAndAttributes(FileWriter outFile, String qName, Attributes attributes) throws IOException {
+		outFile.write("<" + qName);
+		for (int i = 0; i < attributes.getLength(); i++) {
+			outFile.write(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
 		}
+		outFile.write("/>");
 	}
 
-	private void addFile(String sectionDir, String group, String fragment, int chapterLevel) throws IOException {
+	protected void addFile(FileWriter outFile, String sectionDir, String group, String fragment, int chapterLevel) throws IOException {
 		BufferedReader reader = new BufferedReader(new FileReader(sectionDir + File.separator + group + File.separator + fragment + ".html"));
 
 		String line;
@@ -147,15 +142,6 @@ public class AssemblyHandler extends DefaultHandler {
 		reader.close();
 	}
 
-	private void addAndProcessFile(String group, String fragment, int chapterLevel) throws IOException {
-		String asHtml = convertFile(group, fragment);
-
-		if (chapterLevel > 1) {
-			asHtml = replaceHTag(asHtml, chapterLevel - currentSectionLevel);
-		}
-
-		outFile.write(asHtml);
-	}
 
 	public static String replaceHTag(String line, int increment) {
 		// Only increase the level if greater than one
@@ -169,15 +155,12 @@ public class AssemblyHandler extends DefaultHandler {
 
 		return sb.toString();
 	}
+	
+	public int getCurrentSectionLevel() {
+		return currentSectionLevel;
+	}
 
-	private String convertFile(String group, String fragment) throws IOException {
-		String inFileName = inputDir + File.separator + "sections" + File.separator + group + File.separator + fragment + ".md";
-		File inFile = new File(inFileName);
-
-		if (inFile.exists()) {
-			return Processor.process(inFile);
-		} else {
-			throw new FileNotFoundException("Could not find input file: " + inFileName);
-		}
+	public String getCurrentSectionName() {
+		return currentSectionName;
 	}
 }

@@ -10,7 +10,8 @@ public enum DocPart {
 	CHAPTERS ("chapters", null, null, true),
 	CHAPTER ("chapter", null, null, true), 
 	LINK ("link", null, null, false),
-	HEADER ("header", "<head>", "</head>", false),
+	HEADER ("header", "<head>", "</head>", false), 
+	META ("meta", null, null, false),
 	;
 	
 	private String name;
