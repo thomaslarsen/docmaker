@@ -5,7 +5,13 @@
 	<artifactId>docmaker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
-
+	
+	<description>
+		Maven plugin to generate a PDF document from a set of Markdown text snippets
+	</description>
+	
+	<inceptionYear>2013</inceptionYear>
+	
 	<dependencies>
 		<dependency>
 			<groupId>org.markdownj</groupId>

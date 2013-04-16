@@ -1,20 +1,11 @@
 package net.toften.docmaker;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.io.StringBufferInputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-
-import org.w3c.dom.Document;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.github.rjeschke.txtmark.Processor;
 
@@ -39,29 +30,10 @@ public class ConvertText {
 		
 		p.parse(new File("/Users/thomaslarsen/workspace/docmaker/src/test/resources/doc.xml"), ah);
 		
-		postProcess(new File(outFileName), outputDir + "/out.pdf");
+		new PDFPostProcessor().postProcess(new File(outFileName), outputDir + "/out.pdf");
 	}
 	
-	private static void postProcess(File inFile, String outFileName) throws Exception {
-		if (!inFile.exists())
-			throw new IllegalArgumentException("Input file " + inFile.getName() + " can not be found");
-		
-	    ITextRenderer renderer = new ITextRenderer();
-
-	    // parse the markup into an xml Document
-//	    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-//	    Document doc = builder.parse(new StringBufferInputStream(null));
-//	    renderer.setDocument(doc, null);
-
-	    renderer.setDocument(inFile);
-
-	    OutputStream os = new FileOutputStream(outFileName);
-	    renderer.layout();
-	    renderer.createPDF(os);
-	    os.close();
-	}
-
-	private static void convert(File bd, String outputDir) throws IOException {
+	private void convert(File bd, String outputDir) throws IOException {
 		File od = new File(outputDir);
 		if (!od.exists()) {
 			od.mkdirs();
