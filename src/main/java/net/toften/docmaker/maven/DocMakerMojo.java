@@ -7,7 +7,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.toften.docmaker.AssemblyAndProcessHandler;
 import net.toften.docmaker.AssemblyHandler;
-import net.toften.docmaker.MDProcessor;
+import net.toften.docmaker.MarkupProcessor;
 import net.toften.docmaker.PostProcessor;
 
 import org.apache.maven.plugin.AbstractMojo;
@@ -18,23 +18,26 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 @Mojo ( name = "docmaker" )
 public class DocMakerMojo extends AbstractMojo {
-	@Parameter ( defaultValue = "/Users/thomaslarsen/workspace/docmaker/src/test/resources/doc.xml" )
+	@Parameter ( defaultValue = "${basedir}/src/test/resources/doc.xml" )
 	private String toc;
 	
 	@Parameter ( defaultValue = "/Users/thomaslarsen/workspace/docmaker/src/test/resources/sample" )
 	private String inputDir;
 	
-	@Parameter ( defaultValue = "/Users/thomaslarsen/workspace/docmaker/target/out" )
+	@Parameter ( defaultValue = "${project.build.directory}/out" )
 	private String outputDir;
 	
 	@Parameter ( defaultValue = "out" )
 	private String outputFilename;
 	
-	@Parameter (defaultValue = "net.toften.docmaker.MD4JProcessor" )
+	@Parameter (defaultValue = "net.toften.docmaker.PegdownProcessor" )
 	private String processorClassname;
 	
 	@Parameter ( defaultValue = "net.toften.docmaker.PDFPostProcessor" )
 	private String postProcessorClassname;
+	
+	@Parameter
+	private String cssFilePath;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		File bd = new File(inputDir);
@@ -48,14 +51,15 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
-//		TxtMarkProcessor mdProcessor = new TxtMarkProcessor();
-		MDProcessor md4jProcessor = newInstance(MDProcessor.class, processorClassname);
+		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, processorClassname);
 
 		String outFileName = outputDir + "/" + outputFilename + ".html";
 		// TODO parameter for handler
-		AssemblyHandler ah = new AssemblyAndProcessHandler(inputDir, outputDir + "/sample", outFileName, md4jProcessor);
-//		mdProcessor.setDecorator(new HDecorator(ah));
-		
+		AssemblyHandler ah = new AssemblyAndProcessHandler(inputDir, outputDir + "/sample", outFileName, markupProcessor);
+		ah.insertCSSFile(cssFilePath);
+
+		new File(outputDir).mkdirs();
+
 		try {
 			p.parse(new File(toc), ah);
 		} catch (Exception e) {

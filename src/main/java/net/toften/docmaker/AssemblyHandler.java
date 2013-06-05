@@ -19,13 +19,17 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	
 	private int currentSectionLevel;
 	private String currentSectionName;
+	private String cssFilePath;
 	
-
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
 	public AssemblyHandler(String sectionsDir, String resultFilename) {
 		this.sectionDir = sectionsDir;
 		this.resultFilename = resultFilename;
+	}
+	
+	public void insertCSSFile(String path) {
+		this.cssFilePath = path;
 	}
 
 	@Override
@@ -82,6 +86,9 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 				case HEADER:
 					outFile.write("<title>" + attributes.getValue("title") + "</title>");
+					if (cssFilePath != null) {
+						outFile.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssFilePath + "\" />");
+					}
 					break;
 
 				case LINK:

@@ -7,10 +7,10 @@ import java.io.IOException;
 
 public class AssemblyAndProcessHandler extends AssemblyHandler {
 	private String inputDir;
-	private MDProcessor mdProcessor;
+	private MarkupProcessor mdProcessor;
 
 
-	public AssemblyAndProcessHandler(String inputDir, String sectionsDir, String resultFilename, MDProcessor mdProcessor) {
+	public AssemblyAndProcessHandler(String inputDir, String sectionsDir, String resultFilename, MarkupProcessor mdProcessor) {
 		super(sectionsDir, resultFilename);
 
 		this.inputDir = inputDir;

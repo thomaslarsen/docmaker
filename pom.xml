@@ -5,13 +5,13 @@
 	<artifactId>docmaker</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
-	
+
 	<description>
 		Maven plugin to generate a PDF document from a set of Markdown text snippets
 	</description>
-	
+
 	<inceptionYear>2013</inceptionYear>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.markdownj</groupId>
@@ -19,9 +19,9 @@
 			<version>0.3.0-1.0.2b4</version>
 		</dependency>
 		<dependency>
-			<groupId>org.markdown4j</groupId>
-			<artifactId>markdown4j</artifactId>
-			<version>2.2</version>
+			<groupId>org.pegdown</groupId>
+			<artifactId>pegdown</artifactId>
+			<version>1.2.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
@@ -45,4 +45,16 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-plugin-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
