@@ -12,6 +12,27 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * The {@link AssemblyHandler} will process the TOC file, and assemble the complete
+ * result HTML document.
+ * <p>
+ * The AssemblyHandler extends the {@link DefaultHandler} class, and overrides the 
+ * appropriate methods.
+ * <p>
+ * To use the AssemblyHandler, do the following:
+ * <pre>
+ * 		SAXParser p = SAXParserFactory.newInstance().newSAXParser();
+ *		AssemblyHandler ah = new AssemblyHandler(inputDir, outputDir);
+ *		
+ *		p.parse(new File("toc.xml"), ah);
+ * </pre>
+ * 
+ * Note, that this class expects the section fragments to have already been converted 
+ * into HTML
+ * 
+ * @author thomaslarsen
+ *
+ */
 public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerCallback {
 	private String sectionDir;
 	private String resultFilename;
@@ -81,7 +102,11 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 				switch (dp) {
 				case CHAPTER:
 					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), attributes.getValue("fragment"), chapterLevel);
+					
+					String fragmentName = attributes.getValue("fragment");
+					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + fragmentName + "\">");
+					
+					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), fragmentName, chapterLevel);
 					break;
 
 				case HEADER:
@@ -120,6 +145,15 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 			try {
 				if (dp.postElement() != null)
 					outFile.write(dp.postElement());
+				
+				switch (dp) {
+				case CHAPTER:
+					outFile.write("</div>");
+					break;
+
+				default:
+					break;
+				}
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}

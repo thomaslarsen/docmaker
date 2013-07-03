@@ -8,7 +8,7 @@ public enum DocPart {
 	SECTIONS ("sections", "<body>", "</body>", false),
 	SECTION ("section", null, null, true),
 	CHAPTERS ("chapters", null, null, true),
-	CHAPTER ("chapter", null, null, true), 
+	CHAPTER ("chapter", null, null, false), 
 	LINK ("link", null, null, false),
 	HEADER ("header", "<head>", "</head>", false), 
 	META ("meta", null, null, false),
