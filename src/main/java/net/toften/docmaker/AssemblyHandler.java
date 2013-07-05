@@ -37,18 +37,18 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	private String sectionDir;
 	private String resultFilename;
 	private FileWriter outFile;
-	
+
 	private int currentSectionLevel;
 	private String currentSectionName;
 	private String cssFilePath;
-	
+
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
 	public AssemblyHandler(String sectionsDir, String resultFilename) {
 		this.sectionDir = sectionsDir;
 		this.resultFilename = resultFilename;
 	}
-	
+
 	public void insertCSSFile(String path) {
 		this.cssFilePath = path;
 	}
@@ -100,12 +100,22 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					outFile.write(dp.preElement());
 
 				switch (dp) {
+				case SECTION:
+					currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+					currentSectionName = attributes.getValue("title");
+
+					outFile.write("<div class=\"section-header\">" + currentSectionName + "</div>");
+					outFile.write("<h" + currentSectionLevel + " class=\"section\">");
+					outFile.write(currentSectionName);
+					outFile.write("</h" + currentSectionLevel + ">");
+					break;
+
 				case CHAPTER:
 					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					
 					String fragmentName = attributes.getValue("fragment");
-					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + fragmentName + "\">");
 					
+					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + fragmentName + "\">");
+
 					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), fragmentName, chapterLevel);
 					break;
 
@@ -120,22 +130,13 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 				case META:
 					addElementAndAttributes(outFile, qName, attributes);
 					break;
-
-				case SECTION:
-					currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-					currentSectionName = attributes.getValue("title");
-					outFile.write("<div class=\"section-header\">" + currentSectionName + "</div>");
-					outFile.write(
-							"<h" + currentSectionLevel + " class=\"section\">" +
-									currentSectionName +
-									"</h" + currentSectionLevel + ">");
 				}
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}
 		}
 	}
-	
+
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
@@ -145,7 +146,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 			try {
 				if (dp.postElement() != null)
 					outFile.write(dp.postElement());
-				
+
 				switch (dp) {
 				case CHAPTER:
 					outFile.write("</div>");
@@ -159,7 +160,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 			}
 		}	
 	}
-	
+
 	private void addElementAndAttributes(FileWriter outFile, String qName, Attributes attributes) throws IOException {
 		outFile.write("<" + qName);
 		for (int i = 0; i < attributes.getLength(); i++) {
@@ -183,7 +184,6 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		reader.close();
 	}
 
-
 	public static String replaceHTag(String line, int increment) {
 		// Only increase the level if greater than one
 		Matcher m = p.matcher(line);
@@ -196,7 +196,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 		return sb.toString();
 	}
-	
+
 	public int getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
