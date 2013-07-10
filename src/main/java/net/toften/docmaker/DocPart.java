@@ -12,6 +12,8 @@ public enum DocPart {
 	LINK ("link", null, null, false),
 	HEADER ("header", "<head>", "</head>", false), 
 	META ("meta", null, null, false),
+	PROPERTIY ("property", null, null, false),
+	ELEMENT ("element", null, null, true);
 	;
 	
 	private String name;
