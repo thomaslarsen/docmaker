@@ -21,4 +21,6 @@ public interface MarkupProcessor {
 	 * @throws IOException
 	 */
 	String process(File inFile) throws IOException;
+
+	String getExtension();
 }

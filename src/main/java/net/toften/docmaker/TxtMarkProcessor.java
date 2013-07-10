@@ -22,4 +22,8 @@ public class TxtMarkProcessor implements MarkupProcessor {
 	public String process(File inFile) throws IOException {
 		return Processor.process(inFile, b.build());
 	}
+
+	public String getExtension() {
+		return "md";
+	}
 }
