@@ -17,20 +17,20 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 		this.mdProcessor = mdProcessor;
 	}
 
-	private String convertFile(String group, String fragment) throws IOException {
-		String inFileName = inputDir + File.separator + "sections" + File.separator + group + File.separator + fragment + ".md";
+	private String convertFile(String repo, String fragment) throws IOException {
+		String inFileName = inputDir + File.separator + "sections" + File.separator + repo + File.separator + fragment + ".md";
 		File inFile = new File(inFileName);
 
 		if (inFile.exists()) {
 			return mdProcessor.process(inFile);
 		} else {
-			throw new FileNotFoundException("Could not find input file: " + inFileName);
+			throw new FileNotFoundException("Could not find input file: " + inFile.getAbsolutePath().toString());
 		}
 	}
 
 	@Override
-	protected void addFile(FileWriter outFile, String sectionDir, String group, String fragment, int chapterLevel) throws IOException {
-		String asHtml = convertFile(group, fragment);
+	protected void addFile(FileWriter outFile, String sectionDir, String repo, String fragment, int chapterLevel) throws IOException {
+		String asHtml = convertFile(repo, fragment);
 
 		if (chapterLevel > 1) {
 			asHtml = replaceHTag(asHtml, chapterLevel - getCurrentSectionLevel());

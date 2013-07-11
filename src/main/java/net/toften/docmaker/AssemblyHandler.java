@@ -133,7 +133,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + currentFragmentName + "\">");
 
 					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), currentFragmentName, chapterLevel);
+					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("repo"), currentFragmentName, chapterLevel);
 					break;
 
 				case HEADER:
@@ -213,8 +213,8 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		return attr;
 	}
 
-	protected void addFile(FileWriter outFile, String sectionDir, String group, String fragment, int chapterLevel) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(sectionDir + File.separator + group + File.separator + fragment + ".html"));
+	protected void addFile(FileWriter outFile, String sectionDir, String repo, String fragment, int chapterLevel) throws IOException {
+		BufferedReader reader = new BufferedReader(new FileReader(sectionDir + File.separator + repo + File.separator + fragment + ".html"));
 
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
