@@ -40,9 +40,9 @@ public class DocMakerMojo extends AbstractMojo {
 	private String cssFilePath;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
-		File bd = new File(inputDir);
-		System.out.println(bd.isDirectory());
-		System.out.println(bd.getName());
+//		File bd = new File(inputDir);
+//		System.out.println(bd.isDirectory());
+//		System.out.println(bd.getName());
 
 		SAXParser p;
 		try {
@@ -55,7 +55,7 @@ public class DocMakerMojo extends AbstractMojo {
 
 		String outFileName = outputDir + "/" + outputFilename + ".html";
 		// TODO parameter for handler
-		AssemblyHandler ah = new AssemblyAndProcessHandler(inputDir, outputDir + "/sample", outFileName, markupProcessor);
+		AssemblyHandler ah = new AssemblyAndProcessHandler(outFileName, markupProcessor);
 		ah.insertCSSFile(cssFilePath);
 
 		new File(outputDir).mkdirs();

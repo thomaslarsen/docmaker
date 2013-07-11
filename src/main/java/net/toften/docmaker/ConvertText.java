@@ -8,12 +8,12 @@ import javax.xml.parsers.SAXParserFactory;
 
 public class ConvertText {
 	public static void main(String[] args) throws Exception {
-		String inputDir = "/Users/thomaslarsen/workspace/docmaker/src/test/resources/sample";
+//		String inputDir = "/Users/thomaslarsen/workspace/docmaker/src/test/resources/sample";
 		String outputDir = "/Users/thomaslarsen/workspace/docmaker/target/out";
 
-		File bd = new File(inputDir);
-		System.out.println(bd.isDirectory());
-		System.out.println(bd.getName());
+//		File bd = new File(inputDir);
+//		System.out.println(bd.isDirectory());
+//		System.out.println(bd.getName());
 
 		//convert(bd, outputDir);
 
@@ -24,7 +24,7 @@ public class ConvertText {
 		PegdownProcessor mdProcessor = new PegdownProcessor();
 
 		String outFileName = outputDir + "/out.html";
-		AssemblyAndProcessHandler ah = new AssemblyAndProcessHandler(inputDir, outputDir + "/sample", outFileName, mdProcessor);
+		AssemblyAndProcessHandler ah = new AssemblyAndProcessHandler(outFileName, mdProcessor);
 //		mdProcessor.setDecorator(new HDecorator(ah));
 		
 		p.parse(new File("/Users/thomaslarsen/workspace/docmaker/src/test/resources/doc.xml"), ah);

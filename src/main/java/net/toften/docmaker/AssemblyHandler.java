@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -36,7 +38,6 @@ import org.xml.sax.helpers.DefaultHandler;
  *
  */
 public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerCallback {
-	private String sectionDir;
 	private String resultFilename;
 	private FileWriter outFile;
 
@@ -48,9 +49,9 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 	
 	private Map<String, String> metaData = new HashMap<String, String>();
+	private Map<String, String> repos = new HashMap<String, String>();
 
-	public AssemblyHandler(String sectionsDir, String resultFilename) {
-		this.sectionDir = sectionsDir;
+	public AssemblyHandler(String resultFilename) {
 		this.resultFilename = resultFilename;
 	}
 
@@ -105,6 +106,10 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					outFile.write(dp.preElement());
 
 				switch (dp) {
+				case REPO:
+					repos.put(attributes.getValue("id"), attributes.getValue("uri"));
+					break;
+					
 				case SECTIONS:
 					outFile.write("<div class=\"metadata\">");
 					for (Map.Entry<String, String> m : metaData.entrySet()) {
@@ -133,7 +138,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + currentFragmentName + "\">");
 
 					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					addFile(outFile, sectionDir + File.separator + "sections", attributes.getValue("group"), currentFragmentName, chapterLevel);
+					addFile(outFile, attributes.getValue("repo"), currentFragmentName, chapterLevel);
 					break;
 
 				case HEADER:
@@ -164,6 +169,8 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 				}
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
+			} catch (URISyntaxException e) {
+				throw new SAXException("Creating URI for element " + qName + " failed", e);
 			}
 		}
 	}
@@ -213,8 +220,9 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		return attr;
 	}
 
-	protected void addFile(FileWriter outFile, String sectionDir, String group, String fragment, int chapterLevel) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(sectionDir + File.separator + group + File.separator + fragment + ".html"));
+	protected void addFile(FileWriter outFile, String repo, String fragment, int chapterLevel) throws IOException, URISyntaxException {
+		URI inFileURI = new URI(getRepo(repo) + File.separator + fragment + ".html");
+		BufferedReader reader = new BufferedReader(new FileReader(new File(inFileURI)));
 
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
@@ -228,6 +236,10 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		reader.close();
 	}
 
+	protected final String getRepo(String id) {
+		return repos.get(id);
+	}
+	
 	public static String replaceHTag(String line, int increment) {
 		// Only increase the level if greater than one
 		Matcher m = p.matcher(line);
