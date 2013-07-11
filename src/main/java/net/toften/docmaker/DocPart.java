@@ -5,6 +5,10 @@ import java.util.Map;
 
 public enum DocPart {
 	DOCUMENT ("document", null, null, false),
+	/**
+	 * This is the group of all the sections of the document.
+	 * We expect to have only one of those per TOC
+	 */
 	SECTIONS ("sections", "<body>", "</body>", false),
 	SECTION ("section", null, null, true),
 	CHAPTERS ("chapters", null, null, true),

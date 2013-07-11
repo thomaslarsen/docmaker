@@ -10,29 +10,21 @@ import java.net.URISyntaxException;
 public class AssemblyAndProcessHandler extends AssemblyHandler {
 	private MarkupProcessor mdProcessor;
 
-
-	public AssemblyAndProcessHandler(String resultFilename, MarkupProcessor mdProcessor) {
-		super(resultFilename);
+	public AssemblyAndProcessHandler(URI baseURI, String resultFilename, MarkupProcessor mdProcessor) {
+		super(baseURI, resultFilename);
 
 		this.mdProcessor = mdProcessor;
 	}
 
-	private String convertFile(String repo, String fragment) throws IOException, URISyntaxException {
-		URI inFileURI = new URI(getRepo(repo) + File.separator + fragment + "." + mdProcessor.getExtension());
-		System.out.println("parsing " + inFileURI.toString());
-		File inFile = new File(inFileURI);
+	@Override
+	protected void addFile(FileWriter outFile, URI fileURI, String fragment, int chapterLevel) throws IOException, URISyntaxException {
+		File inFile = new File(fileURI.resolve(fragment + "." + mdProcessor.getExtension()));
 
-		if (inFile.exists()) {
-			return mdProcessor.process(inFile);
-		} else {
+		if (!inFile.exists()) {
 			throw new FileNotFoundException("Could not find input file: " + inFile.getAbsolutePath().toString());
 		}
-	}
 
-	@Override
-	protected void addFile(FileWriter outFile, String repo, String fragment, int chapterLevel) throws IOException, URISyntaxException {
-		String asHtml = convertFile(repo, fragment);
-
+		String asHtml = mdProcessor.process(inFile);
 		if (chapterLevel > 1) {
 			asHtml = replaceHTag(asHtml, chapterLevel - getCurrentSectionLevel());
 		}

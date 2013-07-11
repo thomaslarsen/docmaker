@@ -47,11 +47,13 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	private String currentFragmentName;
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
-	
+
 	private Map<String, String> metaData = new HashMap<String, String>();
 	private Map<String, String> repos = new HashMap<String, String>();
+	private URI baseURI;
 
-	public AssemblyHandler(String resultFilename) {
+	public AssemblyHandler(URI baseURI, String resultFilename) {
+		this.baseURI = baseURI;
 		this.resultFilename = resultFilename;
 	}
 
@@ -107,38 +109,8 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 				switch (dp) {
 				case REPO:
+					// Add the fragment repo to the repo list
 					repos.put(attributes.getValue("id"), attributes.getValue("uri"));
-					break;
-					
-				case SECTIONS:
-					outFile.write("<div class=\"metadata\">");
-					for (Map.Entry<String, String> m : metaData.entrySet()) {
-						outFile.write("<div class=\"meta\" key=\"" + m.getKey() + "\">");
-						outFile.write(m.getValue());
-						outFile.write("</div>");
-					}
-					outFile.write("</div>");
-					break;
-					
-				case SECTION:
-					currentSectionName = attributes.getValue("title");
-					if (attributes.getValue("level") != null) {
-						currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-
-						outFile.write("<div class=\"section-header\" id=\"" + currentSectionName + "\">");
-					} else {
-						// When no level is specified, treat this as a metasection
-						outFile.write("<div class=\"meta-section\" id=\"" + currentSectionName + "\">");
-					}
-					break;
-
-				case CHAPTER:
-					currentFragmentName = attributes.getValue("fragment");
-					
-					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + currentFragmentName + "\">");
-
-					int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-					addFile(outFile, attributes.getValue("repo"), currentFragmentName, chapterLevel);
 					break;
 
 				case HEADER:
@@ -153,12 +125,62 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 				case META:
 					addElementAndAttributes(outFile, qName, attributes, null);
 					break;
-					
+
 				case PROPERTIY:
 					metaData.put(attributes.getValue("key"), attributes.getValue("value"));
 					break;
-					
+
+				case SECTIONS:
+					/*
+					 * Just before the fragments, we include a metadata section
+					 * This section will include all the metadata defined in the property section
+					 */
+					outFile.write("<div class=\"metadata\">");
+					for (Map.Entry<String, String> m : metaData.entrySet()) {
+						outFile.write("<div class=\"meta\" key=\"" + m.getKey() + "\">");
+						outFile.write(m.getValue());
+						outFile.write("</div>");
+					}
+					outFile.write("</div>");
+					break;
+
+				case SECTION:
+					currentSectionName = attributes.getValue("title");
+					/*
+					 * If the section does not have a level adjustment it will be treated
+					 * as a meta-section, which does not have any frament, but might
+					 * have elements
+					 */
+					if (attributes.getValue("level") != null) {
+						currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+
+						outFile.write("<div class=\"section-header\" id=\"" + currentSectionName + "\">");
+					} else {
+						// When no level is specified, treat this as a metasection
+						outFile.write("<div class=\"meta-section\" id=\"" + currentSectionName + "\">");
+					}
+					break;
+
+				case CHAPTER:
+					currentFragmentName = attributes.getValue("fragment");
+
+					outFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + currentFragmentName + "\">");
+
+					String repo = attributes.getValue("repo");
+					if (repos.containsKey(repo)) {
+						URI fileURI = baseURI.resolve(repos.get(repo));
+
+						int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
+						addFile(outFile, fileURI, currentFragmentName, chapterLevel);
+					} else {
+						throw new SAXException("Repo " + repo + " npt declared");
+					}
+					break;
+
 				case ELEMENT:
+					/*
+					 * An element is a div tag, that references a metadata key/value pair
+					 */
 					String key = attributes.getValue("key");
 					if (metaData.containsKey(key)) {
 						outFile.write("<div key=\"" + key + "\">");
@@ -174,8 +196,6 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 			}
 		}
 	}
-	
-	
 
 	@Override
 	public void endElement(String uri, String localName, String qName)
@@ -204,25 +224,25 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 	private Map<String, String> addElementAndAttributes(FileWriter outFile, String qName, Attributes attributes, String elementClassName) throws IOException {
 		Map<String, String> attr = new HashMap<String, String>();
-				
+
 		outFile.write("<" + qName);
 
 		if (elementClassName != null) 
 			outFile.write(" class=\"" + elementClassName + "\"");
-		
+
 		for (int i = 0; i < attributes.getLength(); i++) {
 			outFile.write(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
 			attr.put(attributes.getQName(i), attributes.getValue(i));
 		}
-		
+
 		outFile.write("/>");
-		
+
 		return attr;
 	}
 
-	protected void addFile(FileWriter outFile, String repo, String fragment, int chapterLevel) throws IOException, URISyntaxException {
-		URI inFileURI = new URI(getRepo(repo) + File.separator + fragment + ".html");
-		BufferedReader reader = new BufferedReader(new FileReader(new File(inFileURI)));
+	protected void addFile(FileWriter outFile, URI fileURI, String fragment, int chapterLevel) throws IOException, URISyntaxException {
+		File inFile = new File(fileURI.resolve(File.separator + fragment + ".html"));
+		BufferedReader reader = new BufferedReader(new FileReader(inFile));
 
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
@@ -239,7 +259,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	protected final String getRepo(String id) {
 		return repos.get(id);
 	}
-	
+
 	public static String replaceHTag(String line, int increment) {
 		// Only increase the level if greater than one
 		Matcher m = p.matcher(line);

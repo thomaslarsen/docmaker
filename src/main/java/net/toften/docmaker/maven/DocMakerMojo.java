@@ -1,6 +1,8 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -40,10 +42,6 @@ public class DocMakerMojo extends AbstractMojo {
 	private String cssFilePath;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
-//		File bd = new File(inputDir);
-//		System.out.println(bd.isDirectory());
-//		System.out.println(bd.getName());
-
 		SAXParser p;
 		try {
 			p = SAXParserFactory.newInstance().newSAXParser();
@@ -54,8 +52,16 @@ public class DocMakerMojo extends AbstractMojo {
 		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, processorClassname);
 
 		String outFileName = outputDir + "/" + outputFilename + ".html";
-		// TODO parameter for handler
-		AssemblyHandler ah = new AssemblyAndProcessHandler(outFileName, markupProcessor);
+		URI baseURI = null;
+		try {
+			baseURI = new URI("file://" + inputDir);
+		} catch (URISyntaxException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+
+		// TODO parameter for handler classname
+		AssemblyHandler ah = new AssemblyAndProcessHandler(baseURI, outFileName, markupProcessor);
 		ah.insertCSSFile(cssFilePath);
 
 		new File(outputDir).mkdirs();
