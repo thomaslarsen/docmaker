@@ -8,23 +8,29 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class AssemblyAndProcessHandler extends AssemblyHandler {
-	private MarkupProcessor mdProcessor;
+	private MarkupProcessor markupProcessor;
 
-	public AssemblyAndProcessHandler(URI baseURI, String resultFilename, MarkupProcessor mdProcessor) {
-		super(baseURI, resultFilename);
+	/**
+	 * @param baseURI the URI from which all relative repo paths will be calculated
+	 * @param htmlFilename
+	 * @param markupProcessor
+	 */
+	public AssemblyAndProcessHandler(URI baseURI, String htmlFilename, MarkupProcessor markupProcessor) {
+		super(baseURI, htmlFilename);
 
-		this.mdProcessor = mdProcessor;
+		this.markupProcessor = markupProcessor;
 	}
 
 	@Override
-	protected void addFile(FileWriter outFile, URI fileURI, String fragment, int chapterLevel) throws IOException, URISyntaxException {
-		File inFile = new File(fileURI.resolve(fragment + "." + mdProcessor.getExtension()));
+	protected void addFile(FileWriter outFile, URI repoURI, String fragment, int chapterLevel) throws IOException, URISyntaxException {
+		String markupFilename = fragment + "." + markupProcessor.getExtension();
+		File markupFile = new File(repoURI.resolve(markupFilename));
 
-		if (!inFile.exists()) {
-			throw new FileNotFoundException("Could not find input file: " + inFile.getAbsolutePath().toString());
+		if (!markupFile.exists()) {
+			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
 		}
 
-		String asHtml = mdProcessor.process(inFile);
+		String asHtml = markupProcessor.process(markupFile);
 		if (chapterLevel > 1) {
 			asHtml = replaceHTag(asHtml, chapterLevel - getCurrentSectionLevel());
 		}

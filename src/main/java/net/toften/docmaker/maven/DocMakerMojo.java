@@ -23,8 +23,8 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter ( defaultValue = "${basedir}/src/test/resources/doc.xml" )
 	private String toc;
 	
-	@Parameter ( defaultValue = "/Users/thomaslarsen/workspace/docmaker/src/test/resources/sample" )
-	private String inputDir;
+	@Parameter ( defaultValue = "file://${basedir}" )
+	private String fragmentURI;
 	
 	@Parameter ( defaultValue = "${project.build.directory}/out" )
 	private String outputDir;
@@ -42,6 +42,9 @@ public class DocMakerMojo extends AbstractMojo {
 	private String cssFilePath;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		// Create the path to the output dir if it doesn't exist
+		new File(outputDir).mkdirs();
+
 		SAXParser p;
 		try {
 			p = SAXParserFactory.newInstance().newSAXParser();
@@ -49,22 +52,23 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
+		// Validate the base URI
+		URI baseURI;
+		try {
+			baseURI = new URI(fragmentURI);
+		} catch (URISyntaxException e1) {
+			throw new MojoFailureException("Could not parse base URI", e1);
+		}
+		if (!baseURI.isAbsolute())
+			throw new MojoFailureException("Base URI is not absolute");
+		
 		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, processorClassname);
 
-		String outFileName = outputDir + "/" + outputFilename + ".html";
-		URI baseURI = null;
-		try {
-			baseURI = new URI("file://" + inputDir);
-		} catch (URISyntaxException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-
+		String htmlFileName = outputDir + File.separator + outputFilename + ".html";
+		
 		// TODO parameter for handler classname
-		AssemblyHandler ah = new AssemblyAndProcessHandler(baseURI, outFileName, markupProcessor);
+		AssemblyHandler ah = new AssemblyAndProcessHandler(baseURI, htmlFileName, markupProcessor);
 		ah.insertCSSFile(cssFilePath);
-
-		new File(outputDir).mkdirs();
 
 		try {
 			p.parse(new File(toc), ah);
@@ -74,7 +78,7 @@ public class DocMakerMojo extends AbstractMojo {
 		
 		PostProcessor pp = newInstance(PostProcessor.class, postProcessorClassname);
 		try {
-			pp.postProcess(new File(outFileName), outputDir + "/" + outputFilename + "." + pp.getFileExtension());
+			pp.postProcess(new File(htmlFileName), outputDir + "/" + outputFilename + "." + pp.getFileExtension());
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not post process file", e);
 		}
