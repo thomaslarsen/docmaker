@@ -20,13 +20,13 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 @Mojo ( name = "docmaker" )
 public class DocMakerMojo extends AbstractMojo {
-	@Parameter ( defaultValue = "${basedir}/src/test/resources/doc.xml" )
+	@Parameter (required = true )
 	private String toc;
 	
 	@Parameter ( defaultValue = "file://${basedir}" )
 	private String fragmentURI;
 	
-	@Parameter ( defaultValue = "${project.build.directory}/out" )
+	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )
 	private String outputDir;
 	
 	@Parameter ( defaultValue = "out" )
