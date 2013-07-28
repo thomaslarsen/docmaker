@@ -52,13 +52,38 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	private Map<String, String> repos = new HashMap<String, String>();
 	private URI baseURI;
 
+	/**
+	 * @param baseURI the URI from which all relative repo paths will be calculated
+	 * @param htmlFilename the name of the assembled output file
+	 */
 	public AssemblyHandler(URI baseURI, String htmlFilename) {
 		this.baseURI = baseURI;
 		this.htmlFilename = htmlFilename;
 	}
 
 	public void insertCSSFile(String path) {
+		// TODO ability to add multiple CSS files
 		this.cssFilePath = path;
+	}
+	
+	public int getCurrentSectionLevel() {
+		return currentSectionLevel;
+	}
+
+	public String getCurrentSectionName() {
+		return currentSectionName;
+	}
+
+	public void setBaseURI(URI baseURI) {
+		this.baseURI = baseURI;
+	}
+	
+	public void setHtmlFilename(String htmlFilename) {
+		this.htmlFilename = htmlFilename;
+	}
+	
+	protected FileWriter getHtmlFile() {
+		return htmlFile;
 	}
 
 	@Override
@@ -174,7 +199,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 						}
 
 						int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-						addFile(htmlFile, repoURI, currentFragmentName, chapterLevel);
+						addFile(repoURI, currentFragmentName, chapterLevel);
 					} else {
 						throw new SAXException("Repo " + repo + " not declared");
 					}
@@ -244,30 +269,29 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	}
 
 	/**
-	 * @param outFile
 	 * @param repoURI the URI of the repo where the fragment to add is located
-	 * @param fragment
-	 * @param chapterLevel
+	 * @param fragmentName the name of the fragment to add
+	 * @param chapterLevelOffset the chapter level offset to apply to the fragment
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected void addFile(FileWriter outFile, URI repoURI, String fragment, int chapterLevel) throws IOException, URISyntaxException {
-		File inFile = new File(repoURI.resolve(File.separator + fragment + ".html"));
+	protected void addFile(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+		File inFile = new File(repoURI.resolve(File.separator + fragmentName + ".html"));
 		BufferedReader reader = new BufferedReader(new FileReader(inFile));
 
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
-			if (chapterLevel > 1) {
-				line = replaceHTag(line, chapterLevel - currentSectionLevel);
+			if (chapterLevelOffset > 1) {
+				line = replaceHTag(line, chapterLevelOffset - getCurrentSectionLevel());
 			}
 
-			outFile.write(line);
+			htmlFile.write(line);
 		}
 
 		reader.close();
 	}
 
-	protected final String getRepo(String id) {
+	protected final String getRepoURI(String id) {
 		return repos.get(id);
 	}
 
@@ -282,13 +306,5 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		m.appendTail(sb);
 
 		return sb.toString();
-	}
-
-	public int getCurrentSectionLevel() {
-		return currentSectionLevel;
-	}
-
-	public String getCurrentSectionName() {
-		return currentSectionName;
 	}
 }
