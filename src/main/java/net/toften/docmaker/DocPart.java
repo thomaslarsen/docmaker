@@ -16,7 +16,7 @@ public enum DocPart {
 	LINK ("link", null, null, false),
 	HEADER ("header", "<head>", "</head>", false), 
 	META ("meta", null, null, false),
-	PROPERTIY ("property", null, null, false),
+	PROPERTY ("property", null, null, false),
 	ELEMENT ("element", null, null, true),
 	REPO ("repo", null, null, false),
 	;

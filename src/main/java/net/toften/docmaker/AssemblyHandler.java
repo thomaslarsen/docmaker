@@ -153,7 +153,7 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					addElementAndAttributes(htmlFile, qName, attributes, null);
 					break;
 
-				case PROPERTIY:
+				case PROPERTY:
 					metaData.put(attributes.getValue("key"), attributes.getValue("value"));
 					break;
 
