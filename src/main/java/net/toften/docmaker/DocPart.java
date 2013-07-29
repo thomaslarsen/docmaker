@@ -4,33 +4,31 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum DocPart {
-	DOCUMENT ("document", null, null, false),
+	DOCUMENT ("document", null, false),
 	/**
 	 * This is the group of all the sections of the document.
 	 * We expect to have only one of those per TOC
 	 */
-	SECTIONS ("sections", "<body>", "</body>", false),
-	SECTION ("section", null, null, true),
-	CHAPTERS ("chapters", null, null, true),
-	CHAPTER ("chapter", null, null, false), 
-	LINK ("link", null, null, false),
-	HEADER ("header", "<head>", "</head>", false), 
-	META ("meta", null, null, false),
-	PROPERTY ("property", null, null, false),
-	ELEMENT ("element", null, null, true),
-	REPO ("repo", null, null, false),
+	SECTIONS ("sections", "body", false),
+	SECTION ("section", null, true),
+	CHAPTERS ("chapters", null, true),
+	CHAPTER ("chapter", null, false), 
+	LINK ("link", null, false),
+	HEADER ("header", "head", false), 
+	META ("meta", null, false),
+	PROPERTY ("property", null, false),
+	ELEMENT ("element", null, true),
+	REPO ("repo", null, false),
 	;
 	
 	private String name;
-	private String preElement;
-	private String postElement;
+	private String tag;
 	private boolean writeDiv;
 	private static Map<String, DocPart> lookup;
 
-	private DocPart(String name, String preElement, String postElement, boolean writeDiv) {
+	private DocPart(String name, String tag, boolean writeDiv) {
 		this.name = name;
-		this.preElement = preElement;
-		this.postElement = postElement;
+		this.tag = tag;
 		this.writeDiv = writeDiv;
 	}
 
@@ -47,25 +45,25 @@ public enum DocPart {
 	}
 
 	public String preElement() {
-		return concat(writeDiv ? "<div class=\"" + name + "\">" : null, preElement);
+		return concat(writeDiv ? "<div class=\"" + name + "\">" : null, tag, "");
 	}
 
 	public String postElement() {
-		return concat(writeDiv ? "</div>" : null, postElement);
+		return concat(writeDiv ? "</div>" : null, tag, "/");
 	}
 	
-	private String concat(String s1, String s2) {
-		if (s1 == null) {
-			if (s2 == null) {
+	private String concat(String div, String tag, String postElement) {
+		if (div == null) {
+			if (tag == null) {
 				return null;
 			} else {
-				return s2;
+				return "<" + postElement + tag + ">";
 			}
 		} else {
-			if (s2 == null) {
-				return s1;
+			if (tag == null) {
+				return div;
 			} else {
-				return s1 + s2;
+				return div + "<" + postElement + tag + ">";
 			}
 		}
 	}
