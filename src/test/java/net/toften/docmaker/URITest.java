@@ -101,4 +101,13 @@ public class URITest {
 		assertNull(cUri.getAuthority());
 		assertEquals("/docs/guide/collections/designfaq.html", cUri.getPath());
 	}
+
+	@Test
+	public void testRegex() {
+		String regexString = "[.][^.]+$";
+		
+		assertEquals("test", "test.xml".replaceFirst(regexString, ""));
+		assertEquals("test", "test".replaceFirst(regexString, ""));
+		assertEquals("test.2", "test.2.xml".replaceFirst(regexString, ""));
+	}
 }
