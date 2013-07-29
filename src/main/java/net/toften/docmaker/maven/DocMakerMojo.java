@@ -23,14 +23,14 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter (required = true )
 	private String toc;
 	
+	@Parameter ( defaultValue = "xml" )
+	private String tocFileExt;
+	
 	@Parameter ( defaultValue = "file://${basedir}" )
 	private String fragmentURI;
 	
 	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )
 	private String outputDir;
-	
-	@Parameter ( defaultValue = "out" )
-	private String outputFilename;
 	
 	@Parameter (defaultValue = "net.toften.docmaker.PegdownProcessor" )
 	private String processorClassname;
@@ -45,13 +45,6 @@ public class DocMakerMojo extends AbstractMojo {
 		// Create the path to the output dir if it doesn't exist
 		new File(outputDir).mkdirs();
 
-		SAXParser p;
-		try {
-			p = SAXParserFactory.newInstance().newSAXParser();
-		} catch (Exception e) {
-			throw new MojoExecutionException("Can not create SAX parser", e);
-		}
-		
 		// Validate the base URI
 		URI baseURI;
 		try {
@@ -62,25 +55,48 @@ public class DocMakerMojo extends AbstractMojo {
 		if (!baseURI.isAbsolute())
 			throw new MojoFailureException("Base URI is not absolute");
 		
+		// Create the SAX parser
+		SAXParser p;
+		try {
+			p = SAXParserFactory.newInstance().newSAXParser();
+		} catch (Exception e) {
+			throw new MojoExecutionException("Can not create SAX parser", e);
+		}
+		
 		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, processorClassname);
+		PostProcessor postProcessor = newInstance(PostProcessor.class, postProcessorClassname);
+		
+		File tocFile = new File(toc);
+		
+		if (tocFile.isFile() && tocFile.getName().endsWith(tocFileExt)) {
+			parseAndProcessFile(tocFile, p, baseURI, markupProcessor, postProcessor);
+		} else if (tocFile.isDirectory()) {
+			for (File f : tocFile.listFiles()) {
+				if (f.isFile() && f.getName().endsWith(tocFileExt))
+					parseAndProcessFile(f, p, baseURI, markupProcessor, postProcessor);
+			}
+		}
+	}
 
+	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, PostProcessor postProcessor) throws MojoExecutionException {
+		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
 		String htmlFileName = outputDir + File.separator + outputFilename + ".html";
+		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
 		
 		// TODO parameter for handler classname
 		AssemblyHandler ah = new AssemblyAndProcessHandler(baseURI, htmlFileName, markupProcessor);
 		ah.insertCSSFile(cssFilePath);
 
 		try {
-			p.parse(new File(toc), ah);
+			p.parse(tocFile, ah);
 		} catch (Exception e) {
-			throw new MojoExecutionException("Could not parse file", e);
+			throw new MojoExecutionException("Could not parse file " + tocFile.getAbsolutePath(), e);
 		}
 		
-		PostProcessor pp = newInstance(PostProcessor.class, postProcessorClassname);
 		try {
-			pp.postProcess(new File(htmlFileName), outputDir + "/" + outputFilename + "." + pp.getFileExtension());
+			postProcessor.postProcess(new File(htmlFileName), processedFilename);
 		} catch (Exception e) {
-			throw new MojoExecutionException("Could not post process file", e);
+			throw new MojoExecutionException("Could not post process file " + tocFile.getAbsolutePath(), e);
 		}
 	}
 	
