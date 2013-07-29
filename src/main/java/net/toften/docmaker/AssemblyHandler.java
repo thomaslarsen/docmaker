@@ -140,6 +140,8 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 				case HEADER:
 					htmlFile.write("<title>" + attributes.getValue("title") + "</title>");
+					
+					// Also add the title to the meta data elements
 					metaData.put("title", attributes.getValue("title"));
 					if (cssFilePath != null) {
 						htmlFile.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssFilePath + "\" />");
@@ -198,8 +200,8 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 							repoURI = baseURI.resolve(repoURI);
 						}
 
-						int chapterLevel = attributes.getValue("level") == null ? currentSectionLevel : Integer.valueOf(attributes.getValue("level"));
-						addFile(repoURI, currentFragmentName, chapterLevel);
+						int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
+						addFragment(repoURI, currentFragmentName, chapterLevelOffset);
 					} else {
 						throw new SAXException("Repo " + repo + " not declared");
 					}
@@ -232,9 +234,6 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 		if (dp != null) {
 			try {
-				if (dp.postElement() != null)
-					htmlFile.write(dp.postElement());
-
 				switch (dp) {
 				case CHAPTER:
 				case SECTION:
@@ -244,6 +243,9 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 				default:
 					break;
 				}
+
+				if (dp.postElement() != null)
+					htmlFile.write(dp.postElement());
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}
@@ -271,18 +273,18 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	/**
 	 * @param repoURI the URI of the repo where the fragment to add is located
 	 * @param fragmentName the name of the fragment to add
-	 * @param chapterLevelOffset the chapter level offset to apply to the fragment
+	 * @param chapterLevelOffset the chapter level offset to apply to the fragment. This will be added to the {@link #getCurrentSectionLevel() current section level}
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected void addFile(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected void addFragment(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		File inFile = new File(repoURI.resolve(File.separator + fragmentName + ".html"));
 		BufferedReader reader = new BufferedReader(new FileReader(inFile));
 
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
-			if (chapterLevelOffset > 1) {
-				line = replaceHTag(line, chapterLevelOffset - getCurrentSectionLevel());
+			if (chapterLevelOffset > 0) {
+				line = incrementHTag(line, chapterLevelOffset);
 			}
 
 			htmlFile.write(line);
@@ -295,7 +297,17 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		return repos.get(id);
 	}
 
-	public static String replaceHTag(String line, int increment) {
+	/**
+	 * Increment the HTML <code>Hx</code> tag.
+	 * <p>
+	 * The Hx tag will be incremented with the amount of the <code>increment</code> parameter.
+	 * If the line contains more than one Hx tag, they will all be incremented.
+	 * 
+	 * @param line the line if HTML (potentially) with Hx tag(s)
+	 * @param increment the number to increment the Hx tag with
+	 * @return
+	 */
+	public static String incrementHTag(String line, int increment) {
 		// Only increase the level if greater than one
 		Matcher m = p.matcher(line);
 		StringBuffer sb = new StringBuffer();

@@ -25,7 +25,7 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 	}
 
 	@Override
-	protected void addFile(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected void addFragment(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		String markupFilename = fragmentName + "." + markupProcessor.getExtension();
 		File markupFile = new File(repoURI.resolve(markupFilename));
 
@@ -34,8 +34,8 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 		}
 
 		String asHtml = markupProcessor.process(markupFile);
-		if (chapterLevelOffset > 1) {
-			asHtml = replaceHTag(asHtml, chapterLevelOffset - getCurrentSectionLevel());
+		if (chapterLevelOffset > 0) {
+			asHtml = incrementHTag(asHtml, chapterLevelOffset);
 		}
 
 		getHtmlFile().write(asHtml);
