@@ -4,10 +4,14 @@
 	<artifactId>docmaker</artifactId>
 	<version>0.0.3-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
+	
+	<name>docmaker</name>
 
 	<description>
 		Maven plugin to generate a PDF document from a set of Markdown text snippets
 	</description>
+	
+	<url>https://bitbucket.org/toften/docmaker</url>
 
 	<inceptionYear>2013</inceptionYear>
 
