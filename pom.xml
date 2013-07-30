@@ -11,6 +11,22 @@
 	</description>
 
 	<inceptionYear>2013</inceptionYear>
+	
+	<scm>
+		<connection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</connection>
+		<developerConnection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</developerConnection>
+		<url>https://bitbucket.org/toften/docmaker</url>
+	</scm>
+	
+	<ciManagement>
+		<system>Jenkins</system>
+		<url>http://host.brightmatter.net:8090/job/docmaker/</url>
+	</ciManagement>
+	
+	<issueManagement>
+		<system>Bitbucket</system>
+		<url>https://bitbucket.org/toften/docmaker/issues</url>
+	</issueManagement>
 
 	<dependencies>
 		<dependency>
@@ -80,4 +96,14 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<reporting>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<version>3.2</version>
+			</plugin>
+		</plugins>
+	</reporting>
 </project>
