@@ -11,22 +11,42 @@
 	</description>
 
 	<inceptionYear>2013</inceptionYear>
-	
+
+	<licenses>
+		<license>
+			<name>GNU Library or Lesser General Public License (LGPL)</name>
+			<url>http://www.gnu.org/licenses/lgpl.html</url>
+		</license>
+	</licenses>
+
 	<scm>
 		<connection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</developerConnection>
 		<url>https://bitbucket.org/toften/docmaker</url>
 	</scm>
-	
+
 	<ciManagement>
 		<system>Jenkins</system>
 		<url>http://host.brightmatter.net:8090/job/docmaker/</url>
 	</ciManagement>
-	
+
 	<issueManagement>
 		<system>Bitbucket</system>
 		<url>https://bitbucket.org/toften/docmaker/issues</url>
 	</issueManagement>
+
+	<distributionManagement>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<name></name>
+			<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<name></name>
+			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
