@@ -11,8 +11,6 @@
 
 		<menu name="The TOC">
 			<item name="TOC overview" href="toc.html" />
-			<item name="Site Descriptor"
-				href="../../doxia/doxia-sitetools/doxia-decoration-model/decoration.html" />
 		</menu>
 		
 		<menu name="CSS tips">
@@ -25,16 +23,13 @@
 		</menu>
 
 		<menu name="Examples">
-			<item name="Creating Content" href="/examples/creating-content.html" />
-			<item name="Configuring the Site Descriptor" href="/examples/sitedescriptor.html" />
-			<item name="Building a multi-module site" href="/examples/multimodule.html" />
-			<item name="Configuring Reports" href="/examples/configuring-reports.html" />
-			<item name="Configuring Site Run" href="/examples/siterun.html" />
-			<item name="Adding a Protocol to Deploy the Site" href="/examples/adding-deploy-protocol.html" />
-			<item name="Changing the Template File" href="/examples/templatefile.html" />
-			<item name="Creating Skins" href="/examples/creatingskins.html" />
-			<item name="Excluding Document Formats" href="/examples/moduleexcludes.html" />
-			<item name="Deploying to sourceforge.net" href="/examples/site-deploy-to-sourceforge.net.html" />
+			<item name="Page footer" href="/examples/bottom_running_header.html" />
+			<item name="Section title page" href="/examples/section_title_page.html" />
+			<item name="Page break between section" href="/examples/section_pagebreak.html" />
+			<item name="Adding a front page" href="/examples/add_frontpage.html" />
+			<item name="Hide properties" href="/examples/hide_properties.html" />
 		</menu>
+		
+		<menu ref="reports" />
 	</body>
 </project>
