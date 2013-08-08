@@ -9,8 +9,8 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.toften.docmaker.AssemblyAndProcessHandler;
 import net.toften.docmaker.AssemblyHandler;
-import net.toften.docmaker.MarkupProcessor;
-import net.toften.docmaker.PostProcessor;
+import net.toften.docmaker.markup.MarkupProcessor;
+import net.toften.docmaker.output.OutputProcessor;
 
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -32,11 +32,11 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )
 	private String outputDir;
 	
-	@Parameter (defaultValue = "net.toften.docmaker.PegdownProcessor" )
-	private String processorClassname;
+	@Parameter (defaultValue = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor" )
+	private String markupProcessorClassname;
 	
-	@Parameter ( defaultValue = "net.toften.docmaker.PDFPostProcessor" )
-	private String postProcessorClassname;
+	@Parameter ( defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor" )
+	private String outputProcessorClassname;
 	
 	@Parameter
 	private String cssFilePath;
@@ -63,8 +63,8 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
-		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, processorClassname);
-		PostProcessor postProcessor = newInstance(PostProcessor.class, postProcessorClassname);
+		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
+		OutputProcessor postProcessor = newInstance(OutputProcessor.class, outputProcessorClassname);
 		
 		File tocFile = new File(toc);
 		
@@ -78,7 +78,7 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 	}
 
-	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, PostProcessor postProcessor) throws MojoExecutionException {
+	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, OutputProcessor postProcessor) throws MojoExecutionException {
 		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
 		String htmlFileName = outputDir + File.separator + outputFilename + ".html";
 		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
@@ -94,7 +94,7 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 		
 		try {
-			postProcessor.postProcess(new File(htmlFileName), processedFilename);
+			postProcessor.process(new File(htmlFileName), processedFilename);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not post process file " + tocFile.getAbsolutePath(), e);
 		}

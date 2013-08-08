@@ -1,4 +1,6 @@
-package net.toften.docmaker;
+package net.toften.docmaker.markup.markdown.txtmark;
+
+import net.toften.docmaker.ProcessorHandlerCallback;
 
 import com.github.rjeschke.txtmark.DefaultDecorator;
 

@@ -1,8 +1,10 @@
-package net.toften.docmaker;
+package net.toften.docmaker.markup.markdown.pegdown;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Scanner;
+
+import net.toften.docmaker.markup.MarkupProcessor;
 
 import org.pegdown.Extensions;
 import org.pegdown.PegDownProcessor;

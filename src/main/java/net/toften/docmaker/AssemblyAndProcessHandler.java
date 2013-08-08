@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import net.toften.docmaker.markup.MarkupProcessor;
+
 public class AssemblyAndProcessHandler extends AssemblyHandler {
 	private MarkupProcessor markupProcessor;
 

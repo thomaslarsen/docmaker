@@ -1,7 +1,9 @@
-package net.toften.docmaker;
+package net.toften.docmaker.markup.markdown.txtmark;
 
 import java.io.File;
 import java.io.IOException;
+
+import net.toften.docmaker.markup.MarkupProcessor;
 
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Decorator;

@@ -1,13 +1,15 @@
-package net.toften.docmaker;
+package net.toften.docmaker.output.pdf.flyingsaucer;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 
+import net.toften.docmaker.output.OutputProcessor;
+
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
-public class PDFPostProcessor implements PostProcessor {
-	public void postProcess(File inFile, String outFileName) throws Exception {
+public class FlyingSaucerOutputProcessor implements OutputProcessor {
+	public void process(File inFile, String outFileName) throws Exception {
 		if (!inFile.exists())
 			throw new IllegalArgumentException("Input file " + inFile.getName() + " can not be found");
 	    OutputStream os = new FileOutputStream(outFileName);
