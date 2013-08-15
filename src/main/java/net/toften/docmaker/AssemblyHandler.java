@@ -57,6 +57,9 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	 * @param htmlFilename the name of the assembled output file
 	 */
 	public AssemblyHandler(URI baseURI, String htmlFilename) {
+		if (!baseURI.isAbsolute())
+			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
+		
 		this.baseURI = baseURI;
 		this.htmlFilename = htmlFilename;
 	}
@@ -195,9 +198,14 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 					String repo = attributes.getValue("repo");
 					if (repos.containsKey(repo)) {
-						URI repoURI = new URI(repos.get(repo));
+						String repoURIPath = repos.get(repo);
+						URI repoURI = new URI(repoURIPath);
 						if (!repoURI.isAbsolute()) {
 							repoURI = baseURI.resolve(repoURI);
+						} else System.out.println("REPO URI IS ABSOLUTE!!!!");
+						
+						if (!repoURI.isAbsolute()) {
+							throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
 						}
 
 						int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));

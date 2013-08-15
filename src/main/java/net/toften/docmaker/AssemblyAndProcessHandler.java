@@ -28,8 +28,11 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 
 	@Override
 	protected void addFragment(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
-		String markupFilename = fragmentName + "." + markupProcessor.getExtension();
-		File markupFile = new File(repoURI.resolve(markupFilename));
+		if (!repoURI.isAbsolute())
+			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
+		
+		URI markupFilenameURI = new URI(fragmentName + "." + markupProcessor.getExtension());
+		File markupFile = new File(repoURI.resolve(markupFilenameURI));
 
 		if (!markupFile.exists()) {
 			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
