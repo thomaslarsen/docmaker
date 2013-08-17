@@ -29,7 +29,7 @@ The TOC structure is:
 				
 				<element key=".." />
 			</section>
-			<section ..>
+			<section>
 				..
 			</section>
 		</sections>
@@ -48,7 +48,25 @@ A repository reference contains the following attributes:
 
 A property is a key/value pair that can be injected into the generated document using an `element` element inside the `chapters` or `chapter` elements.
 
-### Elements
+## Sections
+
+A sections is used for logically separating a document into a number of parts. Each section will contain a number of chapters which defines the content of the section (included fragments). It might also contain a number of elements, which references a previously defined property.
+
+A `section` has the following attributes:
+
+* **title** which is injected into the generated document
+* **level** which is used to rebase all `<h>` tags in the included fragments
+
+In the generated document, a section will be preceded with the following HTML:
+
+	<div class="section">
+		<div class="section-header id="*title*">
+		
+## Chapters
+
+Chapters are
+
+## Elements
 
 Injecting a property will result in the following HTML being generated:
 
@@ -59,24 +77,3 @@ Injecting a property will result in the following HTML being generated:
 	</div>
 	
 Elements are useful in connection with document metadata or document styling.
-
-## Sections
-
-A sections is used for logically separating a document into a number of parts. Each section will contain a number of chapters which defines the content of the section (included fragments). It might also contain a number of elements, which references a previously defined property.
-
-A `section` has the following attributes:
-
-* **title** which is injected into the generated document
-* **level** which is used to rebase all `<h>` tags in the included fragments
-
-In the generated document, a section will be preceded with the following `div`-tags:
-
-	<div class="section">
-		<div class="section-header id="*title*">
-		..
-		
-## Chapters
-
-The chapters of a section references fragments in the defined repositories. The `chapters` element will have one or more `chapter` sub-elements.
-
-

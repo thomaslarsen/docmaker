@@ -8,20 +8,15 @@ import java.net.URISyntaxException;
 
 import net.toften.docmaker.markup.MarkupProcessor;
 
-public class AssemblyAndProcessHandler extends AssemblyHandler {
+public class AssemblyAndProcessHandler extends AbstractAssemblyHandler {
 	private MarkupProcessor markupProcessor;
 
-	/**
+	/*
 	 * @param baseURI the URI from which all relative repo paths will be calculated
 	 * @param htmlFilename the name of the assembled output file
 	 * @param markupProcessor the markup processor to use to process each element file
 	 * @throws IOException 
 	 */
-	public AssemblyAndProcessHandler(URI baseURI, String htmlFilename, MarkupProcessor markupProcessor) throws IOException {
-		super(baseURI, htmlFilename);
-
-		this.markupProcessor = markupProcessor;
-	}
 	
 	public void setMarkupProcessor(MarkupProcessor markupProcessor) {
 		this.markupProcessor = markupProcessor;
@@ -29,8 +24,11 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 
 	@Override
 	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
-		String markupFilename = fragmentName + "." + markupProcessor.getExtension();
-		File markupFile = new File(repoURI.resolve(markupFilename));
+		if (!repoURI.isAbsolute())
+			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
+		
+		URI markupFilenameURI = new URI(fragmentName + "." + markupProcessor.getExtension());
+		File markupFile = new File(repoURI.resolve(markupFilenameURI));
 
 		if (!markupFile.exists()) {
 			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());

@@ -1,12 +1,13 @@
 package net.toften.docmaker;
 
-import java.io.IOException;
 
-public interface ProcessorHandlerCallback {
+public interface ProcessorHandlerCallback extends OutputFileHandler {
 
 	String getCurrentSectionName();
 	
 	int getCurrentSectionLevel();
 
-	void writeToOutputFile(String text) throws IOException;
+	String getCurrentFragmentName();
+	
+	String getDocumentTitle();
 }

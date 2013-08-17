@@ -8,7 +8,6 @@ import java.net.URISyntaxException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import net.toften.docmaker.AssemblyAndProcessHandler;
 import net.toften.docmaker.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.output.OutputProcessor;
@@ -38,6 +37,9 @@ public class DocMakerMojo extends AbstractMojo {
 	
 	@Parameter ( defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor" )
 	private String outputProcessorClassname;
+	
+	@Parameter ( defaultValue = "net.toften.docmaker.AssemblyAndProcessHandler" )
+	private String assemblyHandlerClassname;
 	
 	@Parameter
 	private String cssFilePath;
@@ -87,14 +89,17 @@ public class DocMakerMojo extends AbstractMojo {
 		// TODO parameter for handler classname
 		AssemblyHandler ah;
 		try {
-			ah = new AssemblyAndProcessHandler(baseURI, htmlFileName, markupProcessor);
+			ah = newInstance(AssemblyHandler.class, assemblyHandlerClassname);
+			ah.setBaseURI(baseURI);
+			ah.init(htmlFileName);
+			ah.setMarkupProcessor(markupProcessor);
 		} catch (IOException e) {
 			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
 		}
 		ah.insertCSSFile(cssFilePath);
 
 		try {
-			p.parse(tocFile, ah);
+			ah.parse(p, tocFile);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not parse file " + tocFile.getAbsolutePath(), e);
 		}

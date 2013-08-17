@@ -6,15 +6,15 @@ Docmaker is made up of a number of elements:
 
 * The **document** it the generated document, usually a PDF but can be other formats
 * A **fragment** is a part of one or more *documents*
-* The **TOC** is an XML file that describes the structure of the *document*
+* The **TOC** is an XML file that describes the *fragments* in the *document*
 * The styling of the *document* is described in a **CSS** document
 
 ## Why
 
-The motivation for creating docmaker was a need to create a number of PDF files as part of a deliverables for a product, where some sections were reused across a number of the files.
+The motivation for creating docmaker was a need to create a number of PDF documents as part of a deliverables for a product, where some sections were reused across a number of the documents.
 It also needed to be easy to maintain the various parts of the final PDF documents.
 
-The drivers for creating docmaker is based on the needs of a project I was working on. I needed to fulfil the following requirements:
+I needed to fulfil the following requirements:
 
 * Use of a markup language (e.g. Markdown) as the fragment format
 * Separation of contents and layout (using CSS)
@@ -41,4 +41,4 @@ Any `<h>` sections in the fragment HTML file will be normalised, i.e. they will 
 
 ## Assembling the fragments
 
-The [TOC](#toc.html) describes which 
+The [TOC](toc.html) describes which 
