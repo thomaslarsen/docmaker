@@ -1,6 +1,7 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -84,7 +85,12 @@ public class DocMakerMojo extends AbstractMojo {
 		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
 		
 		// TODO parameter for handler classname
-		AssemblyHandler ah = new AssemblyAndProcessHandler(baseURI, htmlFileName, markupProcessor);
+		AssemblyHandler ah;
+		try {
+			ah = new AssemblyAndProcessHandler(baseURI, htmlFileName, markupProcessor);
+		} catch (IOException e) {
+			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
+		}
 		ah.insertCSSFile(cssFilePath);
 
 		try {

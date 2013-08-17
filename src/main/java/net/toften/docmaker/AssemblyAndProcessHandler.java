@@ -15,8 +15,9 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 	 * @param baseURI the URI from which all relative repo paths will be calculated
 	 * @param htmlFilename the name of the assembled output file
 	 * @param markupProcessor the markup processor to use to process each element file
+	 * @throws IOException 
 	 */
-	public AssemblyAndProcessHandler(URI baseURI, String htmlFilename, MarkupProcessor markupProcessor) {
+	public AssemblyAndProcessHandler(URI baseURI, String htmlFilename, MarkupProcessor markupProcessor) throws IOException {
 		super(baseURI, htmlFilename);
 
 		this.markupProcessor = markupProcessor;
@@ -27,7 +28,7 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 	}
 
 	@Override
-	protected void addFragment(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		String markupFilename = fragmentName + "." + markupProcessor.getExtension();
 		File markupFile = new File(repoURI.resolve(markupFilename));
 
@@ -40,6 +41,6 @@ public class AssemblyAndProcessHandler extends AssemblyHandler {
 			asHtml = incrementHTag(asHtml, chapterLevelOffset);
 		}
 
-		getHtmlFile().write(asHtml);
+		return asHtml;
 	}
 }

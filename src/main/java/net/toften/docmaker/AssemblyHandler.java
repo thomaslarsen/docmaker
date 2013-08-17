@@ -37,8 +37,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author thomaslarsen
  *
  */
-public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerCallback {
-	private String htmlFilename;
+public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerCallback, DocPartCallback {
 	private FileWriter htmlFile;
 
 	private int currentSectionLevel;
@@ -52,20 +51,24 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	private Map<String, String> repos = new HashMap<String, String>();
 	private URI baseURI;
 
+	private String documentTitle;
+
 	/**
 	 * @param baseURI the URI from which all relative repo paths will be calculated
 	 * @param htmlFilename the name of the assembled output file
+	 * @throws IOException 
 	 */
-	public AssemblyHandler(URI baseURI, String htmlFilename) {
+	public AssemblyHandler(URI baseURI, String htmlFilename) throws IOException {
 		this.baseURI = baseURI;
-		this.htmlFilename = htmlFilename;
+
+		htmlFile = new FileWriter(htmlFilename);
 	}
 
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
 		this.cssFilePath = path;
 	}
-	
+
 	public int getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
@@ -74,42 +77,25 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		return currentSectionName;
 	}
 
+	public String getDocumentTitle() {
+		return documentTitle;
+	}
+
+	public String getCurrentFragmentName() {
+		return currentFragmentName;
+	}
+
 	public void setBaseURI(URI baseURI) {
 		this.baseURI = baseURI;
 	}
-	
-	public void setHtmlFilename(String htmlFilename) {
-		this.htmlFilename = htmlFilename;
-	}
-	
-	protected FileWriter getHtmlFile() {
-		return htmlFile;
-	}
 
-	@Override
-	public void startDocument() throws SAXException {
-		try {
-			htmlFile = new FileWriter(htmlFilename);
-		} catch (IOException e) {
-			throw new SAXException("Outfile could not be created", e);
-		}
-
-		try {
-			htmlFile.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-			htmlFile.write("<html xmlns=\"http://www.w3.org/1999/xhtml\">");
-		} catch (IOException e) {
-			throw new SAXException("Outfile could not be initialised", e);
-		}
+	public void writeToOutputFile(String text) throws IOException {
+		if (text != null)
+			htmlFile.write(text);
 	}
 
 	@Override
 	public void endDocument() throws SAXException {
-		try {
-			htmlFile.write("</html>");
-		} catch (IOException e) {
-			throw new SAXException("Outfile could not be initialised", e);
-		}
-
 		try {
 			htmlFile.flush();
 		} catch (IOException e) {
@@ -123,14 +109,49 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		}
 	}
 
+	public String[][] getPreElementAttributes(DocPart dp, Attributes attributes) {
+		String[][] a = null;
+
+		switch (dp) {
+		case CHAPTER:
+			currentFragmentName = attributes.getValue("fragment");
+
+			a = new String[][] { { "class", "chapter" }, { "id", getCurrentSectionName() + "-" + getCurrentFragmentName() } };
+			break;
+
+		case SECTION:
+			currentSectionName = attributes.getValue("title");
+
+			if (attributes.getValue("level") != null) {
+				currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+
+				a = new String[][] { { "class", "section-header" }, { "id", getCurrentSectionName() } };
+			} else {
+				// When no level is specified, treat this as a metasection
+				a = new String[][] { { "class", "meta-section" }, { "id", getCurrentSectionName() } };
+			}
+			
+		case ELEMENT:
+			String key = attributes.getValue("key");
+			if (metaData.containsKey(key)) {
+				a = new String[][] { { "key", key } };
+			}
+			break;
+
+		default:
+			break;
+		}
+
+		return a;
+	}
+
 	@Override
 	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 		DocPart dp = DocPart.valueOfString(qName);
 
 		if (dp != null) {
 			try {
-				if (dp.preElement() != null)
-					htmlFile.write(dp.preElement());
+				writeToOutputFile(dp.preElement(this, attributes));
 
 				switch (dp) {
 				case REPO:
@@ -139,72 +160,26 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					break;
 
 				case HEADER:
-					htmlFile.write("<title>" + attributes.getValue("title") + "</title>");
-					
+					documentTitle = attributes.getValue("title");
+
+					writeToOutputFile(getTitleElement(getDocumentTitle()));
+
 					// Also add the title to the meta data elements
-					metaData.put("title", attributes.getValue("title"));
+					metaData.put("title", getDocumentTitle());
+
+					// Add the CSS file
 					if (cssFilePath != null) {
-						htmlFile.write("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssFilePath + "\" />");
+						writeToOutputFile("<link rel=\"stylesheet\" type=\"text/css\" href=\"" + cssFilePath + "\" />");
 					}
 					break;
 
 				case LINK:
 				case META:
-					addElementAndAttributes(htmlFile, qName, attributes, null);
+					addElementAndAttributes(qName, attributes, null);
 					break;
 
 				case PROPERTY:
 					metaData.put(attributes.getValue("key"), attributes.getValue("value"));
-					break;
-
-				case SECTIONS:
-					/*
-					 * Just before the fragments, we include a metadata section
-					 * This section will include all the metadata defined in the property section
-					 */
-					htmlFile.write("<div class=\"metadata\">");
-					for (Map.Entry<String, String> m : metaData.entrySet()) {
-						htmlFile.write("<div class=\"meta\" key=\"" + m.getKey() + "\">");
-						htmlFile.write(m.getValue());
-						htmlFile.write("</div>");
-					}
-					htmlFile.write("</div>");
-					break;
-
-				case SECTION:
-					currentSectionName = attributes.getValue("title");
-					/*
-					 * If the section does not have a level adjustment it will be treated
-					 * as a meta-section, which does not have any frament, but might
-					 * have elements
-					 */
-					if (attributes.getValue("level") != null) {
-						currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-
-						htmlFile.write("<div class=\"section-header\" id=\"" + currentSectionName + "\">");
-					} else {
-						// When no level is specified, treat this as a metasection
-						htmlFile.write("<div class=\"meta-section\" id=\"" + currentSectionName + "\">");
-					}
-					break;
-
-				case CHAPTER:
-					currentFragmentName = attributes.getValue("fragment");
-
-					htmlFile.write("<div class=\"chapter\" id=\"" + currentSectionName + "-" + currentFragmentName + "\">");
-
-					String repo = attributes.getValue("repo");
-					if (repos.containsKey(repo)) {
-						URI repoURI = new URI(repos.get(repo));
-						if (!repoURI.isAbsolute()) {
-							repoURI = baseURI.resolve(repoURI);
-						}
-
-						int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
-						addFragment(repoURI, currentFragmentName, chapterLevelOffset);
-					} else {
-						throw new SAXException("Repo " + repo + " not declared");
-					}
 					break;
 
 				case ELEMENT:
@@ -213,9 +188,30 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 					 */
 					String key = attributes.getValue("key");
 					if (metaData.containsKey(key)) {
-						htmlFile.write("<div key=\"" + key + "\">");
-						htmlFile.write(metaData.get(key));
-						htmlFile.write("</div>");
+						writeToOutputFile(metaData.get(key));
+					}
+					break;
+
+				case SECTIONS:
+					/*
+					 * Just before the fragments, we include a metadata section
+					 * This section will include all the metadata defined in the property section
+					 */
+					writeMetadataSection();
+					break;
+
+				case CHAPTER:
+					String repo = attributes.getValue("repo");
+					if (repos.containsKey(repo)) {
+						URI repoURI = new URI(repos.get(repo));
+						if (!repoURI.isAbsolute()) {
+							repoURI = baseURI.resolve(repoURI);
+						}
+
+						int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
+						writeToOutputFile(getFragmentAsHTML(repoURI, getCurrentFragmentName(), chapterLevelOffset));
+					} else {
+						throw new SAXException("Repo " + repo + " not declared");
 					}
 					break;
 				}
@@ -227,6 +223,20 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 		}
 	}
 
+	protected void writeMetadataSection() throws IOException {
+		writeToOutputFile("<div class=\"metadata\">");
+		for (Map.Entry<String, String> m : metaData.entrySet()) {
+			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey() + "\">");
+			writeToOutputFile(m.getValue());
+			writeToOutputFile("</div>");
+		}
+		writeToOutputFile("</div>");
+	}
+
+	private String getTitleElement(String value) {
+		return "<title>" + value + "</title>";
+	}
+
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
@@ -234,38 +244,27 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 
 		if (dp != null) {
 			try {
-				switch (dp) {
-				case CHAPTER:
-				case SECTION:
-					htmlFile.write("</div>");
-					break;
-
-				default:
-					break;
-				}
-
-				if (dp.postElement() != null)
-					htmlFile.write(dp.postElement());
+				writeToOutputFile(dp.postElement());
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}
 		}	
 	}
 
-	private Map<String, String> addElementAndAttributes(FileWriter outFile, String qName, Attributes attributes, String elementClassName) throws IOException {
+	private Map<String, String> addElementAndAttributes(String qName, Attributes attributes, String elementClassName) throws IOException {
 		Map<String, String> attr = new HashMap<String, String>();
 
-		outFile.write("<" + qName);
+		writeToOutputFile("<" + qName);
 
 		if (elementClassName != null) 
-			outFile.write(" class=\"" + elementClassName + "\"");
+			writeToOutputFile(" class=\"" + elementClassName + "\"");
 
 		for (int i = 0; i < attributes.getLength(); i++) {
-			outFile.write(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
+			writeToOutputFile(" " + attributes.getQName(i) + "=\"" + attributes.getValue(i) + "\"");
 			attr.put(attributes.getQName(i), attributes.getValue(i));
 		}
 
-		outFile.write("/>");
+		writeToOutputFile("/>");
 
 		return attr;
 	}
@@ -277,20 +276,23 @@ public class AssemblyHandler extends DefaultHandler implements ProcessorHandlerC
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected void addFragment(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		File inFile = new File(repoURI.resolve(File.separator + fragmentName + ".html"));
 		BufferedReader reader = new BufferedReader(new FileReader(inFile));
 
+		StringBuffer asHTML = new StringBuffer();
 		String line;
 		while( ( line = reader.readLine() ) != null ) {
 			if (chapterLevelOffset > 0) {
 				line = incrementHTag(line, chapterLevelOffset);
 			}
 
-			htmlFile.write(line);
+			asHTML.append(line);
 		}
 
 		reader.close();
+
+		return asHTML.toString();
 	}
 
 	protected final String getRepoURI(String id) {
