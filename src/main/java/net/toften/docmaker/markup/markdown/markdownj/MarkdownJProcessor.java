@@ -14,7 +14,7 @@ public class MarkdownJProcessor implements MarkupProcessor {
 		return new MarkdownProcessor().markdown(new Scanner(inFile).useDelimiter("\\A").next());
 	}
 
-	public String getExtension() {
+	public String getFileExtension() {
 		return "md";
 	}
 }

@@ -15,7 +15,7 @@ public class PegdownProcessor implements MarkupProcessor {
 		return new PegDownProcessor(Extensions.TABLES).markdownToHtml(new Scanner(file).useDelimiter("\\A").next());
 	}
 
-	public String getExtension() {
+	public String getFileExtension() {
 		return "md";
 	}
 }

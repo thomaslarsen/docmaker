@@ -54,28 +54,47 @@ public enum DocPart {
 		return lookup.get(qName);
 	}
 
+	/**
+	 * The default pre element method will insert a <div> tag with the doc part
+	 * as the class. For example the SECTION will insert:
+	 * <pre>
+	 * 	<div class="section">
+	 * </pre>
+	 * 
+	 * @return
+	 * 
+	 * @see #writeDiv
+	 */
 	public String preElement() {
 		return concat(writeDiv ? "<div class=\"" + name + "\">" : null, tag, "");
 	}
 
 	public String preElement(DocPartCallback c, Attributes a) {
-		String divTag = null;
 
 		if (writeDiv) {
 			String[][] e = c.getPreElementAttributes(this, a);
 
 			if (e != null) {
-				divTag = "<div";
-				for (String[] ee : e) {
-					divTag += " " + ee[0];
-					divTag += "=\"" + ee[1] + "\"";
-				}
-
-				divTag +=">";
+				return preElement(e);
 			} else
 				return preElement();
 		}
+		
+		return null;
+	}
+	
+	public String preElement(String[][] e) {
+		String divTag = null;
+		if (e != null) {
+			divTag = "<div";
+			for (String[] ee : e) {
+				divTag += " " + ee[0];
+				divTag += "=\"" + ee[1] + "\"";
+			}
 
+			divTag +=">";
+		}
+		
 		return concat(divTag, tag, "");
 	}
 

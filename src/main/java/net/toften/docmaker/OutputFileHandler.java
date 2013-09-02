@@ -22,4 +22,6 @@ public interface OutputFileHandler {
 	void init(String filename) throws IOException;
 	
 	void close() throws IOException;
+	
+	String getFileExtension();
 }

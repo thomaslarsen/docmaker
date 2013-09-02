@@ -83,13 +83,13 @@ public class DocMakerMojo extends AbstractMojo {
 
 	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, OutputProcessor postProcessor) throws MojoExecutionException {
 		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
-		String htmlFileName = outputDir + File.separator + outputFilename + ".html";
 		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
 		
-		// TODO parameter for handler classname
 		AssemblyHandler ah;
+		String htmlFileName;
 		try {
 			ah = newInstance(AssemblyHandler.class, assemblyHandlerClassname);
+			htmlFileName = outputDir + File.separator + outputFilename + "." + ah.getFileExtension();
 			ah.setBaseURI(baseURI);
 			ah.init(htmlFileName);
 			ah.setMarkupProcessor(markupProcessor);

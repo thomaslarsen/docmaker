@@ -11,13 +11,6 @@ import net.toften.docmaker.markup.MarkupProcessor;
 public class AssemblyAndProcessHandler extends AbstractAssemblyHandler {
 	private MarkupProcessor markupProcessor;
 
-	/*
-	 * @param baseURI the URI from which all relative repo paths will be calculated
-	 * @param htmlFilename the name of the assembled output file
-	 * @param markupProcessor the markup processor to use to process each element file
-	 * @throws IOException 
-	 */
-	
 	public void setMarkupProcessor(MarkupProcessor markupProcessor) {
 		this.markupProcessor = markupProcessor;
 	}
@@ -27,7 +20,7 @@ public class AssemblyAndProcessHandler extends AbstractAssemblyHandler {
 		if (!repoURI.isAbsolute())
 			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
 		
-		URI markupFilenameURI = new URI(fragmentName + "." + markupProcessor.getExtension());
+		URI markupFilenameURI = new URI(fragmentName + "." + markupProcessor.getFileExtension());
 		File markupFile = new File(repoURI.resolve(markupFilenameURI));
 
 		if (!markupFile.exists()) {

@@ -25,5 +25,5 @@ public interface MarkupProcessor {
 	/**
 	 * @return the extension of the markup file
 	 */
-	String getExtension();
+	String getFileExtension();
 }
