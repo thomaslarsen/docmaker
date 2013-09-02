@@ -47,7 +47,8 @@ DefaultHandler
 implements 
 ProcessorHandlerCallback, 
 DocPartCallback,
-OutputFileHandler, AssemblyHandler {
+OutputFileHandler, 
+AssemblyHandler {
 	private FileWriter htmlFile;
 
 	private Integer currentSectionLevel;
@@ -68,9 +69,6 @@ OutputFileHandler, AssemblyHandler {
 		parser.parse(tocFile, this);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.toften.docmaker.AssemblyHandler#setMarkupProcessor(net.toften.docmaker.markup.MarkupProcessor)
-	 */
 	public abstract void setMarkupProcessor(MarkupProcessor markupProcessor);
 
 	public void init(String filename) throws IOException {
@@ -89,18 +87,16 @@ OutputFileHandler, AssemblyHandler {
 		if (text != null)
 			htmlFile.write(text);
 	}
+	
+	public String getFileExtension() {
+		return "html";
+	}
 
-	/* (non-Javadoc)
-	 * @see net.toften.docmaker.AssemblyHandler#insertCSSFile(java.lang.String)
-	 */
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
 		this.cssFilePath = path;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.toften.docmaker.AssemblyHandler#setBaseURI(java.net.URI)
-	 */
 	public void setBaseURI(URI baseURI) {
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
