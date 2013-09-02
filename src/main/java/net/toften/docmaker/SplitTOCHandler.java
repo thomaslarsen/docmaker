@@ -25,9 +25,14 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 
 	public class Section {
 		private LinkedList<Chapter> chapters = new LinkedList<Chapter>();
+		private String sectionName;
+		private Integer sectionLevel;
 
-		public Section(String currentSectionName, int currentSectionLevel) {
+		public Section(String sectionName, Integer sectionLevel) {
 			sections.add(this);
+			
+			this.sectionName = sectionName;
+			this.sectionLevel = sectionLevel;
 		}
 
 		public void addChapter(String fragmentName, int chapterLevelOffset, String fragmentAsHtml) {
@@ -53,7 +58,9 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	}
 	
 	@Override
-	protected void handleSectionElement(Attributes attributes) {
+	protected void handleSectionElement(Attributes attributes) throws IOException {
+		super.handleSectionElement(attributes);
+		
 		currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
 	}
 	
@@ -93,11 +100,20 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 			// Sections
 			for (Section s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
-				for (Chapter c : s.chapters) {
-					writeToOutputFile(DocPart.CHAPTER.preElement());
-					writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.fragmentAsHtml, c.chapterLevelOffset));
-					writeToOutputFile(DocPart.CHAPTER.postElement());
+				if (s.sectionLevel == null) {
+					// Meta section
+					writeMetaSectionDivOpenTag(s.sectionName);
+				} else {
+					writeStandardSectionDivOpenTag(s.sectionName);
+					for (Chapter c : s.chapters) {
+						writeToOutputFile(DocPart.CHAPTER.preElement());
+						writeChapterDivOpenTag(s.sectionName, c.fragmentName);
+						writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.fragmentAsHtml, c.chapterLevelOffset));
+						writeDivCloseTag();
+						writeToOutputFile(DocPart.CHAPTER.postElement());
+					}
 				}
+				writeDivCloseTag();
 				writeToOutputFile(DocPart.SECTION.postElement());
 			}
 			

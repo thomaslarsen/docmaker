@@ -50,7 +50,7 @@ DocPartCallback,
 OutputFileHandler, AssemblyHandler {
 	private FileWriter htmlFile;
 
-	private int currentSectionLevel;
+	private Integer currentSectionLevel;
 	private String currentSectionName;
 	private String cssFilePath;
 	private String currentFragmentName;
@@ -108,7 +108,7 @@ OutputFileHandler, AssemblyHandler {
 		this.baseURI = baseURI;
 	}
 
-	public int getCurrentSectionLevel() {
+	public Integer getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
 
@@ -149,10 +149,9 @@ OutputFileHandler, AssemblyHandler {
 
 		case SECTION:
 			currentSectionName = attributes.getValue("title");
+			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
 
-			if (attributes.getValue("level") != null) {
-				currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-
+			if (currentSectionLevel != null) {
 				a = new String[][] { { "class", "section-header" }, { "id", getCurrentSectionName() } };
 			} else {
 				// When no level is specified, treat this as a metasection
@@ -179,7 +178,7 @@ OutputFileHandler, AssemblyHandler {
 
 		if (dp != null) {
 			try {
-				writeToOutputFile(dp.preElement(this, attributes));
+				writeToOutputFile(dp.preElement());
 
 				switch (dp) {
 				case REPO:
@@ -226,9 +225,16 @@ OutputFileHandler, AssemblyHandler {
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
 		DocPart dp = DocPart.valueOfString(qName);
-
+		
 		if (dp != null) {
 			try {
+				switch (dp) {
+				case SECTION:
+				case CHAPTER:
+					writeDivCloseTag();
+					break;
+				}
+
 				writeToOutputFile(dp.postElement());
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
@@ -236,12 +242,29 @@ OutputFileHandler, AssemblyHandler {
 		}	
 	}
 
-	protected void handleSectionElement(Attributes attributes) {
+	protected void handleSectionElement(Attributes attributes) throws IOException {
+		currentSectionName = attributes.getValue("title");
+		if (attributes.getValue("level") == null)
+			currentSectionLevel = null;
+		else
+			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+
+		if (getCurrentSectionLevel() != null) {
+			writeStandardSectionDivOpenTag(getCurrentSectionName());
+		} else {
+			// When no level is specified, treat this as a metasection
+			writeMetaSectionDivOpenTag(getCurrentSectionName());
+		}
 	}
 
 	protected void handleChapterElement(Attributes attributes) throws URISyntaxException, SAXException, IOException {
+		currentFragmentName = attributes.getValue("fragment");
+
 		String repo = attributes.getValue("repo");
 		if (repos.containsKey(repo)) {
+			// Write the chapter div tag
+			writeChapterDivOpenTag(getCurrentSectionName(), getCurrentFragmentName());
+
 			String repoURIPath = repos.get(repo);
 			URI repoURI = new URI(repoURIPath);
 			if (!repoURI.isAbsolute()) {
@@ -254,6 +277,7 @@ OutputFileHandler, AssemblyHandler {
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
 			String htmlFragment = getFragmentAsHTML(repoURI, getCurrentFragmentName(), chapterLevelOffset);
+			
 			writeToOutputFile(htmlFragment);
 		} else {
 			throw new SAXException("Repo " + repo + " not declared");
@@ -274,7 +298,9 @@ OutputFileHandler, AssemblyHandler {
 		 */
 		String key = attributes.getValue("key");
 		if (metaData.containsKey(key)) {
+			writeToOutputFile("<div key=\"" + key + "\">");
 			writeToOutputFile(metaData.get(key));
+			writeDivCloseTag();
 		}
 	}
 
@@ -329,6 +355,25 @@ OutputFileHandler, AssemblyHandler {
 		writeToOutputFile("</div>");
 	}
 
+	protected void writeChapterDivOpenTag(String sectionName, String fragmentName) throws IOException {
+		writeDivOpenTag("chapter", sectionName + "-" + fragmentName);
+	}
+	
+	protected void writeMetaSectionDivOpenTag(String sectionName) throws IOException {
+		writeDivOpenTag("meta-section", sectionName);
+	}
+	
+	protected void writeStandardSectionDivOpenTag(String sectionName) throws IOException {
+		writeDivOpenTag("section-header", sectionName);
+	}
+
+	protected void writeDivOpenTag(String divClass, String divId) throws IOException {
+		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\">");
+	}
+
+	protected void writeDivCloseTag() throws IOException {
+		writeToOutputFile("</div>");
+	}
 	/**
 	 * @param repoURI the URI of the repo where the fragment to add is located
 	 * @param fragmentName the name of the fragment to add

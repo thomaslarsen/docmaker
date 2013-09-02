@@ -5,7 +5,7 @@ public interface ProcessorHandlerCallback extends OutputFileHandler {
 
 	String getCurrentSectionName();
 	
-	int getCurrentSectionLevel();
+	Integer getCurrentSectionLevel();
 
 	String getCurrentFragmentName();
 	
