@@ -25,6 +25,7 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 
 	public class Section {
 		private LinkedList<Chapter> chapters = new LinkedList<Chapter>();
+		private LinkedList<String[]> elements = new LinkedList<String[]>();
 		private String sectionName;
 		private Integer sectionLevel;
 
@@ -37,6 +38,10 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 
 		public void addChapter(String fragmentName, int chapterLevelOffset, String fragmentAsHtml) {
 			chapters.add(new Chapter(fragmentName, chapterLevelOffset, fragmentAsHtml));
+		}
+
+		public void addElement(String key, String value) {
+			elements.add(new String[] { key, value });
 		}
 	}
 
@@ -62,6 +67,17 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 		super.handleSectionElement(attributes);
 		
 		currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
+	}
+	
+	@Override
+	protected void handleElementElement(Attributes attributes)
+			throws IOException {
+		super.handleElementElement(attributes);
+		
+		String key = attributes.getValue("key");
+		if (metaData.containsKey(key)) {
+			currentSection.addElement(key, metaData.get(key));
+		}
 	}
 	
 	@Override
@@ -103,8 +119,12 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 				if (s.sectionLevel == null) {
 					// Meta section
 					writeMetaSectionDivOpenTag(s.sectionName);
+					for (String[] e : s.elements) {
+						writeElement(e[0], e[1]);
+					}
 				} else {
 					writeStandardSectionDivOpenTag(s.sectionName);
+					writeToOutputFile(DocPart.CHAPTERS.preElement());
 					for (Chapter c : s.chapters) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
 						writeChapterDivOpenTag(s.sectionName, c.fragmentName);
@@ -112,6 +132,7 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 						writeDivCloseTag();
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}
+					writeDivCloseTag();
 				}
 				writeDivCloseTag();
 				writeToOutputFile(DocPart.SECTION.postElement());

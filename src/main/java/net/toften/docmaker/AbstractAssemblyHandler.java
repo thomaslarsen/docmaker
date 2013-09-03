@@ -58,7 +58,7 @@ AssemblyHandler {
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
-	private Map<String, String> metaData = new HashMap<String, String>();
+	protected Map<String, String> metaData = new HashMap<String, String>();
 	private Map<String, String> repos = new HashMap<String, String>();
 	private URI baseURI;
 
@@ -200,6 +200,7 @@ AssemblyHandler {
 					
 				case SECTION:
 					handleSectionElement(attributes);
+					break;
 
 				case SECTIONS:
 					handleSectionsElement(attributes);
@@ -294,9 +295,7 @@ AssemblyHandler {
 		 */
 		String key = attributes.getValue("key");
 		if (metaData.containsKey(key)) {
-			writeToOutputFile("<div key=\"" + key + "\">");
-			writeToOutputFile(metaData.get(key));
-			writeDivCloseTag();
+			writeElement(key, metaData.get(key));
 		}
 	}
 
@@ -349,6 +348,12 @@ AssemblyHandler {
 			writeToOutputFile("</div>");
 		}
 		writeToOutputFile("</div>");
+	}
+	
+	protected void writeElement(String key, String value) throws IOException {
+		writeToOutputFile("<div key=\"" + key + "\">");
+		writeToOutputFile(value);
+		writeDivCloseTag();
 	}
 
 	protected void writeChapterDivOpenTag(String sectionName, String fragmentName) throws IOException {
