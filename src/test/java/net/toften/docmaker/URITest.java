@@ -47,7 +47,7 @@ public class URITest {
 	
 	@Test
 	public void testWindowsAbsoluteURI() throws URISyntaxException, UnsupportedEncodingException {
-		String winURI = "/c:\\Douments\\File\\";
+		String winURI = "/c:\\Documents\\File\\";
 		
 		String absURI = URLEncoder.encode(winURI, "UTF-8");
 		
@@ -62,7 +62,7 @@ public class URITest {
 	@Test
 	public void testWindowsAssembledURI() throws URISyntaxException {
 		String scheme = "file";
-		String winURI = "/c:\\Douments\\File\\";
+		String winURI = "/c:\\Documents\\File\\";
 		
 		URI uri = new URI(scheme, winURI, null);
 		assertTrue(uri.isAbsolute());
@@ -72,12 +72,15 @@ public class URITest {
 		assertEquals(winURI, uri.getPath());
 	}
 
-//	@Test
+	@Test
 	public void testCompoundWindowsURI() throws URISyntaxException, UnsupportedEncodingException {
 		String scheme = "file";
-		String winURI = "/c:\\Douments\\File\\";
+		String winURI = "/c:\\Documents\\File\\";
 		String relURI = "collections/designfaq.html";
 
+		// Convert "\" in URI to "/" to support Windows paths
+		winURI = winURI.replace('\\', '/');
+		
 		URI aUri = new URI(scheme, winURI, null);
 		//URI aUri = new URI(scheme, URLEncoder.encode(winURI, "UTF-8"), null);
 		URI rUri = new URI(relURI);
@@ -115,7 +118,7 @@ public class URITest {
 		assertEquals(scheme, cUri.getScheme());
 		assertNull(cUri.getFragment());
 		assertNull(cUri.getAuthority());
-		assertEquals("/docs/guide/collections/designfaq.html", cUri.getPath());
+		assertEquals(winURI + relURI, cUri.getPath());
 	}
 
 	@Test

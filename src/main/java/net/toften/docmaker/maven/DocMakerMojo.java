@@ -48,6 +48,9 @@ public class DocMakerMojo extends AbstractMojo {
 		// Create the path to the output dir if it doesn't exist
 		new File(outputDir).mkdirs();
 
+		// Convert "\" in URI to "/" to support Windows paths
+		fragmentURI = fragmentURI.replace('\\', '/');
+
 		// Validate the base URI
 		URI baseURI;
 		try {
@@ -55,6 +58,9 @@ public class DocMakerMojo extends AbstractMojo {
 		} catch (URISyntaxException e1) {
 			throw new MojoFailureException("Could not parse base URI", e1);
 		}
+		
+		getLog().info("Base URI is: " + baseURI.toString());
+		
 		if (!baseURI.isAbsolute())
 			throw new MojoFailureException("Base URI is not absolute");
 		
