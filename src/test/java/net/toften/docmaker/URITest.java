@@ -85,19 +85,46 @@ public class URITest {
 		//URI aUri = new URI(scheme, URLEncoder.encode(winURI, "UTF-8"), null);
 		URI rUri = new URI(relURI);
 		//URI rUri = new URI(URLEncoder.encode(relURI, "UTF-8"));
+		assertEquals(winURI, aUri.getPath());
+		assertEquals(relURI, rUri.getPath());
+
+		URI cUri = checkWindowsCompound(scheme, aUri, rUri);
+		assertEquals(winURI + relURI, cUri.getPath());
+	}
+
+	@Test
+	public void testCompoundWindowsURI2() throws URISyntaxException, UnsupportedEncodingException {
+		String scheme = "file";
+		String winURI = "/c:\\Documents\\File\\";
+		String relURI = "collections/designfaq.html";
+
+		// Convert "\" in URI to "/" to support Windows paths
+		winURI = winURI.replace('\\', '/');
+		
+		URI aUri = new URI(scheme + "://" + winURI);
+		//URI aUri = new URI(scheme, URLEncoder.encode(winURI, "UTF-8"), null);
+		URI rUri = new URI(relURI);
+		//URI rUri = new URI(URLEncoder.encode(relURI, "UTF-8"));
+		assertEquals(winURI, aUri.getPath());
+		assertEquals(relURI, rUri.getPath());
+
+		URI cUri = checkWindowsCompound(scheme, aUri, rUri);
+		
+		assertEquals(winURI + relURI, cUri.getPath());
+	}
+
+	private URI checkWindowsCompound(String scheme, URI aUri, URI rUri) {
 		assertTrue(aUri.isAbsolute());
 		assertFalse(aUri.isOpaque());
 		assertNull(aUri.getAuthority());
 		assertEquals(scheme, aUri.getScheme());
 		assertNull(aUri.getFragment());
-		assertEquals(winURI, aUri.getPath());
 		
 		assertFalse(rUri.isAbsolute());
 		assertFalse(rUri.isOpaque());
 		assertNull(rUri.getAuthority());
 		assertNull(rUri.getScheme());
 		assertNull(rUri.getFragment());
-		assertEquals(relURI, rUri.getPath());
 		
 		/*
 		 * 	Otherwise this method constructs a new hierarchical URI in a manner consistent with RFC 2396, section 5.2; that is: 
@@ -118,7 +145,7 @@ public class URITest {
 		assertEquals(scheme, cUri.getScheme());
 		assertNull(cUri.getFragment());
 		assertNull(cUri.getAuthority());
-		assertEquals(winURI + relURI, cUri.getPath());
+		return cUri;
 	}
 
 	@Test

@@ -26,7 +26,7 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter ( defaultValue = "xml" )
 	private String tocFileExt;
 	
-	@Parameter ( defaultValue = "file://${basedir}" )
+	@Parameter ( defaultValue = "file:///${basedir}/" )
 	private String fragmentURI;
 	
 	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )

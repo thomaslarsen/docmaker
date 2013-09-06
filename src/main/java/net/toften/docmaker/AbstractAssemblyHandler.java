@@ -59,7 +59,7 @@ AssemblyHandler {
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
 	protected Map<String, String> metaData = new HashMap<String, String>();
-	private Map<String, String> repos = new HashMap<String, String>();
+	private Map<String, URI> repos = new HashMap<String, URI>();
 	private URI baseURI;
 
 	private String documentTitle;
@@ -94,7 +94,7 @@ AssemblyHandler {
 
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
-		this.cssFilePath = path;
+		this.cssFilePath = path.replace('\\', '/');
 	}
 
 	public void setBaseURI(URI baseURI) {
@@ -262,18 +262,8 @@ AssemblyHandler {
 			// Write the chapter div tag
 			writeChapterDivOpenTag(getCurrentSectionName(), getCurrentFragmentName());
 
-			String repoURIPath = repos.get(repo);
-			URI repoURI = new URI(repoURIPath);
-			if (!repoURI.isAbsolute()) {
-				repoURI = baseURI.resolve(repoURI);
-			} else System.out.println("REPO URI IS ABSOLUTE!!!!");
-
-			if (!repoURI.isAbsolute()) {
-				throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
-			}
-
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
-			String htmlFragment = getFragmentAsHTML(repoURI, getCurrentFragmentName(), chapterLevelOffset);
+			String htmlFragment = getFragmentAsHTML(repos.get(repo), getCurrentFragmentName(), chapterLevelOffset);
 			
 			writeToOutputFile(htmlFragment);
 		} else {
@@ -325,9 +315,28 @@ AssemblyHandler {
 		writeCSSElement();
 	}
 
-	protected void handleRepoElement(Attributes attributes) {
+	protected void handleRepoElement(Attributes attributes) throws URISyntaxException, SAXException {
 		// Add the fragment repo to the repo list
-		repos.put(attributes.getValue("id"), attributes.getValue("uri"));
+		String repoId = attributes.getValue("id");
+		String repoURIPath = attributes.getValue("uri");
+		
+		if (!repos.containsKey(repoId)) {
+			URI repoURI = new URI(repoURIPath);
+			if (!repoURI.isAbsolute()) {
+				repoURI = baseURI.resolve(repoURI);
+			} else 
+				System.out.println("REPO URI IS ABSOLUTE!!!!");
+	
+			if (!repoURI.isAbsolute()) {
+				throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
+			}
+	
+			if (repoURI.getAuthority() != null) {
+				throw new SAXException("Repo URI " + repoURI.toString() + " has an authority (" + repoURI.getAuthority() + "), given " + repoURIPath);
+			}
+	
+			repos.put(repoId, repoURI);
+		}
 	}
 
 	protected void writeCSSElement() throws IOException {
