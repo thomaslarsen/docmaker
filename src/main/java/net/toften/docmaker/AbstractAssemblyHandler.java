@@ -38,6 +38,9 @@ import org.xml.sax.helpers.DefaultHandler;
  * Note, that this class expects the section fragments to have already been converted 
  * into HTML
  * 
+ * <h2>Chapter offset</h2>
+ * 
+ * 
  * @author thomaslarsen
  *
  */
@@ -55,6 +58,7 @@ AssemblyHandler {
 	private String currentSectionName;
 	private String cssFilePath;
 	private String currentFragmentName;
+	private String tocFileName;
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
@@ -64,8 +68,10 @@ AssemblyHandler {
 
 	private String documentTitle;
 
+	private String currentRepoName;
 
 	public void parse(SAXParser parser, File tocFile) throws SAXException, IOException {
+		tocFileName = tocFile.getName().replaceFirst("[.][^.]+$", "");
 		parser.parse(tocFile, this);
 	}
 	
@@ -115,9 +121,17 @@ AssemblyHandler {
 	public String getCurrentFragmentName() {
 		return currentFragmentName;
 	}
+	
+	public String getCurrentRepoName() {
+		return currentRepoName;
+	}
 
 	public String getDocumentTitle() {
 		return documentTitle;
+	}
+	
+	public String getTocFileName() {
+		return tocFileName;
 	}
 
 	protected String getCssFilePath() {
@@ -140,7 +154,7 @@ AssemblyHandler {
 		case CHAPTER:
 			currentFragmentName = attributes.getValue("fragment");
 
-			a = new String[][] { { "class", "chapter" }, { "id", getCurrentSectionName() + "-" + getCurrentFragmentName() } };
+			a = new String[][] { { "class", "chapter" }, { "id", (tocFileName + "-" + getCurrentSectionName() + "-" + getCurrentFragmentName()).toLowerCase().replace(' ', '-') } };
 			break;
 
 		case SECTION:
@@ -148,7 +162,7 @@ AssemblyHandler {
 			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
 
 			if (currentSectionLevel != null) {
-				a = new String[][] { { "class", "section-header" }, { "id", getCurrentSectionName() } };
+				a = new String[][] { { "class", "section-header" }, { "id", (tocFileName + "-" + getCurrentSectionName()).toLowerCase().replace(' ', '-') } };
 			} else {
 				// When no level is specified, treat this as a metasection
 				a = new String[][] { { "class", "meta-section" }, { "id", getCurrentSectionName() } };
@@ -246,28 +260,28 @@ AssemblyHandler {
 		else
 			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
 
-		if (getCurrentSectionLevel() != null) {
-			writeStandardSectionDivOpenTag(getCurrentSectionName());
+		if (currentSectionLevel != null) {
+			writeStandardSectionDivOpenTag(currentSectionName);
 		} else {
-			// When no level is specified, treat this as a metasection
-			writeMetaSectionDivOpenTag(getCurrentSectionName());
+			// When no level is specified, treat this as a meta-section
+			writeMetaSectionDivOpenTag(currentSectionName);
 		}
 	}
 
 	protected void handleChapterElement(Attributes attributes) throws URISyntaxException, SAXException, IOException {
 		currentFragmentName = attributes.getValue("fragment");
 
-		String repo = attributes.getValue("repo");
-		if (repos.containsKey(repo)) {
+		currentRepoName = attributes.getValue("repo");
+		if (repos.containsKey(currentRepoName)) {
 			// Write the chapter div tag
-			writeChapterDivOpenTag(getCurrentSectionName(), getCurrentFragmentName());
+			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName);
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
-			String htmlFragment = getFragmentAsHTML(repos.get(repo), getCurrentFragmentName(), chapterLevelOffset);
+			String htmlFragment = getFragmentAsHTML(repos.get(currentRepoName), currentFragmentName, chapterLevelOffset + getCurrentSectionLevel() - 2);
 			
 			writeToOutputFile(htmlFragment);
 		} else {
-			throw new SAXException("Repo " + repo + " not declared");
+			throw new SAXException("Repo " + currentRepoName + " not declared");
 		}
 	}
 
@@ -366,19 +380,23 @@ AssemblyHandler {
 	}
 
 	protected void writeChapterDivOpenTag(String sectionName, String fragmentName) throws IOException {
-		writeDivOpenTag("chapter", sectionName + "-" + fragmentName);
+		writeDivOpenTag("chapter", (getTocFileName() + "-" + getCurrentRepoName() + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
 	}
 	
 	protected void writeMetaSectionDivOpenTag(String sectionName) throws IOException {
-		writeDivOpenTag("meta-section", sectionName);
+		writeDivOpenTag("meta-section", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 	
 	protected void writeStandardSectionDivOpenTag(String sectionName) throws IOException {
-		writeDivOpenTag("section-header", sectionName);
+		writeDivOpenTag("section-header", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 
 	protected void writeDivOpenTag(String divClass, String divId) throws IOException {
 		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\">");
+	}
+
+	protected void writeDivOpenTag(String divClass, String divId, String divName) throws IOException {
+		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\" name=\"" + divName + "\">");
 	}
 
 	protected void writeDivCloseTag() throws IOException {
