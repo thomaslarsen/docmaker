@@ -46,6 +46,7 @@ public class DocMakerMojo extends AbstractMojo {
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		// Create the path to the output dir if it doesn't exist
+		getLog().info("Writing output to: " + outputDir);
 		new File(outputDir).mkdirs();
 
 		// Convert "\" in URI to "/" to support Windows paths
@@ -59,7 +60,7 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoFailureException("Could not parse base URI", e1);
 		}
 		
-		getLog().info("Base URI is: " + baseURI.toString());
+		getLog().info("Base URI is: " + baseURI.toString() + ", created from " + fragmentURI);
 		
 		if (!baseURI.isAbsolute())
 			throw new MojoFailureException("Base URI is not absolute");
@@ -72,10 +73,14 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
+		getLog().info("Using " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName());
 		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
+		getLog().info("Using " + outputProcessorClassname + " as the " + OutputProcessor.class.getName());
 		OutputProcessor postProcessor = newInstance(OutputProcessor.class, outputProcessorClassname);
 		
 		File tocFile = new File(toc);
+		
+		getLog().info("Using " + assemblyHandlerClassname + " as " + AssemblyHandler.class.getName() + " for parsing TOCs");
 		
 		if (tocFile.isFile() && tocFile.getName().endsWith(tocFileExt)) {
 			parseAndProcessFile(tocFile, p, baseURI, markupProcessor, postProcessor);
@@ -91,6 +96,8 @@ public class DocMakerMojo extends AbstractMojo {
 		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
 		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
 		
+		getLog().info("Parsing TOC: " + tocFile.getName());
+		
 		AssemblyHandler ah;
 		String htmlFileName;
 		try {
@@ -102,9 +109,9 @@ public class DocMakerMojo extends AbstractMojo {
 		} catch (IOException e) {
 			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
 		}
-		ah.insertCSSFile(cssFilePath);
-
+		
 		try {
+			ah.insertCSSFile(cssFilePath);
 			ah.parse(p, tocFile);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not parse file " + tocFile.getAbsolutePath(), e);
@@ -123,6 +130,7 @@ public class DocMakerMojo extends AbstractMojo {
 			Class<K> clazz = (Class<K>) Class.forName(className);
 			
 			i = clazz.newInstance();
+			getLog().debug("Instantiating " + className + " as " + type.getName());
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not instantiate class " + className, e);
 		}
