@@ -45,7 +45,7 @@ After we have added the properties, we will add a meta section. The definition o
 		<sections>
 			<!-- A metasection - NO level attribute -->
 			<section title="frontpage">
-				<element key="title />
+				<element key="title" />
 				<element key="author" />
 			</section>
 
