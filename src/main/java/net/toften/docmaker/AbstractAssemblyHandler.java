@@ -223,6 +223,9 @@ AssemblyHandler {
 				case CHAPTER:
 					handleChapterElement(attributes);
 					break;
+					
+				default:
+					break;
 				}
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
@@ -243,6 +246,9 @@ AssemblyHandler {
 				case SECTION:
 				case CHAPTER:
 					writeDivCloseTag();
+					break;
+					
+				default:
 					break;
 				}
 
