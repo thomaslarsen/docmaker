@@ -4,48 +4,14 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	
-	public class Chapter {
-		private String fragmentName;
-		private int chapterLevelOffset;
-		private String fragmentAsHtml;
-
-		public Chapter(String fragmentName, int chapterLevelOffset,
-				String fragmentAsHtml) {
-			this.fragmentName = fragmentName;
-			this.chapterLevelOffset = chapterLevelOffset;
-			this.fragmentAsHtml = fragmentAsHtml;
-		}
-	}
-
-	public class Section {
-		private LinkedList<Chapter> chapters = new LinkedList<Chapter>();
-		private LinkedList<String[]> elements = new LinkedList<String[]>();
-		private String sectionName;
-		private Integer sectionLevel;
-
-		public Section(String sectionName, Integer sectionLevel) {
-			sections.add(this);
-			
-			this.sectionName = sectionName;
-			this.sectionLevel = sectionLevel;
-		}
-
-		public void addChapter(String fragmentName, int chapterLevelOffset, String fragmentAsHtml) {
-			chapters.add(new Chapter(fragmentName, chapterLevelOffset, fragmentAsHtml));
-		}
-
-		public void addElement(String key, String value) {
-			elements.add(new String[] { key, value });
-		}
-	}
-
-	private LinkedList<Section> sections = new LinkedList<Section>();
+	private List<Section> sections = new LinkedList<Section>();
 	private Section currentSection;
 	private boolean writeToOutput = false;
 
@@ -67,6 +33,7 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 		super.handleSectionElement(attributes);
 		
 		currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
+		sections.add(currentSection);
 	}
 	
 	@Override
@@ -116,19 +83,19 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 			// Sections
 			for (Section s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
-				if (s.sectionLevel == null) {
+				if (s.getSectionLevel() == null) {
 					// Meta section
-					writeMetaSectionDivOpenTag(s.sectionName);
-					for (String[] e : s.elements) {
+					writeMetaSectionDivOpenTag(s.getSectionName());
+					for (String[] e : s.getElements()) {
 						writeElement(e[0], e[1]);
 					}
 				} else {
-					writeStandardSectionDivOpenTag(s.sectionName);
+					writeStandardSectionDivOpenTag(s.getSectionName());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
-					for (Chapter c : s.chapters) {
+					for (Chapter c : s.getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
-						writeChapterDivOpenTag(s.sectionName, c.fragmentName);
-						writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.fragmentAsHtml, c.chapterLevelOffset));
+						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName());
+						writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.getFragmentAsHtml(), c.getChapterLevelOffset()));
 						writeDivCloseTag();
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}
