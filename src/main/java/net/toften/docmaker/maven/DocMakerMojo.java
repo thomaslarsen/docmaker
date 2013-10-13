@@ -73,10 +73,21 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
+		MarkupProcessor markupProcessor;
+		try {
+			markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Can not create MarkupProcessor", e);
+		}
 		getLog().info("Using " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName());
-		MarkupProcessor markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
+		
+		OutputProcessor postProcessor;
+		try {
+			postProcessor = newInstance(OutputProcessor.class, outputProcessorClassname);
+		} catch (Exception e) {
+			throw new MojoExecutionException("Can not create OutputProcessor", e);
+		}
 		getLog().info("Using " + outputProcessorClassname + " as the " + OutputProcessor.class.getName());
-		OutputProcessor postProcessor = newInstance(OutputProcessor.class, outputProcessorClassname);
 		
 		File tocFile = new File(toc);
 		
@@ -106,7 +117,7 @@ public class DocMakerMojo extends AbstractMojo {
 			ah.setBaseURI(baseURI);
 			ah.init(htmlFileName);
 			ah.setMarkupProcessor(markupProcessor);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
 		}
 		
@@ -124,17 +135,9 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 	}
 	
-	private <K> K newInstance(Class<K> type, String className) throws MojoExecutionException {
-		K i;
-		try {
-			Class<K> clazz = (Class<K>) Class.forName(className);
-			
-			i = clazz.newInstance();
-			getLog().debug("Instantiating " + className + " as " + type.getName());
-		} catch (Exception e) {
-			throw new MojoExecutionException("Could not instantiate class " + className, e);
-		}
-		
-		return i;
+	public static <K> K newInstance(Class<K> type, String className) throws Exception {
+		Class<K> clazz = (Class<K>) Class.forName(className);
+
+		return clazz.newInstance();
 	}
 }

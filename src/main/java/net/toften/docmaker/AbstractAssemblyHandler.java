@@ -215,7 +215,11 @@ AssemblyHandler {
 				case SECTION:
 					handleSectionElement(attributes);
 					break;
-
+					
+				case METASECTION:
+					handleMetaSectionElement(attributes);
+					break;
+					
 				case SECTIONS:
 					handleSectionsElement(attributes);
 					break;
@@ -225,6 +229,7 @@ AssemblyHandler {
 					break;
 					
 				default:
+					handleUnknownElement(dp, attributes);
 					break;
 				}
 			} catch (IOException e) {
@@ -233,6 +238,10 @@ AssemblyHandler {
 				throw new SAXException("Creating URI for element " + qName + " failed", e);
 			}
 		}
+	}
+	
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+		// Empty
 	}
 
 	@Override
@@ -260,18 +269,20 @@ AssemblyHandler {
 	}
 
 	protected void handleSectionElement(Attributes attributes) throws IOException {
-		currentSectionName = attributes.getValue("title");
-		if (attributes.getValue("level") == null)
-			currentSectionLevel = null;
-		else
-			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-
-		if (currentSectionLevel != null) {
-			writeStandardSectionDivOpenTag(currentSectionName);
+		if (attributes.getValue("level") == null) {
+			handleMetaSectionElement(attributes);
 		} else {
-			// When no level is specified, treat this as a meta-section
-			writeMetaSectionDivOpenTag(currentSectionName);
+			currentSectionName = attributes.getValue("title");
+			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+			writeStandardSectionDivOpenTag(currentSectionName);
 		}
+	}
+
+	protected void handleMetaSectionElement(Attributes attributes) throws IOException {
+		currentSectionName = attributes.getValue("title");
+		currentSectionLevel = null;
+
+		writeMetaSectionDivOpenTag(currentSectionName);
 	}
 
 	protected void handleChapterElement(Attributes attributes) throws URISyntaxException, SAXException, IOException {
