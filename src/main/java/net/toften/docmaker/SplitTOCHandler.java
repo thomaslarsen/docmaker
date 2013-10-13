@@ -6,13 +6,15 @@ import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.toften.docmaker.maven.DocMakerMojo;
+
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	
-	private List<Section> sections = new LinkedList<Section>();
-	private Section currentSection;
+	private List<MetaSection> sections = new LinkedList<MetaSection>();
+	private MetaSection currentSection;
 	private boolean writeToOutput = false;
 
 	@Override
@@ -37,6 +39,29 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	}
 	
 	@Override
+	protected void handleMetaSectionElement(Attributes attributes)
+			throws IOException {
+		super.handleMetaSectionElement(attributes);
+		
+		currentSection = new MetaSection(getCurrentSectionName());
+		sections.add(currentSection);
+	}
+	
+	@Override
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+		if (dp == DocPart.PSECTION) {
+			handlePseudoSectionElement(attributes);
+		}
+	}
+	
+	protected void handlePseudoSectionElement(Attributes attributes) {
+		String pSectionHandlerClassname = attributes.getValue("classname");
+		
+		currentSection = new PseudoSection(sectionName, sectionLevel, pSectionHandlerClassname);
+		
+	}
+
+	@Override
 	protected void handleElementElement(Attributes attributes)
 			throws IOException {
 		super.handleElementElement(attributes);
@@ -49,9 +74,12 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	
 	@Override
 	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
-		String fragmentAsHtml = super.getFragmentAsHTML(repoURI, fragmentName, 0);
-		
-		currentSection.addChapter(fragmentName, chapterLevelOffset, fragmentAsHtml);
+		if (currentSection instanceof Section) {
+			String fragmentAsHtml = super.getFragmentAsHTML(repoURI, fragmentName, 0);
+			
+			((Section)currentSection).addChapter(fragmentName, chapterLevelOffset, fragmentAsHtml);
+		} else
+			throw new IllegalStateException("Current section: " + currentSection.getSectionName() + " is not a standard section");
 		
 		// We return null as we don't want to write anything to the file as yet
 		return null;
@@ -81,18 +109,18 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 			writeMetadataElement();
 			
 			// Sections
-			for (Section s : sections) {
+			for (MetaSection s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
-				if (s.getSectionLevel() == null) {
+				if (s instanceof MetaSection) {
 					// Meta section
 					writeMetaSectionDivOpenTag(s.getSectionName());
 					for (String[] e : s.getElements()) {
 						writeElement(e[0], e[1]);
 					}
-				} else {
+				} else if (s instanceof Section) {
 					writeStandardSectionDivOpenTag(s.getSectionName());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
-					for (Chapter c : s.getChapters()) {
+					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
 						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName());
 						writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.getFragmentAsHtml(), c.getChapterLevelOffset()));

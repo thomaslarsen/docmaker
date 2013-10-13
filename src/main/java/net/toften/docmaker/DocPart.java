@@ -21,6 +21,8 @@ public enum DocPart {
 	 */
 	SECTIONS 	("sections", 	"body", 	false),
 	SECTION 	("section", 	null, 		true),
+	METASECTION ("metasection",	null,		true),
+	PSECTION	("psection",	null,		true),
 	CHAPTERS 	("chapters", 	null, 		true),
 	CHAPTER 	("chapter", 	null, 		true), 
 	LINK 		("link", 		null, 		false),
