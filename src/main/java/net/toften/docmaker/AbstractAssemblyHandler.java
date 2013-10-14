@@ -2,9 +2,11 @@ package net.toften.docmaker;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -15,6 +17,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.SAXParser;
 
 import net.toften.docmaker.markup.MarkupProcessor;
+import net.toften.docmaker.markup.NoMarkupProcessor;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -44,7 +47,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @author thomaslarsen
  *
  */
-public abstract class AbstractAssemblyHandler 
+public class AbstractAssemblyHandler 
 extends 
 DefaultHandler 
 implements 
@@ -93,6 +96,12 @@ AssemblyHandler {
 	private String documentTitle;
 
 	private String currentRepoName;
+	private MarkupProcessor markupProcessor;
+
+	public AbstractAssemblyHandler() {
+		currentFileHandler = new GenericFileHandler();
+		markupProcessor = new NoMarkupProcessor();
+	}
 
 	public void writeToOutputFile(String text) throws IOException {
 		currentFileHandler.writeToOutputFile(text);
@@ -114,12 +123,22 @@ AssemblyHandler {
 		this.currentFileHandler = currentFileHandler;
 	}
 
-	public void parse(SAXParser parser, File tocFile) throws SAXException, IOException {
-		tocFileName = tocFile.getName().replaceFirst("[.][^.]+$", "");
-		parser.parse(tocFile, this);
+	@Override
+	public void parse(SAXParser parser, InputStream tocStream, String tocName) throws SAXException, IOException {
+		tocFileName = tocName.replaceFirst("[.][^.]+$", "");
+		parser.parse(tocStream, this);
 	}
 	
-	public abstract void setMarkupProcessor(MarkupProcessor markupProcessor);
+	@Override
+	public void setMarkupProcessor(MarkupProcessor markupProcessor) {
+		this.markupProcessor = markupProcessor;
+	}
+	
+	@Override
+	public MarkupProcessor getMarkupProcessor() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
@@ -466,22 +485,22 @@ AssemblyHandler {
 	 * @throws URISyntaxException
 	 */
 	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
-		File inFile = new File(repoURI.resolve(File.separator + fragmentName + ".html"));
-		BufferedReader reader = new BufferedReader(new FileReader(inFile));
+		if (!repoURI.isAbsolute())
+			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
+		
+		URI markupFilenameURI = new URI(fragmentName + "." + getMarkupProcessor().getFileExtension());
+		File markupFile = new File(repoURI.resolve(markupFilenameURI));
 
-		StringBuffer asHTML = new StringBuffer();
-		String line;
-		while( ( line = reader.readLine() ) != null ) {
-			if (chapterLevelOffset > 0) {
-				line = incrementHTag(line, chapterLevelOffset);
-			}
-
-			asHTML.append(line);
+		if (!markupFile.exists()) {
+			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
 		}
 
-		reader.close();
+		String asHtml = getMarkupProcessor().process(markupFile);
+		if (chapterLevelOffset > 0) {
+			asHtml = incrementHTag(asHtml, chapterLevelOffset);
+		}
 
-		return asHTML.toString();
+		return asHtml;
 	}
 
 	/**
