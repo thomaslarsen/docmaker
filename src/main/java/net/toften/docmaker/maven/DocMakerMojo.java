@@ -1,6 +1,7 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,7 +39,7 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter ( defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor" )
 	private String outputProcessorClassname;
 	
-	@Parameter ( defaultValue = "net.toften.docmaker.AssemblyAndProcessHandler" )
+	@Parameter ( defaultValue = "net.toften.docmaker.AbstractAssemblyHandler" )
 	private String assemblyHandlerClassname;
 	
 	@Parameter
@@ -123,7 +124,8 @@ public class DocMakerMojo extends AbstractMojo {
 		
 		try {
 			ah.insertCSSFile(cssFilePath);
-			ah.parse(p, tocFile);
+			FileInputStream fis = new FileInputStream(tocFile);
+			ah.parse(p, fis, tocFile.getName());
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not parse file " + tocFile.getAbsolutePath(), e);
 		}
