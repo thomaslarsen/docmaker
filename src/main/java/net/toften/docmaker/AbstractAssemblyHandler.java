@@ -55,7 +55,7 @@ ProcessorHandlerCallback,
 DocPartCallback,
 OutputFileHandler, 
 AssemblyHandler {
-	private static class GenericFileHandler implements OutputFileHandler {
+	public static class GenericFileHandler implements OutputFileHandler {
 		private FileWriter htmlFile;
 
 		public void init(String filename) throws IOException {
