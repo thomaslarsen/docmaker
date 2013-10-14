@@ -52,13 +52,37 @@ ProcessorHandlerCallback,
 DocPartCallback,
 OutputFileHandler, 
 AssemblyHandler {
-	private FileWriter htmlFile;
+	private static class GenericFileHandler implements OutputFileHandler {
+		private FileWriter htmlFile;
 
+		public void init(String filename) throws IOException {
+			htmlFile = new FileWriter(filename);
+		}
+
+		public void close() throws IOException {
+			try {
+				htmlFile.flush();
+			} finally {
+				htmlFile.close();
+			}
+		}
+
+		public void writeToOutputFile(String text) throws IOException {
+			if (text != null)
+				htmlFile.write(text);
+		}
+		
+		public String getFileExtension() {
+			return "html";
+		}
+	}
+	
 	private Integer currentSectionLevel;
 	private String currentSectionName;
 	private String cssFilePath;
 	private String currentFragmentName;
 	private String tocFileName;
+	private OutputFileHandler currentFileHandler = new GenericFileHandler();
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
@@ -70,33 +94,32 @@ AssemblyHandler {
 
 	private String currentRepoName;
 
+	public void writeToOutputFile(String text) throws IOException {
+		currentFileHandler.writeToOutputFile(text);
+	}
+
+	public void init(String filename) throws IOException {
+		currentFileHandler.init(filename);
+	}
+
+	public void close() throws IOException {
+		currentFileHandler.close();
+	}
+
+	public String getFileExtension() {
+		return currentFileHandler.getFileExtension();
+	}
+	
+	public void setCurrentFileHandler(OutputFileHandler currentFileHandler) {
+		this.currentFileHandler = currentFileHandler;
+	}
+
 	public void parse(SAXParser parser, File tocFile) throws SAXException, IOException {
 		tocFileName = tocFile.getName().replaceFirst("[.][^.]+$", "");
 		parser.parse(tocFile, this);
 	}
 	
 	public abstract void setMarkupProcessor(MarkupProcessor markupProcessor);
-
-	public void init(String filename) throws IOException {
-		htmlFile = new FileWriter(filename);
-	}
-
-	public void close() throws IOException {
-		try {
-			htmlFile.flush();
-		} finally {
-			htmlFile.close();
-		}
-	}
-
-	public void writeToOutputFile(String text) throws IOException {
-		if (text != null)
-			htmlFile.write(text);
-	}
-	
-	public String getFileExtension() {
-		return "html";
-	}
 
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
@@ -253,6 +276,8 @@ AssemblyHandler {
 			try {
 				switch (dp) {
 				case SECTION:
+				case METASECTION:
+				case PSECTION:
 				case CHAPTER:
 					writeDivCloseTag();
 					break;
@@ -270,6 +295,7 @@ AssemblyHandler {
 
 	protected void handleSectionElement(Attributes attributes) throws IOException {
 		if (attributes.getValue("level") == null) {
+			// Included for backwards compatibility
 			handleMetaSectionElement(attributes);
 		} else {
 			currentSectionName = attributes.getValue("title");
@@ -376,6 +402,19 @@ AssemblyHandler {
 		}
 	}
 
+	/**
+	 * Writes the title element.
+	 * 
+	 * The title element is part of the HTML header. 
+	 * 
+	 * <h2>TOC</h2>
+	 * The title is an attribute part of the TOC header element.
+	 * <p>
+	 * {@code
+	 * 		<title>DocTitle</title>
+	 * }
+	 * @throws IOException
+	 */
 	protected void writeTitleElement() throws IOException {
 		writeToOutputFile("<title>" + getDocumentTitle() + "</title>");
 	}
