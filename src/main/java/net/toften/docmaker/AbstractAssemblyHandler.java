@@ -1,9 +1,7 @@
 package net.toften.docmaker;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,6 +78,8 @@ AssemblyHandler {
 		}
 	}
 	
+	protected Map<String, String> metaData = new HashMap<String, String>();
+
 	private Integer currentSectionLevel;
 	private String currentSectionName;
 	private String cssFilePath;
@@ -89,12 +89,9 @@ AssemblyHandler {
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
-	protected Map<String, String> metaData = new HashMap<String, String>();
 	private Map<String, URI> repos = new HashMap<String, URI>();
 	private URI baseURI;
-
 	private String documentTitle;
-
 	private String currentRepoName;
 	private MarkupProcessor markupProcessor;
 
@@ -103,18 +100,22 @@ AssemblyHandler {
 		markupProcessor = new NoMarkupProcessor();
 	}
 
+	@Override
 	public void writeToOutputFile(String text) throws IOException {
 		currentFileHandler.writeToOutputFile(text);
 	}
 
+	@Override
 	public void init(String filename) throws IOException {
 		currentFileHandler.init(filename);
 	}
 
+	@Override
 	public void close() throws IOException {
 		currentFileHandler.close();
 	}
 
+	@Override
 	public String getFileExtension() {
 		return currentFileHandler.getFileExtension();
 	}
@@ -139,11 +140,13 @@ AssemblyHandler {
 		return markupProcessor;
 	}
 
+	@Override
 	public void insertCSSFile(String path) {
 		// TODO ability to add multiple CSS files
 		this.cssFilePath = path.replace('\\', '/');
 	}
 
+	@Override
 	public void setBaseURI(URI baseURI) {
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
@@ -151,27 +154,31 @@ AssemblyHandler {
 		this.baseURI = baseURI;
 	}
 
+	@Override
 	public Integer getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
 
+	@Override
 	public String getCurrentSectionName() {
 		return currentSectionName;
 	}
 
+	@Override
 	public String getCurrentFragmentName() {
 		return currentFragmentName;
 	}
-	
-	public String getCurrentRepoName() {
-		return currentRepoName;
-	}
 
+	@Override
 	public String getDocumentTitle() {
 		return documentTitle;
 	}
 	
-	public String getTocFileName() {
+	protected String getCurrentRepoName() {
+		return currentRepoName;
+	}
+
+	protected String getTocFileName() {
 		return tocFileName;
 	}
 
