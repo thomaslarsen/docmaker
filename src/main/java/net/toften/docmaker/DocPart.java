@@ -59,9 +59,10 @@ public enum DocPart {
 	/**
 	 * The default pre element method will insert a <div> tag with the doc part
 	 * as the class. For example the SECTION will insert:
-	 * <pre>
+	 * 
+	 * {@code
 	 * 	<div class="section">
-	 * </pre>
+	 * }
 	 * 
 	 * @return
 	 * 
