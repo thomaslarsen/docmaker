@@ -11,7 +11,7 @@ import net.toften.docmaker.maven.DocMakerMojo;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-public class SplitTOCHandler extends AssemblyAndProcessHandler {
+public class SplitTOCHandler extends AbstractAssemblyHandler {
 	
 	private List<MetaSection> sections = new LinkedList<MetaSection>();
 	private MetaSection currentSection;
@@ -56,9 +56,6 @@ public class SplitTOCHandler extends AssemblyAndProcessHandler {
 	
 	protected void handlePseudoSectionElement(Attributes attributes) {
 		String pSectionHandlerClassname = attributes.getValue("classname");
-		
-		currentSection = new PseudoSection(sectionName, sectionLevel, pSectionHandlerClassname);
-		
 	}
 
 	@Override

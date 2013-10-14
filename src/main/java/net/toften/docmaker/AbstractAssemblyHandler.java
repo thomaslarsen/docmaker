@@ -136,8 +136,7 @@ AssemblyHandler {
 	
 	@Override
 	public MarkupProcessor getMarkupProcessor() {
-		// TODO Auto-generated method stub
-		return null;
+		return markupProcessor;
 	}
 
 	public void insertCSSFile(String path) {
