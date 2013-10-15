@@ -3,7 +3,6 @@ package net.toften.docmaker;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URI;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -15,40 +14,41 @@ import org.xml.sax.SAXException;
 public class AssemblyTest {
 	@Test
 	public void testHandler() throws ParserConfigurationException, SAXException, IOException {
-		AbstractAssemblyHandler ah = new AbstractAssemblyHandler() {
-			
-		};
-		
-		ah.setCurrentFileHandler(new AbstractAssemblyHandler.GenericFileHandler() {
-			
-			@Override
-			public void writeToOutputFile(String text) throws IOException {
-				System.out.println(text);
-			}
-			
-			@Override
-			public void init(String filename) throws IOException {
-				System.out.println("Output file: " + filename);
-			}
-			
-			@Override
-			public void close() throws IOException {
-				// TODO Auto-generated method stub
-				
-			}
-		});
-		
-		SAXParser p = SAXParserFactory.newInstance().newSAXParser();
 		String toc = 
 				"<document>" +
-				"<repos>" +
-				"<repo" +
-				" id=\"test\"" +
-				" uri=\"file:///src/resources\"" +
-				"/>" +
-				"</repos>" +
-				"</document>";
-		
+						"<repos>" +
+						"<repo" +
+						" id=\"test\"" +
+						" uri=\"file:///src/resources\"" +
+						"/>" +
+						"</repos>" +
+						"</document>";
+
+		AssemblyHandler ah = new AbstractAssemblyHandler() {
+			{
+				this.setCurrentFileHandler(new AbstractAssemblyHandler.GenericFileHandler() {
+
+					@Override
+					public void writeToOutputFile(String text) throws IOException {
+						System.out.println(text);
+					}
+
+					@Override
+					public void init(String filename) throws IOException {
+						System.out.println("Output file: " + filename);
+					}
+
+					@Override
+					public void close() throws IOException {
+						// TODO Auto-generated method stub
+
+					}
+				});
+			}
+		};
+
+		SAXParser p = SAXParserFactory.newInstance().newSAXParser();
+
 		InputStream tocFile = new ByteArrayInputStream(toc.getBytes("UTF-8"));
 		ah.parse(p, tocFile, "toc1");
 	}
