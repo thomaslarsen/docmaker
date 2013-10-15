@@ -3,8 +3,6 @@ package net.toften.docmaker;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.xml.sax.Attributes;
-
 public enum DocPart {
 	//			TOC ELEMENT		HTML TAG	ADD DIV?
 	DOCUMENT 	("document", 	"html", 	false) {
@@ -70,35 +68,6 @@ public enum DocPart {
 	 */
 	public String preElement() {
 		return concat(writeDiv ? "<div class=\"" + name + "\">" : null, tag, "");
-	}
-
-	public String preElement(DocPartCallback c, Attributes a) {
-
-		if (writeDiv) {
-			String[][] e = c.getPreElementAttributes(this, a);
-
-			if (e != null) {
-				return preElement(e);
-			} else
-				return preElement();
-		}
-		
-		return null;
-	}
-	
-	public String preElement(String[][] e) {
-		String divTag = null;
-		if (e != null) {
-			divTag = "<div";
-			for (String[] ee : e) {
-				divTag += " " + ee[0];
-				divTag += "=\"" + ee[1] + "\"";
-			}
-
-			divTag +=">";
-		}
-		
-		return concat(divTag, tag, "");
 	}
 
 	public String postElement() {
