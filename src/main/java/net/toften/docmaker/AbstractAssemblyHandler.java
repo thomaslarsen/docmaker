@@ -27,20 +27,27 @@ import org.xml.sax.helpers.DefaultHandler;
  * <p>
  * The AssemblyHandler extends the {@link DefaultHandler} class, and overrides the 
  * appropriate methods.
+ * 
+ * <h2>Handlers & Writers</h2>
+ * This methods in this class broadly falls in two categories: Handlers and Writers.
  * <p>
- * To use the AssemblyHandler, do the following:
- * <pre>
- * 		SAXParser p = SAXParserFactory.newInstance().newSAXParser();
- *		AssemblyHandler ah = new AssemblyHandler(inputDir, outputDir);
- *		
- *		p.parse(new File("toc.xml"), ah);
- * </pre>
+ * Handlers are used to deal with the actions of each element in the TOC.
+ * For example the {@link #handleChapterElement(Attributes)} method will be invoked
+ * when a {@link DocPart#CHAPTER} element is encountered in the TOC.
+ * <p>
+ * Writers are used to output HTML to the output file. A number of Writers exist for various
+ * HTML elements, for example {@link #writeTitleElement()} for outputting the HTML title element.
  * 
- * Note, that this class expects the section fragments to have already been converted 
- * into HTML
+ * Additionally a number of helper writers exists:
+ * <ul>
+ * <li>{@link #writeDivOpenTag(String, String)}</li>
+ * <li>{@link #writeDivOpenTag(String, String, String)}</li>
+ * <li>{@link #writeDivCloseTag()}</li>
+ * </ul>
  * 
- * <h2>Chapter offset</h2>
- * 
+ * All writers should be using the {@link OutputFileHandler#writeToOutputFile(String)} method
+ * to write the text to the file. The reference to this handler can be found using the
+ * {@link #getCurrentFileHandler()} method.
  * 
  * @author thomaslarsen
  *
@@ -120,7 +127,11 @@ AssemblyHandler {
 		return currentFileHandler.getFileExtension();
 	}
 	
-	public void setCurrentFileHandler(OutputFileHandler currentFileHandler) {
+	public OutputFileHandler getCurrentFileHandler() {
+		return currentFileHandler;
+	}
+	
+	protected void setCurrentFileHandler(OutputFileHandler currentFileHandler) {
 		this.currentFileHandler = currentFileHandler;
 	}
 
@@ -472,17 +483,40 @@ AssemblyHandler {
 		writeDivOpenTag("section-header", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 
-	protected void writeDivOpenTag(String divClass, String divId) throws IOException {
-		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\">");
+	/**
+	 * Writes a {@code <div>} tag to the output file, including a {@code class} and
+	 * {@code id} attribute.
+	 * 
+	 * @param divClass the value of the {@code class} attribute
+	 * @param divId the value of the {@code id} attribute
+	 * @throws IOException
+	 */
+	protected void writeDivOpenTag(String divClass, String divId) throws IOException { 
+		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\">"); 
 	}
 
+	/**
+	 * Writes a {@code <div>} tag to the output file, including a {@code class},
+	 * {@code id} and {@code name} attribute.
+	 * 
+	 * @param divClass the value of the {@code class} attribute
+	 * @param divId the value of the {@code id} attribute
+	 * @param divName the value of the {@code name} attribute
+	 * @throws IOException
+	 */
 	protected void writeDivOpenTag(String divClass, String divId, String divName) throws IOException {
 		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\" name=\"" + divName + "\">");
 	}
 
+	/**
+	 * Writes a {@code </div>} close tag to the output file.
+	 * 
+	 * @throws IOException
+	 */
 	protected void writeDivCloseTag() throws IOException {
 		writeToOutputFile("</div>");
 	}
+	
 	/**
 	 * @param repoURI the URI of the repo where the fragment to add is located
 	 * @param fragmentName the name of the fragment to add
