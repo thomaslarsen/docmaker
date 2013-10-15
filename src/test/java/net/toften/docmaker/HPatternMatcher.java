@@ -10,7 +10,7 @@ public class HPatternMatcher {
 	public void test() {
 		String line = "<h2>This is a heading";
 		
-		String newLine = AbstractAssemblyHandler.incrementHTag(line, 2);
+		String newLine = DefaultAssemblyHandler.incrementHTag(line, 2);
 		assertEquals("<h4>This is a heading", newLine);
 	}
 
@@ -18,7 +18,7 @@ public class HPatternMatcher {
 	public void test2() {
 		String line = "<h2>This is a heading</h2>";
 		
-		String newLine = AbstractAssemblyHandler.incrementHTag(line, 2);
+		String newLine = DefaultAssemblyHandler.incrementHTag(line, 2);
 		assertEquals("<h4>This is a heading</h4>", newLine);
 	}
 
@@ -26,7 +26,7 @@ public class HPatternMatcher {
 	public void test3() {
 		String line = "</h2>This is a heading";
 		
-		String newLine = AbstractAssemblyHandler.incrementHTag(line, 2);
+		String newLine = DefaultAssemblyHandler.incrementHTag(line, 2);
 		assertEquals("</h4>This is a heading", newLine);
 	}
 }
