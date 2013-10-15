@@ -5,6 +5,14 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * {@link MarkupProcessor} that passes the fragment file through without any
+ * processing.
+ * Used when the fragments are already in the interim format.
+ * 
+ * @author tlarsen
+ *
+ */
 public class NoMarkupProcessor implements MarkupProcessor {
 
 	@Override
