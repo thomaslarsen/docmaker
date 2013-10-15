@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 
 /**
  * The {@link AssemblyHandler} is responsible for converting the TOC into the
- * interim file written as described in the {@link OutputFileHandler}.
+ * interim file written as described in the {@link InterimFileHandler}.
  * <p>
  * The AssemblyHandler will use a {@link SAXParser} to process the TOC XML file.
  * 
@@ -29,7 +29,7 @@ import org.xml.sax.SAXException;
  * @author tlarsen
  *
  */
-public interface AssemblyHandler extends OutputFileHandler {
+public interface AssemblyHandler extends InterimFileHandler {
 	/**
 	 * @return the {@link MarkupProcessor} used to convert the fragments
 	 */
@@ -47,7 +47,7 @@ public interface AssemblyHandler extends OutputFileHandler {
 	 * 
 	 * @param path path to the CSS file
 	 * 
-	 * @see OutputFileHandler
+	 * @see InterimFileHandler
 	 */
 	void insertCSSFile(String path);
 

@@ -11,7 +11,7 @@ import net.toften.docmaker.maven.DocMakerMojo;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-public class SplitTOCHandler extends AbstractAssemblyHandler {
+public class SplitTOCHandler extends DefaultAssemblyHandler {
 	
 	private List<MetaSection> sections = new LinkedList<MetaSection>();
 	private MetaSection currentSection;
@@ -120,7 +120,7 @@ public class SplitTOCHandler extends AbstractAssemblyHandler {
 					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
 						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName());
-						writeToOutputFile(AbstractAssemblyHandler.incrementHTag(c.getFragmentAsHtml(), c.getChapterLevelOffset()));
+						writeToOutputFile(DefaultAssemblyHandler.incrementHTag(c.getFragmentAsHtml(), c.getChapterLevelOffset()));
 						writeDivCloseTag();
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}
