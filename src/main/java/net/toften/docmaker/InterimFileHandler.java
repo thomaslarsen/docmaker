@@ -12,7 +12,7 @@ import java.io.IOException;
  *
  * @see net.toften.docmaker.output.OutputProcessor
  */
-public interface OutputFileHandler {
+public interface InterimFileHandler {
 
 	/**
 	 * Write specified text to the output file.

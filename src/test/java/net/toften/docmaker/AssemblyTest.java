@@ -24,9 +24,9 @@ public class AssemblyTest {
 						"</repos>" +
 						"</document>";
 
-		AssemblyHandler ah = new AbstractAssemblyHandler() {
+		AssemblyHandler ah = new DefaultAssemblyHandler() {
 			{
-				this.setCurrentFileHandler(new AbstractAssemblyHandler.GenericFileHandler() {
+				this.setCurrentFileHandler(new DefaultAssemblyHandler.GenericFileHandler() {
 
 					@Override
 					public void writeToOutputFile(String text) throws IOException {

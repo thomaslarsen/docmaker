@@ -9,26 +9,26 @@ public class HxIncrementTest {
 	public void testSimpleHxLine() {
 		String line = "<h1>Header 2</h1>";
 		
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 0), "<h1>Header 2</h1>");
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 1), "<h2>Header 2</h2>");
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 2), "<h3>Header 2</h3>");
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 3), "<h4>Header 2</h4>");
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 4), "<h5>Header 2</h5>");
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 5), "<h6>Header 2</h6>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 0), "<h1>Header 2</h1>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 1), "<h2>Header 2</h2>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 2), "<h3>Header 2</h3>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 3), "<h4>Header 2</h4>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 4), "<h5>Header 2</h5>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 5), "<h6>Header 2</h6>");
 
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, -1), "<h0>Header 2</h0>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, -1), "<h0>Header 2</h0>");
 	}
 
 	@Test
 	public void testMixedLine() {
 		String line = "<h1>Header 1</h1><p>Body</p><h2>Header 2</h2>";
 		
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 1), "<h2>Header 1</h2><p>Body</p><h3>Header 2</h3>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 1), "<h2>Header 1</h2><p>Body</p><h3>Header 2</h3>");
 	}
 
 	public void testMixedIlligalLine() {
 		String line = "<h1>Header 1</h2><p>Body</p><h4>Header 2</h2>";
 		
-		assertEquals(AbstractAssemblyHandler.incrementHTag(line, 2), "<h3>Header 1</h4><p>Body</p><h6>Header 2</h4>");
+		assertEquals(DefaultAssemblyHandler.incrementHTag(line, 2), "<h3>Header 1</h4><p>Body</p><h6>Header 2</h4>");
 	}
 }

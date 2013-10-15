@@ -22,7 +22,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * The {@link AbstractAssemblyHandler} will process the TOC file, and assemble the complete
+ * The {@link DefaultAssemblyHandler} will process the TOC file, and assemble the complete
  * result HTML document.
  * <p>
  * The AssemblyHandler extends the {@link DefaultHandler} class, and overrides the 
@@ -45,22 +45,22 @@ import org.xml.sax.helpers.DefaultHandler;
  * <li>{@link #writeDivCloseTag()}</li>
  * </ul>
  * 
- * All writers should be using the {@link OutputFileHandler#writeToOutputFile(String)} method
+ * All writers should be using the {@link InterimFileHandler#writeToOutputFile(String)} method
  * to write the text to the file. The reference to this handler can be found using the
  * {@link #getCurrentFileHandler()} method.
  * 
  * @author thomaslarsen
  *
  */
-public class AbstractAssemblyHandler 
+public class DefaultAssemblyHandler 
 extends 
 DefaultHandler 
 implements 
 ProcessorHandlerCallback, 
 DocPartCallback,
-OutputFileHandler, 
+InterimFileHandler, 
 AssemblyHandler {
-	public static class GenericFileHandler implements OutputFileHandler {
+	public static class GenericFileHandler implements InterimFileHandler {
 		private FileWriter htmlFile;
 
 		public void init(String filename) throws IOException {
@@ -92,7 +92,7 @@ AssemblyHandler {
 	private String cssFilePath;
 	private String currentFragmentName;
 	private String tocFileName;
-	private OutputFileHandler currentFileHandler = new GenericFileHandler();
+	private InterimFileHandler currentFileHandler = new GenericFileHandler();
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
@@ -102,7 +102,7 @@ AssemblyHandler {
 	private String currentRepoName;
 	private MarkupProcessor markupProcessor;
 
-	public AbstractAssemblyHandler() {
+	public DefaultAssemblyHandler() {
 		currentFileHandler = new GenericFileHandler();
 		markupProcessor = new NoMarkupProcessor();
 	}
@@ -127,11 +127,11 @@ AssemblyHandler {
 		return currentFileHandler.getFileExtension();
 	}
 	
-	public OutputFileHandler getCurrentFileHandler() {
+	public InterimFileHandler getCurrentFileHandler() {
 		return currentFileHandler;
 	}
 	
-	protected void setCurrentFileHandler(OutputFileHandler currentFileHandler) {
+	protected void setCurrentFileHandler(InterimFileHandler currentFileHandler) {
 		this.currentFileHandler = currentFileHandler;
 	}
 

@@ -1,7 +1,7 @@
 package net.toften.docmaker;
 
 
-public interface ProcessorHandlerCallback extends OutputFileHandler {
+public interface ProcessorHandlerCallback extends InterimFileHandler {
 
 	String getCurrentSectionName();
 	
