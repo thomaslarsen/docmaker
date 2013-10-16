@@ -96,7 +96,7 @@ AssemblyHandler {
 
 	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
-	private Map<String, URI> repos = new HashMap<String, URI>();
+	protected Map<String, URI> repos = new HashMap<String, URI>();
 	private URI baseURI;
 	private String documentTitle;
 	private String currentRepoName;
@@ -356,8 +356,13 @@ AssemblyHandler {
 			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName);
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
-			String htmlFragment = getFragmentAsHTML(repos.get(currentRepoName), currentFragmentName, chapterLevelOffset + getCurrentSectionLevel() - 2);
-			
+			int normalisedOffset = chapterLevelOffset + getCurrentSectionLevel() - 2;
+			String htmlFragment = getFragmentAsHTML(repos.get(currentRepoName), currentFragmentName, normalisedOffset);
+
+			if (normalisedOffset > 0) {
+				htmlFragment = incrementHTag(htmlFragment, normalisedOffset);
+			}
+
 			writeToOutputFile(htmlFragment);
 		} else {
 			throw new SAXException("Repo " + currentRepoName + " not declared");
@@ -416,7 +421,11 @@ AssemblyHandler {
 		if (!repos.containsKey(repoId)) {
 			URI repoURI = new URI(repoURIPath);
 			if (!repoURI.isAbsolute()) {
-				repoURI = baseURI.resolve(repoURI);
+				if (baseURI != null) {
+					repoURI = baseURI.resolve(repoURI);
+				} else {
+					throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath + " AND baseURI is null");
+				}
 			} else 
 				System.out.println("REPO URI IS ABSOLUTE!!!!");
 	
@@ -460,9 +469,9 @@ AssemblyHandler {
 		for (Map.Entry<String, String> m : metaData.entrySet()) {
 			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey() + "\">");
 			writeToOutputFile(m.getValue());
-			writeToOutputFile("</div>");
+			writeDivCloseTag();
 		}
-		writeToOutputFile("</div>");
+		writeDivCloseTag();
 	}
 	
 	protected void writeElement(String key, String value) throws IOException {
@@ -536,9 +545,6 @@ AssemblyHandler {
 		}
 
 		String asHtml = getMarkupProcessor().process(markupFile);
-		if (chapterLevelOffset > 0) {
-			asHtml = incrementHTag(asHtml, chapterLevelOffset);
-		}
 
 		return asHtml;
 	}
