@@ -56,8 +56,6 @@ public class DefaultAssemblyHandler
 extends 
 DefaultHandler 
 implements 
-ProcessorHandlerCallback, 
-DocPartCallback,
 InterimFileHandler, 
 AssemblyHandler {
 	public static class GenericFileHandler implements InterimFileHandler {
@@ -185,7 +183,7 @@ AssemblyHandler {
 		return documentTitle;
 	}
 	
-	protected String getCurrentRepoName() {
+	public String getCurrentRepoName() {
 		return currentRepoName;
 	}
 
@@ -204,41 +202,6 @@ AssemblyHandler {
 		} catch (IOException e) {
 			throw new SAXException("Outfile could not be closed", e);
 		}
-	}
-
-	public String[][] getPreElementAttributes(DocPart dp, Attributes attributes) {
-		String[][] a = null;
-
-		switch (dp) {
-		case CHAPTER:
-			currentFragmentName = attributes.getValue("fragment");
-
-			a = new String[][] { { "class", "chapter" }, { "id", (tocFileName + "-" + getCurrentSectionName() + "-" + getCurrentFragmentName()).toLowerCase().replace(' ', '-') } };
-			break;
-
-		case SECTION:
-			currentSectionName = attributes.getValue("title");
-			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-
-			if (currentSectionLevel != null) {
-				a = new String[][] { { "class", "section-header" }, { "id", (tocFileName + "-" + getCurrentSectionName()).toLowerCase().replace(' ', '-') } };
-			} else {
-				// When no level is specified, treat this as a metasection
-				a = new String[][] { { "class", "meta-section" }, { "id", getCurrentSectionName() } };
-			}
-
-		case ELEMENT:
-			String key = attributes.getValue("key");
-			if (metaData.containsKey(key)) {
-				a = new String[][] { { "key", key } };
-			}
-			break;
-
-		default:
-			break;
-		}
-
-		return a;
 	}
 
 	@Override
@@ -299,10 +262,6 @@ AssemblyHandler {
 		}
 	}
 	
-	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
-		// Empty
-	}
-
 	@Override
 	public void endElement(String uri, String localName, String qName)
 			throws SAXException {
@@ -327,6 +286,10 @@ AssemblyHandler {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			}
 		}	
+	}
+
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+		// Empty
 	}
 
 	protected void handleSectionElement(Attributes attributes) throws IOException {
