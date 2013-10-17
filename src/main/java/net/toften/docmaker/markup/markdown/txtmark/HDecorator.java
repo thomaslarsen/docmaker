@@ -1,13 +1,13 @@
 package net.toften.docmaker.markup.markdown.txtmark;
 
-import net.toften.docmaker.ProcessorHandlerCallback;
+import net.toften.docmaker.AssemblyHandler;
 
 import com.github.rjeschke.txtmark.DefaultDecorator;
 
 public class HDecorator extends DefaultDecorator {
-	private ProcessorHandlerCallback callback;
+	private AssemblyHandler callback;
 
-	public HDecorator(ProcessorHandlerCallback callback) {
+	public HDecorator(AssemblyHandler callback) {
 		this.callback = callback;
 	}
 	
@@ -16,6 +16,4 @@ public class HDecorator extends DefaultDecorator {
 		String sectionName = callback.getCurrentSectionName();
 		out.append("<img class=\"" + sectionName + "\"");
 	}
-	
-	
 }

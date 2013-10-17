@@ -68,4 +68,30 @@ public interface AssemblyHandler extends InterimFileHandler {
 	 * @throws IOException
 	 */
 	void parse(SAXParser parser, InputStream tocStream, String tocName) throws SAXException, IOException;
+	
+	/**
+	 * @return the title of the section currently being processed
+	 */
+	String getCurrentSectionName();
+	
+	/**
+	 * @return the level of the section currently being processed, or <code>null</code>
+	 * if the current section is a meta-section
+	 */
+	Integer getCurrentSectionLevel();
+
+	/**
+	 * @return the name of the fragment currently being processed
+	 */
+	String getCurrentFragmentName();
+	
+	/**
+	 * @return the title of the document
+	 */
+	String getDocumentTitle();
+
+	/**
+	 * @return the id of the repo containing the current fragment
+	 */
+	String getCurrentRepoName();
 }

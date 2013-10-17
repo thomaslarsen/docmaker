@@ -56,7 +56,6 @@ public class DefaultAssemblyHandler
 extends 
 DefaultHandler 
 implements 
-ProcessorHandlerCallback, 
 InterimFileHandler, 
 AssemblyHandler {
 	public static class GenericFileHandler implements InterimFileHandler {
@@ -184,7 +183,7 @@ AssemblyHandler {
 		return documentTitle;
 	}
 	
-	protected String getCurrentRepoName() {
+	public String getCurrentRepoName() {
 		return currentRepoName;
 	}
 
