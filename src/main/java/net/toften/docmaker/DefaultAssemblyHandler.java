@@ -84,17 +84,17 @@ AssemblyHandler {
 	}
 	
 	protected Map<String, String> metaData = new HashMap<String, String>();
+	protected Map<String, URI> repos = new HashMap<String, URI>();
+
+	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
 
 	private Integer currentSectionLevel;
 	private String currentSectionName;
 	private String cssFilePath;
 	private String currentFragmentName;
 	private String tocFileName;
-	private InterimFileHandler currentFileHandler = new GenericFileHandler();
+	private InterimFileHandler currentFileHandler;
 
-	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
-
-	protected Map<String, URI> repos = new HashMap<String, URI>();
 	private URI baseURI;
 	private String documentTitle;
 	private String currentRepoName;
@@ -123,14 +123,6 @@ AssemblyHandler {
 	@Override
 	public String getFileExtension() {
 		return currentFileHandler.getFileExtension();
-	}
-	
-	public InterimFileHandler getCurrentFileHandler() {
-		return currentFileHandler;
-	}
-	
-	protected void setCurrentFileHandler(InterimFileHandler currentFileHandler) {
-		this.currentFileHandler = currentFileHandler;
 	}
 
 	@Override
@@ -185,6 +177,14 @@ AssemblyHandler {
 	
 	public String getCurrentRepoName() {
 		return currentRepoName;
+	}
+	
+	public InterimFileHandler getCurrentFileHandler() {
+		return currentFileHandler;
+	}
+	
+	protected void setCurrentFileHandler(InterimFileHandler currentFileHandler) {
+		this.currentFileHandler = currentFileHandler;
 	}
 
 	protected String getTocFileName() {
