@@ -48,14 +48,17 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 	
 	@Override
-	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) throws Exception {
 		if (dp == DocPart.PSECTION) {
 			handlePseudoSectionElement(attributes);
 		}
 	}
 	
-	protected void handlePseudoSectionElement(Attributes attributes) {
+	protected void handlePseudoSectionElement(Attributes attributes) throws Exception {
+		setCurrentSectionName(attributes.getValue("title"));
 		String pSectionHandlerClassname = attributes.getValue("classname");
+		
+		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname);
 	}
 
 	@Override
@@ -125,6 +128,10 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}
 					writeDivCloseTag();
+				} else if (s instanceof PseudoSection) {
+					writePseudoSectionDivOpenTag(s.getSectionName());
+					
+					
 				}
 				writeDivCloseTag();
 				writeToOutputFile(DocPart.SECTION.postElement());
@@ -139,5 +146,9 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		} finally {
 			super.endDocument();
 		}
+	}
+
+	private void writePseudoSectionDivOpenTag(String sectionName) throws IOException {
+		writeDivOpenTag("pseudo-section", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 }

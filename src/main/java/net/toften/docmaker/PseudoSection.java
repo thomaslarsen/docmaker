@@ -1,14 +1,18 @@
 package net.toften.docmaker;
 
+import net.toften.docmaker.maven.DocMakerMojo;
+
 public class PseudoSection extends MetaSection {
 
-	private String pSectionHandlerClassname;
+	private PseudoSectionHandler sectionHandler;
 
-	public PseudoSection(String sectionName, String pSectionHandlerClassname) {
+	public PseudoSection(String sectionName, String pSectionHandlerClassname) throws Exception {
 		super(sectionName);
 		
-		this.pSectionHandlerClassname = pSectionHandlerClassname;
+		sectionHandler = DocMakerMojo.newInstance(PseudoSectionHandler.class, pSectionHandlerClassname);
 	}
 	
-	
+	public PseudoSectionHandler getSectionHandler() {
+		return sectionHandler;
+	}
 }

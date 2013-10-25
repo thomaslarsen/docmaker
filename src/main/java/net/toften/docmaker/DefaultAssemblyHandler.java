@@ -164,6 +164,10 @@ AssemblyHandler {
 	public String getCurrentSectionName() {
 		return currentSectionName;
 	}
+	
+	protected void setCurrentSectionName(String currentSectionName) {
+		this.currentSectionName = currentSectionName;
+	}
 
 	@Override
 	public String getCurrentFragmentName() {
@@ -258,6 +262,8 @@ AssemblyHandler {
 				throw new SAXException("Processing element " + qName + " failed", e);
 			} catch (URISyntaxException e) {
 				throw new SAXException("Creating URI for element " + qName + " failed", e);
+			} catch (Exception e) {
+				throw new SAXException("Element " + qName + " failed", e);
 			}
 		}
 	}
@@ -288,7 +294,7 @@ AssemblyHandler {
 		}	
 	}
 
-	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) throws Exception {
 		// Empty
 	}
 
