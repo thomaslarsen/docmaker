@@ -1,7 +1,7 @@
 # Overview
 
 The **TOC** is an XML document that describes:
-* The list of fragments that makes up the generated document
+* The list of sections and fragments that makes up the generated document
 * A list of fragment repositories
 * A set of properties, which can be injected into the generated document
 
@@ -29,9 +29,10 @@ The TOC structure is:
 				
 				<element key=".." />
 			</section>
-			<section>
+			<meta-section title="..">
+				<element key=".." />
 				..
-			</section>
+			</meta-section>
 		</sections>
 	</document>
 	
