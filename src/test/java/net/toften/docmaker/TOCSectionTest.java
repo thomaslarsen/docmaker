@@ -83,7 +83,7 @@ public class TOCSectionTest {
 			},
 			{	// 6
 				"<div class=\"chapter\" id=\"toc-main-test-intro\">",
-				"<h4>Heading</h4><p>Hello</p>",
+				"<h5 id=\"toc-main-test-intro-heading\">Heading</h5><p>Hello</p>",
 				END_DIV
 			},
 			{	// 7
@@ -98,12 +98,12 @@ public class TOCSectionTest {
 		ah = new DefaultAssemblyHandler() {
 			
 			@Override
-			protected String getTocFileName() {
+			public String getTocFileName() {
 				return currentTocName;
 			}
 			
 			@Override
-			protected String getFragmentAsHTML(URI repoURI,
+			protected String getFragmentAsHTML(String repoName, 
 					String fragmentName, int chapterLevelOffset)
 					throws IOException, URISyntaxException {
 				return currentFragment;

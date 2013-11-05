@@ -86,7 +86,9 @@ AssemblyHandler {
 	protected Map<String, String> metaData = new HashMap<String, String>();
 	protected Map<String, URI> repos = new HashMap<String, URI>();
 
-	private static Pattern p = Pattern.compile("(\\</?h)(\\d)(>)");
+	public static String headerRegex = "(\\</?h)(\\d)(>)";
+	
+	private static Pattern p = Pattern.compile(headerRegex);
 
 	private Integer currentSectionLevel;
 	private String currentSectionName;
@@ -182,6 +184,10 @@ AssemblyHandler {
 	public String getCurrentRepoName() {
 		return currentRepoName;
 	}
+
+	public String getTocFileName() {
+		return tocFileName;
+	}
 	
 	public InterimFileHandler getCurrentFileHandler() {
 		return currentFileHandler;
@@ -189,10 +195,6 @@ AssemblyHandler {
 	
 	protected void setCurrentFileHandler(InterimFileHandler currentFileHandler) {
 		this.currentFileHandler = currentFileHandler;
-	}
-
-	protected String getTocFileName() {
-		return tocFileName;
 	}
 
 	protected String getCssFilePath() {
@@ -322,15 +324,17 @@ AssemblyHandler {
 		currentRepoName = attributes.getValue("repo");
 		if (repos.containsKey(currentRepoName)) {
 			// Write the chapter div tag
-			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName);
+			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, getCurrentRepoName());
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
-			int normalisedOffset = chapterLevelOffset + getCurrentSectionLevel() - 2;
-			String htmlFragment = getFragmentAsHTML(repos.get(currentRepoName), currentFragmentName, normalisedOffset);
-
+			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
+			String htmlFragment = getFragmentAsHTML(currentRepoName, currentFragmentName, chapterLevelOffset);
+			
 			if (normalisedOffset > 0) {
 				htmlFragment = incrementHTag(htmlFragment, normalisedOffset);
 			}
+
+			htmlFragment = injectHeaderIdAttributes(htmlFragment, getTocFileName(), currentRepoName, getCurrentSectionName(), currentFragmentName);
 
 			writeToOutputFile(htmlFragment);
 		} else {
@@ -449,8 +453,8 @@ AssemblyHandler {
 		writeDivCloseTag();
 	}
 
-	protected void writeChapterDivOpenTag(String sectionName, String fragmentName) throws IOException {
-		writeDivOpenTag("chapter", (getTocFileName() + "-" + getCurrentRepoName() + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
+	protected void writeChapterDivOpenTag(String sectionName, String fragmentName, String repoName) throws IOException {
+		writeDivOpenTag("chapter", (getTocFileName() + "-" + repoName + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
 	}
 	
 	protected void writeMetaSectionDivOpenTag(String sectionName) throws IOException {
@@ -502,7 +506,9 @@ AssemblyHandler {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+		URI repoURI = repos.get(repoName);
+		
 		if (!repoURI.isAbsolute())
 			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
 		
@@ -517,6 +523,25 @@ AssemblyHandler {
 
 		return asHtml;
 	}
+	
+	/**
+	 * This method returns the effective base heading level of a chapter.
+	 * <p>
+	 * Examples:
+	 * 	SL	CL	EL	+
+	 * 	1	0	1	0
+	 * 	1	1	2	1
+	 * 	1	2	3	2
+	 * 	2	0	2	1
+	 * 	2	1	3	2
+	 * 
+	 * @param currentSectionLevel
+	 * @param chapterLevelOffset
+	 * @return
+	 */
+	public static int calcEffectiveLevel(int currentSectionLevel, int chapterLevelOffset) {
+		return chapterLevelOffset + currentSectionLevel - 1;
+	}
 
 	/**
 	 * Increment the HTML <code>Hx</code> tag.
@@ -529,15 +554,52 @@ AssemblyHandler {
 	 * @return
 	 */
 	public static String incrementHTag(String line, int increment) {
-		// Only increase the level if greater than one
-		Matcher m = p.matcher(line);
-		StringBuffer sb = new StringBuffer();
-		while (m.find()) {
-			int l = Integer.valueOf(m.group(2));
-			m.appendReplacement(sb, "$1" + (l + increment) + "$3");
-		}
-		m.appendTail(sb);
+		if (line != null) {
+			Matcher m = p.matcher(line);
+			StringBuffer sb = new StringBuffer();
+			while (m.find()) {
+				int l = Integer.valueOf(m.group(2));
+				m.appendReplacement(sb, "$1" + (l + increment) + "$3");
+			}
+			m.appendTail(sb);
 
-		return sb.toString();
+			return sb.toString();
+		} else
+			return null;
+	}
+
+	public static String injectHeaderIdAttributes(String htmlFragment, String tocFileName, String repoName, String sectionName, String fragmentName) {
+		if (htmlFragment != null) {
+			Matcher m = p.matcher(htmlFragment);
+	
+			StringBuffer sb = new StringBuffer();
+			while (m.find()) {
+				if (m.group(0).charAt(1) != '/') { // Ignore rouge close tags
+					// Handle open tag
+					int l = Integer.valueOf(m.group(2));
+					int start = m.end();
+					m.appendReplacement(sb, ""); // Remove the open tag
+					
+					// Handle close tag
+					m.find();
+					int end = m.start();
+					
+					String headerText = htmlFragment.substring(start, end);
+					String headerId = (tocFileName + "-" + repoName + "-" + sectionName + "-" + fragmentName + "-" + headerText).toLowerCase().replace(' ', '-');
+					String hReplace = "<h" + l + " id=\"" + headerId + "\">" + headerText + "</h" + l + ">";
+					
+					// Insert the new tag
+					m.appendReplacement(sb, hReplace);
+	
+					// Delete the heading title that has been inserted by default
+					sb.delete(sb.length() - headerText.length() - hReplace.length(), sb.length() - hReplace.length());
+				} else
+					m.appendReplacement(sb, "$1$2$3");
+			}
+			m.appendTail(sb);
+	
+			return sb.toString();
+		} else
+			return null;
 	}
 }
