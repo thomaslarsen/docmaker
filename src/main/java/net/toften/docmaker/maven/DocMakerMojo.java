@@ -38,7 +38,7 @@ public class DocMakerMojo extends AbstractMojo {
 	@Parameter ( defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor" )
 	private String outputProcessorClassname;
 	
-	@Parameter ( defaultValue = "net.toften.docmaker.AbstractAssemblyHandler" )
+	@Parameter ( defaultValue = "net.toften.docmaker.DefaultAssemblyHandler" )
 	private String assemblyHandlerClassname;
 	
 	@Parameter

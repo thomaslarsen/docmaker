@@ -3,12 +3,11 @@ package net.toften.docmaker;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MetaSection {
+public class MetaSection extends BaseSection {
 	private List<String[]> elements = new LinkedList<String[]>();
-	private String sectionName;
 
 	public MetaSection(String sectionName) {
-		this.sectionName = sectionName;
+		super(sectionName);
 	}
 
 	public void addElement(String key, String value) {
@@ -17,9 +16,5 @@ public class MetaSection {
 	
 	public List<String[]> getElements() {
 		return elements;
-	}
-	
-	public String getSectionName() {
-		return sectionName;
 	}
 }

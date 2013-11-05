@@ -94,4 +94,6 @@ public interface AssemblyHandler extends InterimFileHandler {
 	 * @return the id of the repo containing the current fragment
 	 */
 	String getCurrentRepoName();
+	
+	String getTocFileName();
 }

@@ -12,8 +12,8 @@ public class Section extends MetaSection {
 		this.sectionLevel = sectionLevel;
 	}
 
-	public void addChapter(String fragmentName, int chapterLevelOffset, String fragmentAsHtml) {
-		chapters.add(new Chapter(fragmentName, chapterLevelOffset, fragmentAsHtml));
+	public void addChapter(String fragmentName, String repo, int chapterLevelOffset, String fragmentAsHtml) {
+		chapters.add(new Chapter(fragmentName, repo, chapterLevelOffset, fragmentAsHtml));
 	}
 	
 	public List<Chapter> getChapters() {

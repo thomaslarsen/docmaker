@@ -1,12 +1,9 @@
 package net.toften.docmaker;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.LinkedList;
 import java.util.List;
-
-import net.toften.docmaker.maven.DocMakerMojo;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -58,7 +55,8 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		setCurrentSectionName(attributes.getValue("title"));
 		String pSectionHandlerClassname = attributes.getValue("classname");
 		
-		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname);
+		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname, attributes);
+		sections.add(currentSection);
 	}
 
 	@Override
@@ -73,11 +71,11 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 	
 	@Override
-	protected String getFragmentAsHTML(URI repoURI, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		if (currentSection instanceof Section) {
-			String fragmentAsHtml = super.getFragmentAsHTML(repoURI, fragmentName, 0);
+			String fragmentAsHtml = super.getFragmentAsHTML(repoName, fragmentName, 0);
 			
-			((Section)currentSection).addChapter(fragmentName, chapterLevelOffset, fragmentAsHtml);
+			((Section)currentSection).addChapter(fragmentName, repoName, chapterLevelOffset, fragmentAsHtml);
 		} else
 			throw new IllegalStateException("Current section: " + currentSection.getSectionName() + " is not a standard section");
 		
@@ -111,29 +109,33 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			// Sections
 			for (MetaSection s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
-				if (s instanceof MetaSection) {
+				if (s instanceof Section) {
+					writeStandardSectionDivOpenTag(s.getSectionName());
+					writeToOutputFile(DocPart.CHAPTERS.preElement());
+					for (Chapter c : ((Section)s).getChapters()) {
+						writeToOutputFile(DocPart.CHAPTER.preElement());
+						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName(), c.getRepoName());
+						String htmlFragment = c.getFragmentAsHtml();
+						htmlFragment = DefaultAssemblyHandler.incrementHTag(htmlFragment, calcEffectiveLevel(((Section) s).getSectionLevel(), c.getChapterLevelOffset()));
+						htmlFragment = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, getTocFileName(), c.getRepoName(), s.getSectionName(), c.getFragmentName());
+						writeToOutputFile(htmlFragment);
+						writeDivCloseTag();
+						writeToOutputFile(DocPart.CHAPTER.postElement());
+					}
+					writeToOutputFile(DocPart.CHAPTERS.postElement());
+					writeDivCloseTag();
+				} else if (s instanceof PseudoSection) {
+					writePseudoSectionDivOpenTag(s.getSectionName());
+					writeToOutputFile(((PseudoSection)s).getSectionHandler().getSectionAsHtml(sections, this));
+					writeDivCloseTag();
+				} else if (s instanceof MetaSection) {
 					// Meta section
 					writeMetaSectionDivOpenTag(s.getSectionName());
 					for (String[] e : s.getElements()) {
 						writeElement(e[0], e[1]);
 					}
-				} else if (s instanceof Section) {
-					writeStandardSectionDivOpenTag(s.getSectionName());
-					writeToOutputFile(DocPart.CHAPTERS.preElement());
-					for (Chapter c : ((Section)s).getChapters()) {
-						writeToOutputFile(DocPart.CHAPTER.preElement());
-						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName());
-						writeToOutputFile(DefaultAssemblyHandler.incrementHTag(c.getFragmentAsHtml(), c.getChapterLevelOffset()));
-						writeDivCloseTag();
-						writeToOutputFile(DocPart.CHAPTER.postElement());
-					}
 					writeDivCloseTag();
-				} else if (s instanceof PseudoSection) {
-					writePseudoSectionDivOpenTag(s.getSectionName());
-					
-					
 				}
-				writeDivCloseTag();
 				writeToOutputFile(DocPart.SECTION.postElement());
 			}
 			
