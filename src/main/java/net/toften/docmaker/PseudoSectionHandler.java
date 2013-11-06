@@ -6,7 +6,7 @@ import org.xml.sax.Attributes;
 
 public interface PseudoSectionHandler {
 
-	String getSectionAsHtml(List<MetaSection> sections, AssemblyHandler handler);
+	String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler);
 
 	void init(Attributes attributes);
 
