@@ -4,14 +4,14 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.xml.sax.Attributes;
-
 import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.BaseSection;
 import net.toften.docmaker.Chapter;
 import net.toften.docmaker.DefaultAssemblyHandler;
-import net.toften.docmaker.MetaSection;
 import net.toften.docmaker.PseudoSectionHandler;
 import net.toften.docmaker.Section;
+
+import org.xml.sax.Attributes;
 
 public class TOCPseudoSection implements PseudoSectionHandler {
 	private static Pattern p = Pattern.compile(DefaultAssemblyHandler.headerRegex);
@@ -24,10 +24,10 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 	}
 
 	@Override
-	public String getSectionAsHtml(List<MetaSection> sections, AssemblyHandler handler) {
+	public String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler) {
 		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">");
 
-		for (MetaSection metaSection : sections) {
+		for (BaseSection metaSection : sections) {
 			if (metaSection instanceof Section) {
 				Section s = (Section)metaSection;
 				int sectionLevel = s.getSectionLevel();

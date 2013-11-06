@@ -10,8 +10,8 @@ import org.xml.sax.SAXException;
 
 public class SplitTOCHandler extends DefaultAssemblyHandler {
 	
-	private List<MetaSection> sections = new LinkedList<MetaSection>();
-	private MetaSection currentSection;
+	private List<BaseSection> sections = new LinkedList<BaseSection>();
+	private BaseSection currentSection;
 	private boolean writeToOutput = false;
 
 	@Override
@@ -62,11 +62,13 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	@Override
 	protected void handleElementElement(Attributes attributes)
 			throws IOException {
-		super.handleElementElement(attributes);
-		
-		String key = attributes.getValue("key");
-		if (metaData.containsKey(key)) {
-			currentSection.addElement(key, metaData.get(key));
+		if (currentSection instanceof MetaSection) {
+			super.handleElementElement(attributes);
+			
+			String key = attributes.getValue("key");
+			if (metaData.containsKey(key)) {
+				((MetaSection)currentSection).addElement(key, metaData.get(key));
+			}
 		}
 	}
 	
@@ -107,21 +109,26 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			writeMetadataElement();
 			
 			// Sections
-			for (MetaSection s : sections) {
+			for (BaseSection s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
+				
 				if (s instanceof Section) {
 					writeStandardSectionDivOpenTag(s.getSectionName());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
+					
 					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
+						
 						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName(), c.getRepoName());
 						String htmlFragment = c.getFragmentAsHtml();
 						htmlFragment = DefaultAssemblyHandler.incrementHTag(htmlFragment, calcEffectiveLevel(((Section) s).getSectionLevel(), c.getChapterLevelOffset()));
 						htmlFragment = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, getTocFileName(), c.getRepoName(), s.getSectionName(), c.getFragmentName());
 						writeToOutputFile(htmlFragment);
 						writeDivCloseTag();
+						
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}
+					
 					writeToOutputFile(DocPart.CHAPTERS.postElement());
 					writeDivCloseTag();
 				} else if (s instanceof PseudoSection) {
@@ -131,11 +138,12 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 				} else if (s instanceof MetaSection) {
 					// Meta section
 					writeMetaSectionDivOpenTag(s.getSectionName());
-					for (String[] e : s.getElements()) {
+					for (String[] e : ((MetaSection)s).getElements()) {
 						writeElement(e[0], e[1]);
 					}
 					writeDivCloseTag();
 				}
+				
 				writeToOutputFile(DocPart.SECTION.postElement());
 			}
 			
