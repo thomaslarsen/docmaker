@@ -58,7 +58,7 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 								
 								asHtml.
 								append("<a class=\"toc-section level" + (hLevel + effectiveLevel) + "\" href=\"#").
-								append((handler.getTocFileName() + "-" + c.getRepoName() + "-" + s.getSectionName() + "-" + c.getFragmentName() + "-" + heading).toLowerCase().replace(' ', '-')).
+								append((handler.getTocFileName() + "-" + c.getRepoName() + "-" + s.getSectionName() + "-" + c.getFragmentName() + "-" + heading).toLowerCase().replace(' ', '-').replace('>',  '-').replace('<',  '-')).
 								append("\">").
 								append(heading).
 								append("</a>");
