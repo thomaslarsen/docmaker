@@ -31,8 +31,12 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	protected void handleSectionElement(Attributes attributes) throws IOException {
 		super.handleSectionElement(attributes);
 		
-		currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
-		sections.add(currentSection);
+		// if the current section level is null, then this is a meta section and
+		// should then *not* be added as a "normal" section
+		if (getCurrentSectionLevel() != null) {
+			currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
+			sections.add(currentSection);
+		}
 	}
 	
 	@Override

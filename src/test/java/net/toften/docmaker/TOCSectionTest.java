@@ -39,7 +39,7 @@ public class TOCSectionTest {
 			{	// 4
 				{ "fragment", "intro" },
 				{ "repo", "main" },
-				{ "level", "3" }
+				{ "level", String.valueOf(2 + DefaultAssemblyHandler.EFFECTIVE_LEVEL_ADJUSTMENT) }
 			},
 			{	// 5 - relative repo URI
 				{ "id", "main" },

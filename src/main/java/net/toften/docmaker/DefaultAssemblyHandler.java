@@ -82,11 +82,13 @@ AssemblyHandler {
 			return "html";
 		}
 	}
+
 	
 	protected Map<String, String> metaData = new HashMap<String, String>();
 	protected Map<String, URI> repos = new HashMap<String, URI>();
 
 	public static String headerRegex = "(\\</?h)(\\d)(>)";
+	public static final int EFFECTIVE_LEVEL_ADJUSTMENT = 2;
 	
 	private static Pattern p = Pattern.compile(headerRegex);
 
@@ -540,7 +542,7 @@ AssemblyHandler {
 	 * @return
 	 */
 	public static int calcEffectiveLevel(int currentSectionLevel, int chapterLevelOffset) {
-		return chapterLevelOffset + currentSectionLevel - 1;
+		return chapterLevelOffset + currentSectionLevel - EFFECTIVE_LEVEL_ADJUSTMENT;
 	}
 
 	/**
@@ -585,7 +587,7 @@ AssemblyHandler {
 					int end = m.start();
 					
 					String headerText = htmlFragment.substring(start, end);
-					String headerId = (tocFileName + "-" + repoName + "-" + sectionName + "-" + fragmentName + "-" + headerText).toLowerCase().replace(' ', '-');
+					String headerId = (tocFileName + "-" + repoName + "-" + sectionName + "-" + fragmentName + "-" + headerText).toLowerCase().replace(' ', '-').replace('>',  '-').replace('<',  '-');
 					String hReplace = "<h" + l + " id=\"" + headerId + "\">" + headerText + "</h" + l + ">";
 					
 					// Insert the new tag
