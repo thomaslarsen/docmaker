@@ -43,11 +43,10 @@ After we have added the properties, we will add a meta section. The definition o
 		..
 	
 		<sections>
-			<!-- A metasection - NO level attribute -->
-			<section title="frontpage">
+			<metasection title="frontpage">
 				<element key="title" />
 				<element key="author" />
-			</section>
+			</metasection>
 
 		..
 	</document>
@@ -57,12 +56,12 @@ In the above TOC, we have added a meta section with two `<element>` tags referen
 The above meta section will produce the following HTML:
 
 	<div class="section">
-		<div class="meta-section" id="frontpage">
-			<div class="element">
-				<div key="title">User manual</div>
+		<div class="meta-section" name="frontpage" id="tocfile-frontpage">
+			<div key="title">
+				User manual
 			</div>
-			<div class="element">
-				<div key="author">Thomas Larsen</div>
+			<div key="author">
+				Thomas Larsen
 			</div>
 		</div>
 	</div>
@@ -77,7 +76,7 @@ The final step is to create the CSS referencing the generated `<div>` elements:
 	 * Find the meta section with the id "frontpage"
 	 * We add a top margin and right align all the text
 	 */
-	div.meta-section[id=frontpage] {
+	div.meta-section[name=frontpage] {
 		margin-top: 6cm;
 		text-align: right;
 	}
@@ -86,7 +85,7 @@ The final step is to create the CSS referencing the generated `<div>` elements:
 	 * Here we reference the title div
 	 * We make the title xx-large, green and all upper case
 	 */
-	div.meta-section[id=frontpage] div[key=title] {
+	div.meta-section[name=frontpage] div[key=title] {
 		color: green;
 		font-size: xx-large;
 		font-weight: bold;
@@ -97,7 +96,7 @@ The final step is to create the CSS referencing the generated `<div>` elements:
 	 * Next we reference the author div
 	 * We put a margin on the top to put a bit of distance to the title, make the colour silver and size x-large
 	 */
-	div.meta-section[id=frontpage] div[key=author] {
+	div.meta-section[name=frontpage] div[key=author] {
 		margin-top: 1cm;
 		color: silver;
 		font-size: x-large;
@@ -113,7 +112,7 @@ On a final note, if we want to make a page break after each section, we can add 
 
 or if we only want a break after the front page:
 
-	div.meta-section[id=frontpage] {
+	div.meta-section[name=frontpage] {
 		..
 	
 		page-break-after: always;

@@ -1,13 +1,13 @@
 # What is docmaker?
 
-Docmaker is a [Maven](http://maven.apache.org) plugin that can convert a set of markup documents into a single output file, defined by a TOC and styled using CSS.
+Docmaker is a [Maven](http://maven.apache.org) plugin that can convert a set of markup documents into a single output file, defined by a table of contents XML file and styled using CSS.
 
 Docmaker is made up of a number of elements:
 
-* The **document** it the generated document, usually a PDF but can be other formats
-* A **fragment** is a part of one or more *documents*
-* The **TOC** is an XML file that describes the *fragments* in the *document*
-* The styling of the *document* is described in a **CSS** document
+* The **document** it the generated output, usually a PDF but can be other formats
+* A **fragment** contains the actual contents and is a part of one or more *documents*. Usually written in [Markdown](http://daringfireball.net/projects/markdown/syntax), but can be other formats
+* The [**TOC**](toc.html) is an XML file that describes the *fragments* in the *document*
+* A **transient HTML document** comprising all the *fragments* will be styled using a **CSS** document
 
 ## Why
 
@@ -30,15 +30,24 @@ I needed to fulfil the following requirements:
 Docmaker will go through the following steps:
 
 1. Convert each fragment into HTML
-2. Assemble the HTML fragments as defined in the TOC into a single HTML document
-3. Convert the assembled HTML document into PDF
+2. Assemble the HTML fragments as defined in the TOC into a single transient HTML document
+3. Convert the transient HTML document into PDF
 
 ## Converting fragments to HTML
 
-Each fragment will be written in a markup language. Docmaker will use a `MarkupProcessor` to convert the fragment into an HTML file. Note, the fragment HTML file is not a complete *HTML document* i.e. it will not contain any `<html>` or `<body>` tags for example.
-
-Any `<h>` sections in the fragment HTML file will be normalised, i.e. they will all start from `<h1>`.
+Each fragment will be written in a markup language. Docmaker will use a [`MarkupProcessor`](extensions/markupprocessor.html) to convert the fragment into an HTML file.
+Note, the fragment HTML file is not a complete *HTML document*, i.e. it will not contain any `<html>` or `<body>` tags for example.
 
 ## Assembling the fragments
 
-The [TOC](toc.html) describes which 
+The [TOC](toc.html) describes the structure of the document. This is organised into a hierarchy of **sections** and **chapters**, where a *section* can contain multiple *chapters* and a chapter refers to a single *fragment*.
+
+The fragments will appear in the document in the same order they are specified in the TOC. Each section and chapter will be surrounded by a `<div>` tag in the transient HTML document.
+
+### Normalising header tags
+
+Any `<h>` sections in the fragment HTML file will be normalised, i.e. they will all start from `<h1>`.
+
+## Converting transient HTML document into PDF
+
+The transient HTML document will be styled using a *CSS document* and then converted into PDF. Docmaker will use a [`PostProcessor`](extensions/postprocessor.html) to do the HTML to PDF conversion.
