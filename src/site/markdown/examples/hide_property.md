@@ -32,3 +32,5 @@ The following CSS will hide the property:
 	div.meta[key=author] {
 		display: none;
 	}
+
+**Note**, this should not be used if you want to use a property as a *running header* - see [page footer](bottom_running_header.html) for more detail.

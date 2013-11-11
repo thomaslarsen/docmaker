@@ -7,10 +7,19 @@
 			<item name="Goals" href="plugin-info.html" />
 			<item name="Usage" href="usage.html" />
 			<item name="FAQ" href="faq.html" />
+			<item name="TOC overview" href="toc.html" />
 		</menu>
 
-		<menu name="The TOC">
-			<item name="TOC overview" href="toc.html" />
+		<menu name="Pseudo sections">
+			<item name="Table of contents" href="psections/toc.html"/>
+		</menu>
+		
+		<menu name="Examples">
+			<item name="Page footer" href="/examples/bottom_running_header.html" />
+			<item name="Section title page" href="/examples/section_title_page.html" />
+			<item name="Page break between section" href="/examples/section_pagebreak.html" />
+			<item name="Adding a front page" href="/examples/add_frontpage.html" />
+			<item name="Hide properties" href="/examples/hide_property.html" />
 		</menu>
 		
 		<menu name="CSS tips">
@@ -18,18 +27,11 @@
 		</menu>
 
 		<menu name="Extension points">
-			<item name="Markup processor" href="markup.html"/>
-			<item name="Post processor" href="postprocess.html"/>
+			<item name="Markup processor" href="extensions/markupprocessor.html"/>
+			<item name="Post processor" href="extensions/postprocessor.html"/>
+			<item name="Pseudo section" href="extensions/pseudosection.html"/>
 		</menu>
 
-		<menu name="Examples">
-			<item name="Page footer" href="/examples/bottom_running_header.html" />
-			<item name="Section title page" href="/examples/section_title_page.html" />
-			<item name="Page break between section" href="/examples/section_pagebreak.html" />
-			<item name="Adding a front page" href="/examples/add_frontpage.html" />
-			<item name="Hide properties" href="/examples/hide_properties.html" />
-		</menu>
-		
 		<menu ref="reports" />
 	</body>
 </project>

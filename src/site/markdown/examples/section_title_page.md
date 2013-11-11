@@ -13,7 +13,7 @@ Given the following TOC:
 		<sections>
 			<section level="1" title="Introduction">
 				<chapters>
-					<chapter level="1" repo="common" fragment="intro" />
+					<chapter level="2" repo="common" fragment="intro" />
 					..
 				</chapters>
 			</section>
@@ -24,19 +24,19 @@ Given the following TOC:
 the following HTML will be generated:
 
 	<div class="section">
-		<div class="section-header" id="Introduction">
+		<div class="section-header" name="Introduction" id="adminguide-introduction">
 			<div class="chapters">
-				<div class="chapter" id="Introduction-intro">
+				<div class="chapter" id="adminguide-introduction-intro">
 				..
 
-We will use the `id` attribute of the `section-header` `<div>` tag.
+We will use the `name` attribute of the `section-header` `<div>` tag.
 
 ## CSS
 
 The following CSS will extract and insert the `id` attribute into the document:
 
 	div.section-header:before { 
-		content: attr(id);
+		content: attr(name);
 
 		color: navy;
 		text-align: right;
