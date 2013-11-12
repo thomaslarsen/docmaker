@@ -325,7 +325,7 @@ AssemblyHandler {
 		writeMetaSectionDivOpenTag(currentSectionName);
 	}
 
-	protected void handleChapterElement(Attributes attributes) throws URISyntaxException, SAXException, IOException {
+	protected void handleChapterElement(Attributes attributes) throws SAXException, IOException {
 		if (attributes.getValue("fragment") == null)
 			throw new SAXException("Chapter fragment attribute not specified");
 		
@@ -341,21 +341,26 @@ AssemblyHandler {
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
 			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
-			String htmlFragment = getFragmentAsHTML(currentRepoName, currentFragmentName, chapterLevelOffset);
 			
-			if (normalisedOffset > 0) {
-				htmlFragment = incrementHTag(htmlFragment, normalisedOffset);
+			try {
+				String htmlFragment = getFragmentAsHTML(currentRepoName, currentFragmentName, chapterLevelOffset);
+				
+				if (normalisedOffset > 0) {
+					htmlFragment = incrementHTag(htmlFragment, normalisedOffset);
+				}
+	
+				htmlFragment = injectHeaderIdAttributes(htmlFragment, getTocFileName(), currentRepoName, getCurrentSectionName(), currentFragmentName);
+	
+				writeToOutputFile(htmlFragment);
+			} catch (URISyntaxException e) {
+				throw new SAXException("Fragment " + currentFragmentName + " could not be converted", e);
 			}
-
-			htmlFragment = injectHeaderIdAttributes(htmlFragment, getTocFileName(), currentRepoName, getCurrentSectionName(), currentFragmentName);
-
-			writeToOutputFile(htmlFragment);
 		} else {
 			throw new SAXException("Repo " + currentRepoName + " not declared");
 		}
 	}
 
-	protected void handleSectionsElement(Attributes attributes) throws IOException {
+	protected void handleSectionsElement(Attributes attributes) throws IOException, SAXException {
 		/*
 		 * Just before the fragments, we include a metadata section
 		 * This section will include all the metadata defined in the property section
@@ -363,7 +368,7 @@ AssemblyHandler {
 		writeMetadataElement();
 	}
 
-	protected void handleElementElement(Attributes attributes) throws IOException {
+	protected void handleElementElement(Attributes attributes) throws IOException, SAXException {
 		/*
 		 * An element is a div tag, that references a metadata key/value pair
 		 */
@@ -373,11 +378,11 @@ AssemblyHandler {
 		}
 	}
 
-	protected void handlePropertyElement(Attributes attributes) {
+	protected void handlePropertyElement(Attributes attributes) throws IOException, SAXException {
 		metaData.put(attributes.getValue("key"), attributes.getValue("value"));
 	}
 
-	protected void handleMetaElement(String metaName, Attributes attributes) throws IOException {
+	protected void handleMetaElement(String metaName, Attributes attributes) throws IOException, SAXException {
 		writeToOutputFile("<" + metaName);
 
 		for (int i = 0; i < attributes.getLength(); i++) {
@@ -387,7 +392,7 @@ AssemblyHandler {
 		writeToOutputFile("/>");
 	}
 
-	protected void handleHeaderElement(Attributes attributes) throws IOException {
+	protected void handleHeaderElement(Attributes attributes) throws IOException, SAXException {
 		documentTitle = attributes.getValue("title");
 
 		writeTitleElement();

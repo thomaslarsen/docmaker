@@ -197,14 +197,14 @@ public class TOCSectionTest {
 	}
 	
 	@Test
-	public void testMetaElement() throws IOException {
+	public void testMetaElement() throws IOException, SAXException {
 		String metaName = "link";
 		
 		ah.handleMetaElement(metaName, runTest(2, 3));
 	}
 	
 	@Test
-	public void testPropertyElement() {
+	public void testPropertyElement() throws IOException, SAXException {
 		ah.handlePropertyElement(runTest(3, null));
 		
 		assertTrue(ah.metaData.containsKey("author"));
@@ -213,14 +213,14 @@ public class TOCSectionTest {
 	}
 
 	@Test
-	public void testElementElement() throws IOException {
+	public void testElementElement() throws IOException, SAXException {
 		testPropertyElement(); // Inject some metadata
 		
 		ah.handleElementElement(runTest(7, 7));
 	}
 	
 	@Test
-	public void testSectionsWithNoProperties() throws IOException {
+	public void testSectionsWithNoProperties() throws IOException, SAXException {
 		ah.handleSectionsElement(runTest(null, 1));
 		
 		assertEquals(null, ah.getCurrentSectionLevel());
@@ -228,7 +228,7 @@ public class TOCSectionTest {
 	}
 
 	@Test
-	public void testSectionsWithProperties() throws IOException {
+	public void testSectionsWithProperties() throws IOException, SAXException {
 		testPropertyElement(); // Inject a property
 		
 		ah.handleSectionsElement(runTest(null, 4));
@@ -238,7 +238,7 @@ public class TOCSectionTest {
 	}
 	
 	@Test
-	public void testHeaderElementNoCSS() throws IOException {
+	public void testHeaderElementNoCSS() throws IOException, SAXException {
 		ah.handleHeaderElement(runTest(1, 5));
 		
 		assertTrue(ah.metaData.containsKey("title"));

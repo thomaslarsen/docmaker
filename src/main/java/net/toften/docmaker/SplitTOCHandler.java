@@ -64,8 +64,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 
 	@Override
-	protected void handleElementElement(Attributes attributes)
-			throws IOException {
+	protected void handleElementElement(Attributes attributes) throws IOException, SAXException {
 		if (currentSection instanceof MetaSection) {
 			super.handleElementElement(attributes);
 			
