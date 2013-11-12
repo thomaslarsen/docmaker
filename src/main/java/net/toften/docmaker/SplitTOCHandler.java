@@ -28,7 +28,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 	
 	@Override
-	protected void handleSectionElement(Attributes attributes) throws IOException {
+	protected void handleSectionElement(Attributes attributes) throws IOException, SAXException {
 		super.handleSectionElement(attributes);
 		
 		// if the current section level is null, then this is a meta section and
@@ -41,7 +41,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	
 	@Override
 	protected void handleMetaSectionElement(Attributes attributes)
-			throws IOException {
+			throws IOException, SAXException {
 		super.handleMetaSectionElement(attributes);
 		
 		currentSection = new MetaSection(getCurrentSectionName());

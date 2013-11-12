@@ -302,18 +302,23 @@ AssemblyHandler {
 		// Empty
 	}
 
-	protected void handleSectionElement(Attributes attributes) throws IOException {
-		if (attributes.getValue("level") == null) {
-			// Included for backwards compatibility
-			handleMetaSectionElement(attributes);
-		} else {
-			currentSectionName = attributes.getValue("title");
-			currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
-			writeStandardSectionDivOpenTag(currentSectionName);
-		}
+	protected void handleSectionElement(Attributes attributes) throws IOException, SAXException {
+		if (attributes.getValue("title") == null)
+			throw new SAXException("Section title attribute not specified");
+		
+		if (attributes.getValue("level") == null)
+			throw new SAXException("Section level attribute not specified");
+		
+		currentSectionName = attributes.getValue("title");
+		currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+
+		writeStandardSectionDivOpenTag(currentSectionName);
 	}
 
-	protected void handleMetaSectionElement(Attributes attributes) throws IOException {
+	protected void handleMetaSectionElement(Attributes attributes) throws IOException, SAXException {
+		if (attributes.getValue("title") == null)
+			throw new SAXException("Section title attribute not specified");
+		
 		currentSectionName = attributes.getValue("title");
 		currentSectionLevel = null;
 
@@ -321,6 +326,12 @@ AssemblyHandler {
 	}
 
 	protected void handleChapterElement(Attributes attributes) throws URISyntaxException, SAXException, IOException {
+		if (attributes.getValue("fragment") == null)
+			throw new SAXException("Chapter fragment attribute not specified");
+		
+		if (attributes.getValue("repo") == null)
+			throw new SAXException("Chapter repo attribute not specified");
+		
 		currentFragmentName = attributes.getValue("fragment");
 
 		currentRepoName = attributes.getValue("repo");

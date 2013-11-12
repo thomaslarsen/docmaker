@@ -165,15 +165,15 @@ public class TOCSectionTest {
 	}
 	
 	@Test
-	public void testSectionWithLevel() throws IOException {
+	public void testSectionWithLevel() throws IOException, SAXException {
 		ah.handleSectionElement(runTest(0, 0));
 		
 		assertEquals(2, ah.getCurrentSectionLevel().intValue());
 		assertEquals("test", ah.getCurrentSectionName());
 	}
 	
-	@Test
-	public void testSectionWithoutLevel() throws IOException {
+	@Test (expected = SAXException.class)
+	public void testSectionWithoutLevel() throws IOException, SAXException {
 		ah.handleSectionElement(runTest(1, 2));
 		
 		assertEquals(null, ah.getCurrentSectionLevel());
@@ -181,7 +181,7 @@ public class TOCSectionTest {
 	}
 
 	@Test
-	public void testMetaSectionWithoutLevel() throws IOException {
+	public void testMetaSectionWithoutLevel() throws IOException, SAXException {
 		ah.handleMetaSectionElement(runTest(1, 2));
 		
 		assertEquals(null, ah.getCurrentSectionLevel());
@@ -189,7 +189,7 @@ public class TOCSectionTest {
 	}
 
 	@Test
-	public void testMetaSectionWithLevel() throws IOException {
+	public void testMetaSectionWithLevel() throws IOException, SAXException {
 		ah.handleMetaSectionElement(runTest(0, 2));
 		
 		assertEquals(null, ah.getCurrentSectionLevel());
