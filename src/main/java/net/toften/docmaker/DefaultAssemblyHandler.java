@@ -264,8 +264,6 @@ AssemblyHandler {
 				}
 			} catch (IOException e) {
 				throw new SAXException("Processing element " + qName + " failed", e);
-			} catch (URISyntaxException e) {
-				throw new SAXException("Creating URI for element " + qName + " failed", e);
 			} catch (Exception e) {
 				throw new SAXException("Element " + qName + " failed", e);
 			}
