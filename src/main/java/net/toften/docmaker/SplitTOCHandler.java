@@ -44,7 +44,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			throws IOException, SAXException {
 		super.handleMetaSectionElement(attributes);
 		
-		currentSection = new MetaSection(getCurrentSectionName());
+		currentSection = new MetaSection(getCurrentSectionName(), isRotateCurrentSection());
 		sections.add(currentSection);
 	}
 	
@@ -58,8 +58,9 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	protected void handlePseudoSectionElement(Attributes attributes) throws Exception {
 		setCurrentSectionName(attributes.getValue("title"));
 		String pSectionHandlerClassname = attributes.getValue("classname");
+		boolean rotateCurrentSection = attributes.getValue("rotate") != null;
 		
-		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname, attributes);
+		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname, attributes, rotateCurrentSection);
 		sections.add(currentSection);
 	}
 
@@ -116,7 +117,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 				writeToOutputFile(DocPart.SECTION.preElement());
 				
 				if (s instanceof Section) {
-					writeStandardSectionDivOpenTag(s.getSectionName(), ((Section)s).isRotated());
+					writeStandardSectionDivOpenTag(s.getSectionName(), s.isRotated());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
 					
 					for (Chapter c : ((Section)s).getChapters()) {
@@ -140,7 +141,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 					writeDivCloseTag();
 				} else if (s instanceof MetaSection) {
 					// Meta section
-					writeMetaSectionDivOpenTag(s.getSectionName());
+					writeMetaSectionDivOpenTag(s.getSectionName(), s.isRotated());
 					for (String[] e : ((MetaSection)s).getElements()) {
 						writeElement(e[0], e[1]);
 					}

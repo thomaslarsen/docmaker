@@ -331,8 +331,10 @@ AssemblyHandler {
 		
 		currentSectionName = attributes.getValue("title");
 		currentSectionLevel = null;
+		
+		rotateCurrentSection = attributes.getValue("rotate") != null;
 
-		writeMetaSectionDivOpenTag(currentSectionName);
+		writeMetaSectionDivOpenTag(currentSectionName, rotateCurrentSection);
 	}
 
 	protected void handleChapterElement(Attributes attributes) throws SAXException, IOException {
@@ -349,7 +351,7 @@ AssemblyHandler {
 		currentRepoName = attributes.getValue("repo");
 		if (repos.containsKey(currentRepoName)) {
 			// Write the chapter div tag
-			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, getCurrentRepoName(), rotateCurrentChapter);
+			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, currentRepoName, rotateCurrentChapter);
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
 			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
@@ -487,8 +489,8 @@ AssemblyHandler {
 		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + repoName + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
 	}
 	
-	protected void writeMetaSectionDivOpenTag(String sectionName) throws IOException {
-		writeDivOpenTag("meta-section", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
+	protected void writeMetaSectionDivOpenTag(String sectionName, boolean isRotated) throws IOException {
+		writeDivOpenTag("meta-section" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 	
 	protected void writeStandardSectionDivOpenTag(String sectionName, boolean isRotated) throws IOException {
