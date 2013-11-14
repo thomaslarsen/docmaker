@@ -6,14 +6,16 @@ import java.util.List;
 public class Section extends MetaSection {
 	private List<Chapter> chapters = new LinkedList<Chapter>();
 	private Integer sectionLevel;
+	private boolean isRotated;
 
-	public Section(String sectionName, Integer sectionLevel) {
+	public Section(String sectionName, Integer sectionLevel, boolean isRotated) {
 		super(sectionName);
 		this.sectionLevel = sectionLevel;
+		this.isRotated = isRotated;
 	}
 
-	public void addChapter(String fragmentName, String repo, int chapterLevelOffset, String fragmentAsHtml) {
-		chapters.add(new Chapter(fragmentName, repo, chapterLevelOffset, fragmentAsHtml));
+	public void addChapter(String fragmentName, String repo, int chapterLevelOffset, String fragmentAsHtml, boolean isRotated) {
+		chapters.add(new Chapter(fragmentName, repo, chapterLevelOffset, fragmentAsHtml, isRotated));
 	}
 	
 	public List<Chapter> getChapters() {
@@ -22,5 +24,9 @@ public class Section extends MetaSection {
 	
 	public Integer getSectionLevel() {
 		return sectionLevel;
+	}
+	
+	public boolean isRotated() {
+		return isRotated;
 	}
 }

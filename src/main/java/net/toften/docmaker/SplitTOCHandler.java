@@ -34,7 +34,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		// if the current section level is null, then this is a meta section and
 		// should then *not* be added as a "normal" section
 		if (getCurrentSectionLevel() != null) {
-			currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel());
+			currentSection = new Section(getCurrentSectionName(), getCurrentSectionLevel(), isRotateCurrentSection());
 			sections.add(currentSection);
 		}
 	}
@@ -80,7 +80,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		if (currentSection instanceof Section) {
 			String fragmentAsHtml = super.getFragmentAsHTML(repoName, fragmentName, 0);
 			
-			((Section)currentSection).addChapter(fragmentName, repoName, chapterLevelOffset, fragmentAsHtml);
+			((Section)currentSection).addChapter(fragmentName, repoName, chapterLevelOffset, fragmentAsHtml, isRotateCurrentChapter());
 		} else
 			throw new IllegalStateException("Current section: " + currentSection.getSectionName() + " is not a standard section");
 		
@@ -116,13 +116,13 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 				writeToOutputFile(DocPart.SECTION.preElement());
 				
 				if (s instanceof Section) {
-					writeStandardSectionDivOpenTag(s.getSectionName());
+					writeStandardSectionDivOpenTag(s.getSectionName(), ((Section)s).isRotated());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
 					
 					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
 						
-						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName(), c.getRepoName());
+						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName(), c.getRepoName(), c.isRotated());
 						String htmlFragment = c.getFragmentAsHtml();
 						htmlFragment = DefaultAssemblyHandler.incrementHTag(htmlFragment, calcEffectiveLevel(((Section) s).getSectionLevel(), c.getChapterLevelOffset()));
 						htmlFragment = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, getTocFileName(), c.getRepoName(), s.getSectionName(), c.getFragmentName());

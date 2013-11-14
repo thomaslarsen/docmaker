@@ -103,6 +103,8 @@ AssemblyHandler {
 	private String documentTitle;
 	private String currentRepoName;
 	private MarkupProcessor markupProcessor;
+	private boolean rotateCurrentSection;
+	private boolean rotateCurrentChapter;
 
 	public DefaultAssemblyHandler() {
 		currentFileHandler = new GenericFileHandler();
@@ -167,6 +169,14 @@ AssemblyHandler {
 	@Override
 	public String getCurrentSectionName() {
 		return currentSectionName;
+	}
+	
+	public boolean isRotateCurrentSection() {
+		return rotateCurrentSection;
+	}
+	
+	public boolean isRotateCurrentChapter() {
+		return rotateCurrentChapter;
 	}
 	
 	protected void setCurrentSectionName(String currentSectionName) {
@@ -309,8 +319,10 @@ AssemblyHandler {
 		
 		currentSectionName = attributes.getValue("title");
 		currentSectionLevel = Integer.valueOf(attributes.getValue("level"));
+		
+		rotateCurrentSection = attributes.getValue("rotate") != null;
 
-		writeStandardSectionDivOpenTag(currentSectionName);
+		writeStandardSectionDivOpenTag(currentSectionName, rotateCurrentSection);
 	}
 
 	protected void handleMetaSectionElement(Attributes attributes) throws IOException, SAXException {
@@ -331,11 +343,13 @@ AssemblyHandler {
 			throw new SAXException("Chapter repo attribute not specified");
 		
 		currentFragmentName = attributes.getValue("fragment");
+		
+		rotateCurrentChapter = attributes.getValue("rotate") != null;
 
 		currentRepoName = attributes.getValue("repo");
 		if (repos.containsKey(currentRepoName)) {
 			// Write the chapter div tag
-			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, getCurrentRepoName());
+			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, getCurrentRepoName(), rotateCurrentChapter);
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
 			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
@@ -469,16 +483,16 @@ AssemblyHandler {
 		writeDivCloseTag();
 	}
 
-	protected void writeChapterDivOpenTag(String sectionName, String fragmentName, String repoName) throws IOException {
-		writeDivOpenTag("chapter", (getTocFileName() + "-" + repoName + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
+	protected void writeChapterDivOpenTag(String sectionName, String fragmentName, String repoName, boolean isRotated) throws IOException {
+		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + repoName + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
 	}
 	
 	protected void writeMetaSectionDivOpenTag(String sectionName) throws IOException {
 		writeDivOpenTag("meta-section", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 	
-	protected void writeStandardSectionDivOpenTag(String sectionName) throws IOException {
-		writeDivOpenTag("section-header", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
+	protected void writeStandardSectionDivOpenTag(String sectionName, boolean isRotated) throws IOException {
+		writeDivOpenTag("section-header" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 
 	/**
