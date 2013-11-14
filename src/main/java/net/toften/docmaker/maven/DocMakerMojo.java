@@ -20,27 +20,58 @@ import org.apache.maven.plugins.annotations.Parameter;
 
 @Mojo ( name = "docmaker" )
 public class DocMakerMojo extends AbstractMojo {
+	/**
+	 * The path to a TOC file, or a directory containing a number of TOC files.
+	 * <p>
+	 * If a path to a directory is given, all TOC files in this directory will be processed.
+	 * 
+	 * @see #tocFileExt
+	 */
 	@Parameter (required = true )
 	private String toc;
 	
+	/**
+	 * The extension of the TOC files.
+	 */
 	@Parameter ( defaultValue = "xml" )
 	private String tocFileExt;
 	
+	/**
+	 * The base URI from where fragment repositories will be identified.
+	 * <p>
+	 * Note, that this will only be used if a relative repository URI is provided.
+	 * If an absolute repository URI is provided, this will be ignored.
+	 */
 	@Parameter ( defaultValue = "file:///${basedir}/" )
 	private String fragmentURI;
 	
+	/**
+	 * The directory where the generated file and the transient HTML file will be located.
+	 */
 	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )
 	private String outputDir;
 	
+	/**
+	 * The class name of the {@link MarkupProcessor}
+	 */
 	@Parameter (defaultValue = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor" )
 	private String markupProcessorClassname;
 	
+	/**
+	 * The class name of the {@link OutputProcessor}
+	 */
 	@Parameter ( defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor" )
 	private String outputProcessorClassname;
 	
+	/**
+	 * The class name of the {@link AssemblyHandler}
+	 */
 	@Parameter ( defaultValue = "net.toften.docmaker.DefaultAssemblyHandler" )
 	private String assemblyHandlerClassname;
 	
+	/**
+	 * Path to the CSS file to be used to style the generated output
+	 */
 	@Parameter
 	private String cssFilePath;
 	
@@ -136,9 +167,15 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 	}
 	
+	/**
+	 * Utility method to instantiate a class, given an interface.
+	 * 
+	 * @param type the interface type to use as return type
+	 * @param className the name of the class (implementing the interface) to instantiate
+	 * @return an instance of the class, returned as the interface type
+	 * @throws Exception
+	 */
 	public static <K> K newInstance(Class<K> type, String className) throws Exception {
-		Class<K> clazz = (Class<K>) Class.forName(className);
-
-		return clazz.newInstance();
+		return ((Class<K>) Class.forName(className)).newInstance();
 	}
 }
