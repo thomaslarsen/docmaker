@@ -8,8 +8,8 @@ public class PseudoSection extends BaseSection {
 
 	private PseudoSectionHandler sectionHandler;
 
-	public PseudoSection(String sectionName, String pSectionHandlerClassname, Attributes attributes) throws Exception {
-		super(sectionName);
+	public PseudoSection(String sectionName, String pSectionHandlerClassname, Attributes attributes, boolean isRotated) throws Exception {
+		super(sectionName, isRotated);
 		
 		sectionHandler = DocMakerMojo.newInstance(PseudoSectionHandler.class, pSectionHandlerClassname);
 		sectionHandler.init(attributes);

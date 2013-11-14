@@ -6,8 +6,8 @@ import java.util.List;
 public class MetaSection extends BaseSection {
 	private List<String[]> elements = new LinkedList<String[]>();
 
-	public MetaSection(String sectionName) {
-		super(sectionName);
+	public MetaSection(String sectionName, boolean isRotated) {
+		super(sectionName, isRotated);
 	}
 
 	public void addElement(String key, String value) {
