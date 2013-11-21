@@ -13,7 +13,7 @@ public class Section extends MetaSection {
 	}
 
 	public void addChapter(String fragmentName, String repo, int chapterLevelOffset, String fragmentAsHtml, boolean isRotated) {
-		chapters.add(new Chapter(fragmentName, repo, chapterLevelOffset, fragmentAsHtml, isRotated));
+		chapters.add(new Chapter(this, fragmentName, repo, chapterLevelOffset, fragmentAsHtml, isRotated));
 	}
 	
 	public List<Chapter> getChapters() {
