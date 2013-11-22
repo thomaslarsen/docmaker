@@ -15,7 +15,7 @@ public class InjectHeaderIdTest {
 		
 		String i = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, tocFileName, repoName, sectionName, fragmentName);
 		
-		assertEquals("<h1 id=\"toc-repo-test-intro-header\">Header</h1>", i);
+		assertEquals("<h1 id=\"toc-test-intro-header\">Header</h1>", i);
 	}
 	
 	@Test
@@ -24,6 +24,6 @@ public class InjectHeaderIdTest {
 		
 		String i = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, tocFileName, repoName, sectionName, fragmentName);
 		
-		assertEquals("<h1 id=\"toc-repo-test-intro-header\">Header</h1><h2 id=\"toc-repo-test-intro-header-2\">Header 2</h2>", i);
+		assertEquals("<h1 id=\"toc-test-intro-header\">Header</h1><h2 id=\"toc-test-intro-header-2\">Header 2</h2>", i);
 	}
 }

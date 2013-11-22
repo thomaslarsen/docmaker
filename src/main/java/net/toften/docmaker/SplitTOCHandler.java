@@ -2,8 +2,13 @@ package net.toften.docmaker;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import net.toften.docmaker.maven.DocMakerMojo;
+import net.toften.docmaker.pseudosections.HeaderIncrementPostProcessor;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -11,9 +16,16 @@ import org.xml.sax.SAXException;
 public class SplitTOCHandler extends DefaultAssemblyHandler {
 	
 	private List<BaseSection> sections = new LinkedList<BaseSection>();
+	private List<PostProcessor> postProcessors = new LinkedList<PostProcessor>();
 	private BaseSection currentSection;
 	private boolean writeToOutput = false;
+	private List<Map<String, String>> htmlMeta = new LinkedList<Map<String, String>>();
 
+	public SplitTOCHandler() {
+		postProcessors.add(new HeaderIncrementPostProcessor());
+		postProcessors.add(new InjectHeaderIdPostProcessor());
+	}
+	
 	@Override
 	public void close() throws IOException {
 		// Trap this, so we don't prematurely close the file
@@ -52,9 +64,17 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	protected void handleUnknownElement(DocPart dp, Attributes attributes) throws Exception {
 		if (dp == DocPart.PSECTION) {
 			handlePseudoSectionElement(attributes);
+		} else if (dp == DocPart.PPROCESSOR) {
+			handlePostProcessorElement(attributes);
 		}
 	}
 	
+	private void handlePostProcessorElement(Attributes attributes) throws Exception {
+		String postProcessorHandlerClassname = attributes.getValue("classname");
+		
+		postProcessors.add(DocMakerMojo.newInstance(PostProcessor.class, postProcessorHandlerClassname));
+	}
+
 	protected void handlePseudoSectionElement(Attributes attributes) throws Exception {
 		setCurrentSectionName(attributes.getValue("title"));
 		String pSectionHandlerClassname = attributes.getValue("classname");
@@ -77,8 +97,20 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 	
 	@Override
+	protected void handleMetaElement(String metaName, Attributes attributes) throws IOException, SAXException {
+		Map<String, String> meta = new HashMap<String, String>();
+		
+		for (int i = 0; i < attributes.getLength(); i++) {
+			meta.put(attributes.getQName(i), attributes.getValue(i));
+		}
+		
+		htmlMeta.add(meta);
+	}
+	
+	@Override
 	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
 		if (currentSection instanceof Section) {
+			// Deliberately using '0' as the offset
 			String fragmentAsHtml = super.getFragmentAsHTML(repoName, fragmentName, 0);
 			
 			((Section)currentSection).addChapter(fragmentName, repoName, chapterLevelOffset, fragmentAsHtml, isRotateCurrentChapter());
@@ -106,6 +138,20 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			writeToOutputFile(DocPart.HEADER.preElement());
 			writeTitleElement();
 			writeCSSElement();
+			
+			/*
+			 * Write HTML meta tags
+			 */
+			for (Map<String, String> meta : htmlMeta) {
+				writeToOutputFile("<meta ");
+
+				for (String key : meta.keySet()) {
+					writeToOutputFile(" " + key + "=\"" + meta.get(key) + "\"");
+				}
+
+				writeToOutputFile("/>");
+			}
+			
 			writeToOutputFile(DocPart.HEADER.postElement());
 
 			// Metadata
@@ -115,18 +161,23 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			// Sections
 			for (BaseSection s : sections) {
 				writeToOutputFile(DocPart.SECTION.preElement());
+				writeToOutputFile(s.getDivOpenTag(this));
 				
 				if (s instanceof Section) {
-					writeStandardSectionDivOpenTag(s.getSectionName(), s.isRotated());
 					writeToOutputFile(DocPart.CHAPTERS.preElement());
 					
 					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
+						writeToOutputFile(c.getDivOpenTag(this));
 						
-						writeChapterDivOpenTag(s.getSectionName(), c.getFragmentName(), c.getRepoName(), c.isRotated());
 						String htmlFragment = c.getFragmentAsHtml();
-						htmlFragment = DefaultAssemblyHandler.incrementHTag(htmlFragment, calcEffectiveLevel(((Section) s).getSectionLevel(), c.getChapterLevelOffset()));
-						htmlFragment = DefaultAssemblyHandler.injectHeaderIdAttributes(htmlFragment, getTocFileName(), c.getRepoName(), s.getSectionName(), c.getFragmentName());
+						for (PostProcessor pp : postProcessors) {
+							StringBuffer out = new StringBuffer();
+							pp.processFragment(c, htmlFragment, out, this);
+							
+							htmlFragment = out.toString();
+						}
+						
 						writeToOutputFile(htmlFragment);
 						writeDivCloseTag();
 						
@@ -136,12 +187,9 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 					writeToOutputFile(DocPart.CHAPTERS.postElement());
 					writeDivCloseTag();
 				} else if (s instanceof PseudoSection) {
-					writePseudoSectionDivOpenTag(s.getSectionName());
 					writeToOutputFile(((PseudoSection)s).getSectionHandler().getSectionAsHtml(sections, this));
 					writeDivCloseTag();
 				} else if (s instanceof MetaSection) {
-					// Meta section
-					writeMetaSectionDivOpenTag(s.getSectionName(), s.isRotated());
 					for (String[] e : ((MetaSection)s).getElements()) {
 						writeElement(e[0], e[1]);
 					}
@@ -160,9 +208,5 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		} finally {
 			super.endDocument();
 		}
-	}
-
-	private void writePseudoSectionDivOpenTag(String sectionName) throws IOException {
-		writeDivOpenTag("pseudo-section", (getTocFileName() + "-" + sectionName).toLowerCase().replace(' ', '-'), sectionName);
 	}
 }

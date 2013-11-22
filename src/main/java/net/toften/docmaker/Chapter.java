@@ -44,4 +44,23 @@ public class Chapter {
 	public int calcEffectiveLevel() {
 		return DefaultAssemblyHandler.calcEffectiveLevel(getSection().getSectionLevel(), getChapterLevelOffset());
 	}
+
+	public String getDivOpenTag(AssemblyHandler handler) {
+		String classAttr = getDivClassName() + (isRotated() ? " rotate" : "");
+		
+		return constructDivOpenTag(classAttr, getIdAttr(handler));
+	}
+	
+	public String getIdAttr(AssemblyHandler handler) {
+		return (handler.getTocFileName() + "-" + getSection().getSectionName() + "-" + getFragmentName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+	}
+
+	private String getDivClassName() {
+		return "chapter";
+	}
+
+	protected String constructDivOpenTag(String divClass, String divId) {
+		return "<div class=\"" + divClass + "\" id=\"" + divId + "\">";
+	}
+
 }

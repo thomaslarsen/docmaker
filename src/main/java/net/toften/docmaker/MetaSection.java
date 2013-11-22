@@ -17,4 +17,9 @@ public class MetaSection extends BaseSection {
 	public List<String[]> getElements() {
 		return elements;
 	}
+	
+	@Override
+	protected String getDivClassName() {
+		return "meta-section";
+	}
 }

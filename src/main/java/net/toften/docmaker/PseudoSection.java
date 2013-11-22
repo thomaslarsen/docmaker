@@ -18,4 +18,9 @@ public class PseudoSection extends BaseSection {
 	public PseudoSectionHandler getSectionHandler() {
 		return sectionHandler;
 	}
+	
+	@Override
+	protected String getDivClassName() {
+		return "pseudo-section";
+	}
 }

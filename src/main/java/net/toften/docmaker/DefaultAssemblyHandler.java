@@ -486,7 +486,7 @@ AssemblyHandler {
 	}
 
 	protected void writeChapterDivOpenTag(String sectionName, String fragmentName, String repoName, boolean isRotated) throws IOException {
-		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + repoName + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
+		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
 	}
 	
 	protected void writeMetaSectionDivOpenTag(String sectionName, boolean isRotated) throws IOException {
@@ -617,7 +617,7 @@ AssemblyHandler {
 					int end = m.start();
 					
 					String headerText = htmlFragment.substring(start, end);
-					String headerId = (tocFileName + "-" + repoName + "-" + sectionName + "-" + fragmentName + "-" + headerText).toLowerCase().replace(' ', '-').replace('>',  '-').replace('<',  '-');
+					String headerId = (tocFileName + "-" + sectionName + "-" + fragmentName + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 					String hReplace = "<h" + l + " id=\"" + headerId + "\">" + headerText + "</h" + l + ">";
 					
 					// Insert the new tag

@@ -23,4 +23,9 @@ public class Section extends MetaSection {
 	public Integer getSectionLevel() {
 		return sectionLevel;
 	}
+	
+	@Override
+	protected String getDivClassName() {
+		return "section-header";
+	}
 }

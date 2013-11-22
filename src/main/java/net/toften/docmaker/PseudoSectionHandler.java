@@ -2,12 +2,6 @@ package net.toften.docmaker;
 
 import java.util.List;
 
-import org.xml.sax.Attributes;
-
-public interface PseudoSectionHandler {
-
+public interface PseudoSectionHandler extends PostProcessor {
 	String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler);
-
-	void init(Attributes attributes);
-
 }

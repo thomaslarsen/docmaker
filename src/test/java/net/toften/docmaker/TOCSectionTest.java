@@ -82,8 +82,8 @@ public class TOCSectionTest {
 				"<title>test</title>"
 			},
 			{	// 6
-				"<div class=\"chapter\" id=\"toc-main-test-intro\">",
-				"<h5 id=\"toc-main-test-intro-heading\">Heading</h5><p>Hello</p>",
+				"<div class=\"chapter\" id=\"toc-test-intro\">",
+				"<h5 id=\"toc-test-intro-heading\">Heading</h5><p>Hello</p>",
 				END_DIV
 			},
 			{	// 7

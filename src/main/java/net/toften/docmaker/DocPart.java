@@ -19,18 +19,20 @@ public enum DocPart {
 	 * This is the group of all the sections of the document.
 	 * We expect to have only one of those per TOC
 	 */
-	SECTIONS 	("sections", 	"body", 	false),
-	SECTION 	("section", 	null, 		true),
-	METASECTION ("metasection",	null,		true),
-	PSECTION	("psection",	null,		true),
-	CHAPTERS 	("chapters", 	null, 		true),
-	CHAPTER 	("chapter", 	null, 		true), 
-	LINK 		("link", 		null, 		false),
-	HEADER 		("header", 		"head", 	false), 
-	META 		("meta", 		null, 		false),
-	PROPERTY 	("property", 	null, 		false),
-	ELEMENT 	("element", 	null, 		true),
-	REPO 		("repo", 		null, 		false),
+	SECTIONS 	("sections", 		"body", 	false),
+	SECTION 	("section", 		null, 		true),
+	METASECTION ("metasection",		null,		true),
+	PSECTION	("psection",		null,		true),
+	CHAPTERS 	("chapters", 		null, 		true),
+	CHAPTER 	("chapter", 		null, 		true), 
+	LINK 		("link", 			null, 		false),
+	HEADER 		("header", 			"head", 	false), 
+	META 		("meta", 			null, 		false),
+	PROPERTY 	("property", 		null, 		false),
+	ELEMENT 	("element", 		null, 		true),
+	REPO 		("repo", 			null, 		false),
+	PROCESSORS	("processors",		null, 		false),
+	PPROCESSOR	("postprocessor",	null, 		false),
 	;
 
 	private String name;

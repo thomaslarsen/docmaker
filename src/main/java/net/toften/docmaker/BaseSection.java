@@ -1,6 +1,6 @@
 package net.toften.docmaker;
 
-public class BaseSection {
+public abstract class BaseSection {
 	private String sectionName;
 	private boolean isRotated;
 
@@ -14,5 +14,21 @@ public class BaseSection {
 
 	public boolean isRotated() {
 		return isRotated;
+	}
+	
+	public String getDivOpenTag(AssemblyHandler handler) {
+		String classAttr = getDivClassName() + (isRotated() ? " rotate" : "");
+		
+		return constructDivOpenTag(classAttr, getIdAttr(handler), getSectionName());
+	}
+	
+	public String getIdAttr(AssemblyHandler handler) {
+		return (handler.getTocFileName() + "-" + getSectionName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+	}
+	
+	protected abstract String getDivClassName();
+
+	protected String constructDivOpenTag(String divClass, String divId, String divName) {
+		return "<div class=\"" + divClass + "\" id=\"" + divId + "\" name=\"" + divName + "\">";
 	}
 }

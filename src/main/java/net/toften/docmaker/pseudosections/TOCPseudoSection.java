@@ -16,11 +16,11 @@ import org.xml.sax.Attributes;
 public class TOCPseudoSection implements PseudoSectionHandler {
 	private static Pattern p = Pattern.compile(DefaultAssemblyHandler.headerRegex);
 
-	private int level;
+	private int maxLevel;
 
 	@Override
 	public void init(Attributes attributes) {
-		level = Integer.valueOf(attributes.getValue("level"));
+		maxLevel = Integer.valueOf(attributes.getValue("level"));
 	}
 
 	@Override
@@ -31,44 +31,48 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 			if (metaSection instanceof Section) {
 				Section s = (Section)metaSection;
 				int sectionLevel = s.getSectionLevel();
-				
-				if (sectionLevel <= level) {
+
+				if (sectionLevel <= maxLevel) {
 					asHtml.
 					append("<a class=\"toc-section level" + sectionLevel + "\" href=\"#").
-					append((handler.getTocFileName() + "-" + s.getSectionName()).toLowerCase().replace(' ', '-')).
+					append(s.getIdAttr(handler)).
 					append("\">").
 					append(s.getSectionName()).
 					append("</a>");
 				}
-				
+
 				for (Chapter c : s.getChapters()) {
-					int effectiveLevel = DefaultAssemblyHandler.calcEffectiveLevel(sectionLevel, c.getChapterLevelOffset());
-					
-					String fragment = c.getFragmentAsHtml();
-					Matcher m = p.matcher(fragment);
-					while (m.find()) {
-						if (m.group(0).charAt(1) != '/') {	// Check it is not the close tag
-							int hLevel = Integer.parseInt(m.group(2));
-							
-							if (hLevel + effectiveLevel <= level) {
-								int start = m.end();
-								m.find();
-								int end = m.start();
-								String heading = fragment.substring(start, end);
-								
-								asHtml.
-								append("<a class=\"toc-section level" + (hLevel + effectiveLevel) + "\" href=\"#").
-								append((handler.getTocFileName() + "-" + c.getRepoName() + "-" + s.getSectionName() + "-" + c.getFragmentName() + "-" + heading).toLowerCase().replace(' ', '-').replace('>',  '-').replace('<',  '-')).
-								append("\">").
-								append(heading).
-								append("</a>");
-							}
-						}
-					}
+					processFragment(c, c.getFragmentAsHtml(), asHtml, handler);
 				}
 			}
 		}
-		
+
 		return asHtml.append("</div>").toString();
+	}
+
+	@Override
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
+		Matcher m = p.matcher(fragmentAsHtml);
+		
+		while (m.find()) {
+			if (m.group(0).charAt(1) != '/') {	// Check it is not the close tag
+				int hLevel = Integer.parseInt(m.group(2));
+				int effectiveLevel = hLevel + chapter.calcEffectiveLevel();
+
+				if (effectiveLevel <= maxLevel) {
+					int start = m.end();
+					m.find();
+					int end = m.start();
+					String heading = fragmentAsHtml.substring(start, end);
+
+					out.
+					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
+					append(chapter.getIdAttr(handler)).
+					append("\">").
+					append(heading).
+					append("</a>");
+				}
+			}
+		}
 	}
 }
