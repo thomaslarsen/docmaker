@@ -2,7 +2,7 @@ package net.toften.docmaker;
 
 import java.util.regex.Matcher;
 
-import net.toften.docmaker.pseudosections.RegexPostProcessor;
+import net.toften.docmaker.postprocessors.RegexPostProcessor;
 
 public class InjectHeaderIdPostProcessor extends RegexPostProcessor {
 

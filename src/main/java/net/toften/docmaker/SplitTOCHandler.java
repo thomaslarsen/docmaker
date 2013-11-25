@@ -8,7 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import net.toften.docmaker.maven.DocMakerMojo;
-import net.toften.docmaker.pseudosections.HeaderIncrementPostProcessor;
+import net.toften.docmaker.postprocessors.HeaderIncrementPostProcessor;
+import net.toften.docmaker.postprocessors.PostProcessor;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

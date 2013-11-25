@@ -1,4 +1,4 @@
-package net.toften.docmaker.pseudosections;
+package net.toften.docmaker.postprocessors;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -7,7 +7,6 @@ import org.xml.sax.Attributes;
 
 import net.toften.docmaker.AssemblyHandler;
 import net.toften.docmaker.Chapter;
-import net.toften.docmaker.PostProcessor;
 
 public abstract class RegexPostProcessor implements PostProcessor {
 

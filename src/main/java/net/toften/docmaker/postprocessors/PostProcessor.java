@@ -1,4 +1,7 @@
-package net.toften.docmaker;
+package net.toften.docmaker.postprocessors;
+
+import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.Chapter;
 
 import org.xml.sax.Attributes;
 

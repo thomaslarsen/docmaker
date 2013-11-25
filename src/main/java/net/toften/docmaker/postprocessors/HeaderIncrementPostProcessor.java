@@ -1,4 +1,4 @@
-package net.toften.docmaker.pseudosections;
+package net.toften.docmaker.postprocessors;
 
 import java.util.regex.Matcher;
 
