@@ -13,6 +13,44 @@ import net.toften.docmaker.Section;
 
 import org.xml.sax.Attributes;
 
+/**
+ * This pseudo section will generate a table-of-contents section from a TOC.
+ * <p>
+ * The table-of-contents will be generated as a list of {@code <a>} links, surrounded by
+ * a {@code <div>} tag:
+ * 
+ * {@code
+ * 	<div class="toc">
+ * 		<a class="toc-section level1" href="#toc-section-chapter-heading">Heading</a>
+ * 		...
+ * 	</div>
+ * }
+ * 
+ * <p>
+ * An element will be inserted for the following elements extracted from the TOC and
+ * the HTML contents:
+ * <ul>
+ * <li>Section</li>
+ * <li>Chapter</li>
+ * <li>Heading, as extracted from the chapter contents after it is converted to HTML</li>
+ * </ul>
+ * 
+ * <p>
+ * A maximum header level to include in the table-of-contents can be specified in the TOC:
+ * 
+ * For example:
+ * 
+ * {@code
+ * 	...
+ * 		<psection classname="net.toften.docmaker.pseudosections.TOCPseudoSection" level="3" />
+ * 	...
+ * }
+ * 
+ * where the maximum header level to include is {@code h3}.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public class TOCPseudoSection implements PseudoSectionHandler {
 	private static Pattern p = Pattern.compile(DefaultAssemblyHandler.headerRegex);
 
@@ -47,13 +85,15 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 			}
 		}
 
-		return asHtml.append("</div>").toString();
+		asHtml.append("</div>");
+		
+		return asHtml.toString();
 	}
 
 	@Override
 	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
 		Matcher m = p.matcher(fragmentAsHtml);
-		
+
 		while (m.find()) {
 			if (m.group(0).charAt(1) != '/') {	// Check it is not the close tag
 				int hLevel = Integer.parseInt(m.group(2));

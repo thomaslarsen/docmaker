@@ -29,25 +29,37 @@ I needed to fulfil the following requirements:
 
 Docmaker will go through the following steps:
 
-1. Convert each fragment into HTML
+1. Convert each fragment into a HTML
 2. Assemble the HTML fragments as defined in the TOC into a single transient HTML document
 3. Convert the transient HTML document into PDF
 
 ## Converting fragments to HTML
 
 Each fragment will be written in a markup language. Docmaker will use a [`MarkupProcessor`](extensions/markupprocessor.html) to convert the fragment into an HTML file.
-Note, the fragment HTML file is not a complete *HTML document*, i.e. it will not contain any `<html>` or `<body>` tags for example.
 
-## Assembling the fragments
+> **Note**
+>
+> The fragment HTML file is not a complete *HTML document*, i.e. it will not contain any `<html>` or `<body>` tags for example.
+
+## Assembling the transient HTML document
 
 The [TOC](toc.html) describes the structure of the document. This is organised into a hierarchy of **sections** and **chapters**, where a *section* can contain multiple *chapters* and a chapter refers to a single *fragment*.
 
-The fragments will appear in the document in the same order they are specified in the TOC. Each section and chapter will be surrounded by a `<div>` tag in the transient HTML document.
+The fragments will appear in the document in the order they are specified in the TOC. Each section and chapter will be surrounded by a `<div>` tag in the transient HTML document.
+Each of these `<div>` tags will have a generated `id` attribute allowing cross references and links to target them.
 
 ### Normalising header tags
 
 Any `<h>` sections in the fragment HTML file will be normalised, i.e. they will all start from `<h1>`.
 
+### Injecting header IDs
+
+Headers will get an `id` attribute injected allowing cross references and links to target them.
+
 ## Converting transient HTML document into PDF
 
 The transient HTML document will be styled using a *CSS document* and then converted into PDF. Docmaker will use a [`PostProcessor`](extensions/postprocessor.html) to do the HTML to PDF conversion.
+
+# Extending docmaker
+
+Docmaker can be extended in many ways. Internally, docmaker uses the same extension points as listed below:

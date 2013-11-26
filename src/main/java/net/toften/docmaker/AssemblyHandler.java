@@ -13,7 +13,7 @@ import org.xml.sax.SAXException;
 
 /**
  * The {@link AssemblyHandler} is responsible for converting the TOC into the
- * interim file written as described in the {@link InterimFileHandler}.
+ * transient HTML file written as described in the {@link InterimFileHandler}.
  * <p>
  * The AssemblyHandler will use a {@link SAXParser} to process the TOC XML file.
  * 
@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
  * interim file format using the {@link #setMarkupProcessor(MarkupProcessor) specified}
  * {@link MarkupProcessor}.
  * 
- * If the fragments are already in the appropriate formate, the {@link NoMarkupProcessor}
+ * If the fragments are already in the appropriate format, the {@link NoMarkupProcessor}
  * should be used.
  * 
  * @author tlarsen
@@ -95,5 +95,8 @@ public interface AssemblyHandler extends InterimFileHandler {
 	 */
 	String getCurrentRepoName();
 	
+	/**
+	 * @return the filename of the TOC file being processed
+	 */
 	String getTocFileName();
 }

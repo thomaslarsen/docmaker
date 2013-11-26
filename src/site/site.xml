@@ -8,10 +8,8 @@
 			<item name="Usage" href="usage.html" />
 			<item name="FAQ" href="faq.html" />
 			<item name="TOC overview" href="toc.html" />
-		</menu>
-
-		<menu name="Pseudo sections">
-			<item name="Table of contents" href="psections/toc.html"/>
+			<item name="Header normalise" href="toc.html" />
+			<item name="ID generation" href="toc.html" />
 		</menu>
 		
 		<menu name="Examples">
@@ -21,15 +19,24 @@
 			<item name="Adding a front page" href="/examples/add_frontpage.html" />
 			<item name="Hide properties" href="/examples/hide_property.html" />
 		</menu>
-		
-		<menu name="CSS tips">
-			
+
+		<menu name="Pseudo sections">
+			<item name="Table of contents" href="psections/toc.html"/>
+		</menu>
+
+		<menu name="Post processors">
+			<item name="Header ID injection" href="postprocessors/headeridinject.html"/>
+			<item name="Header normalisation" href="postprocessors/headerincrement.html"/>
+			<item name="Blockquote class injection" href="postprocessors/blockquoteinject.html"/>
+			<item name="Generic Regex processor" href="postprocessors/genericregex.html"/>
 		</menu>
 
 		<menu name="Extension points">
 			<item name="Markup processor" href="extensions/markupprocessor.html"/>
 			<item name="Post processor" href="extensions/postprocessor.html"/>
 			<item name="Pseudo section" href="extensions/pseudosection.html"/>
+			<item name="Output processor" href="extensions/outputprocessor.html"/>
+			<item name="Assembly handler" href="extensions/assemblyhandler.html"/>
 		</menu>
 
 		<menu ref="reports" />
