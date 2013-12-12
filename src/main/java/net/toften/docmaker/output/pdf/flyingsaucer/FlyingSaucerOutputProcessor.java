@@ -9,10 +9,21 @@ import net.toften.docmaker.output.OutputProcessor;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 public class FlyingSaucerOutputProcessor implements OutputProcessor {
-	public void process(File inFile, String outFileName) throws Exception {
+	public void process(File inFile, File outputDir, String outputName) throws Exception {
 		if (!inFile.exists())
 			throw new IllegalArgumentException("Input file " + inFile.getName() + " can not be found");
-	    OutputStream os = new FileOutputStream(outFileName);
+		
+		File outputFile;
+		
+		if (outputDir.isDirectory()) {
+			if (outputName == null)
+				throw new NullPointerException("Output filename is null");
+			
+			outputFile = new File(outputDir, outputName + "." + getFileExtension());
+		} else
+			outputFile = outputDir;
+		
+	    OutputStream os = new FileOutputStream(outputFile);
 		
 	    ITextRenderer renderer = new ITextRenderer();
 	    renderer.setDocument(inFile);
@@ -22,7 +33,7 @@ public class FlyingSaucerOutputProcessor implements OutputProcessor {
 	    os.close();
 	}
 
-	public String getFileExtension() {
+	private String getFileExtension() {
 		return "pdf";
 	}
 }

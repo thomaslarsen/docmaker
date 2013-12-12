@@ -49,7 +49,7 @@ public class DocMakerMojo extends AbstractMojo {
 	 * The directory where the generated file and the transient HTML file will be located.
 	 */
 	@Parameter ( defaultValue = "${project.build.directory}/docmaker" )
-	private String outputDir;
+	private File outputDir;
 	
 	/**
 	 * The class name of the {@link MarkupProcessor}
@@ -78,7 +78,7 @@ public class DocMakerMojo extends AbstractMojo {
 	public void execute() throws MojoExecutionException, MojoFailureException {
 		// Create the path to the output dir if it doesn't exist
 		getLog().info("Writing output to: " + outputDir);
-		new File(outputDir).mkdirs();
+		outputDir.mkdirs();
 
 		// Convert "\" in URI to "/" to support Windows paths
 		fragmentURI = fragmentURI.replace('\\', '/');
@@ -136,7 +136,6 @@ public class DocMakerMojo extends AbstractMojo {
 
 	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, OutputProcessor postProcessor) throws MojoExecutionException {
 		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
-		String processedFilename = outputDir + "/" + outputFilename + "." + postProcessor.getFileExtension();
 		
 		getLog().info("Parsing TOC: " + tocFile.getName());
 		
@@ -161,7 +160,7 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 		
 		try {
-			postProcessor.process(new File(htmlFileName), processedFilename);
+			postProcessor.process(new File(htmlFileName), outputDir, outputFilename);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not post process file " + tocFile.getAbsolutePath(), e);
 		}
