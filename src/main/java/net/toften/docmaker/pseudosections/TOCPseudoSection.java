@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import net.toften.docmaker.AssemblyHandler;
 import net.toften.docmaker.BaseSection;
 import net.toften.docmaker.Chapter;
-import net.toften.docmaker.DefaultAssemblyHandler;
+import net.toften.docmaker.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.PseudoSectionHandler;
 import net.toften.docmaker.Section;
 
@@ -52,7 +52,7 @@ import org.xml.sax.Attributes;
  *
  */
 public class TOCPseudoSection implements PseudoSectionHandler {
-	private static Pattern p = Pattern.compile(DefaultAssemblyHandler.headerRegex);
+	private static Pattern p = Pattern.compile(InjectHeaderIdPostProcessor.HEADER_SEARCH_REGEX);
 
 	private int maxLevel;
 
@@ -93,23 +93,22 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 	@Override
 	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
 		Matcher m = p.matcher(fragmentAsHtml);
+		int chapterEffectiveLevel = chapter.calcEffectiveLevel();
 
 		while (m.find()) {
 			if (m.group(0).charAt(1) != '/') {	// Check it is not the close tag
-				int hLevel = Integer.parseInt(m.group(2));
-				int effectiveLevel = hLevel + chapter.calcEffectiveLevel();
+				int hLevel = Integer.parseInt(m.group(1));
+				String headerText = m.group(2);
+				
+				int effectiveLevel = hLevel + chapterEffectiveLevel;
 
 				if (effectiveLevel <= maxLevel) {
-					int start = m.end();
-					m.find();
-					int end = m.start();
-					String heading = fragmentAsHtml.substring(start, end);
-
 					out.
 					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
 					append(chapter.getIdAttr(handler)).
+					append("-" + headerText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
 					append("\">").
-					append(heading).
+					append(headerText).
 					append("</a>");
 				}
 			}
