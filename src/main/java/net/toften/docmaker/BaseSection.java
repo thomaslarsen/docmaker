@@ -28,7 +28,7 @@ public abstract class BaseSection {
 	
 	protected abstract String getDivClassName();
 
-	protected String constructDivOpenTag(String divClass, String divId, String divName) {
-		return "<div class=\"" + divClass + "\" id=\"" + divId + "\" name=\"" + divName + "\">";
+	protected String constructDivOpenTag(String divClass, String divId, String divTitle) {
+		return "<div class=\"" + divClass + "\" id=\"" + divId + "\" title=\"" + divTitle + "\">";
 	}
 }

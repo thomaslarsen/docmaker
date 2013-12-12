@@ -56,14 +56,14 @@ public class TOCSectionTest {
 	
 	String [][] expectedResultData = {
 			{	// 0
-				"<div class=\"section-header\" id=\"toc-test\" name=\"test\">" 
+				"<div class=\"section-header\" id=\"toc-test\" title=\"test\">" 
 			},
 			{	// 1
 				"<div class=\"metadata\">",
 				END_DIV
 			},
 			{	// 2 
-				"<div class=\"meta-section\" id=\"toc-test\" name=\"test\">" 
+				"<div class=\"meta-section\" id=\"toc-test\" title=\"test\">" 
 			},
 			{	// 3
 				"<link",
@@ -82,7 +82,7 @@ public class TOCSectionTest {
 				"<title>test</title>"
 			},
 			{	// 6
-				"<div class=\"chapter\" id=\"toc-test-intro\">",
+//				"<div class=\"chapter\" id=\"toc-test-intro\" title=\"intro\">",
 				"<h5 id=\"toc-test-intro-heading\">Heading</h5><p>Hello</p>",
 				END_DIV
 			},

@@ -169,7 +169,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 					
 					for (Chapter c : ((Section)s).getChapters()) {
 						writeToOutputFile(DocPart.CHAPTER.preElement());
-						writeToOutputFile(c.getDivOpenTag(this));
+//						writeToOutputFile(c.getDivOpenTag(this));
 						
 						String htmlFragment = c.getFragmentAsHtml();
 						for (PostProcessor pp : postProcessors) {
@@ -180,7 +180,7 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 						}
 						
 						writeToOutputFile(htmlFragment);
-						writeDivCloseTag();
+//						writeDivCloseTag();
 						
 						writeToOutputFile(DocPart.CHAPTER.postElement());
 					}

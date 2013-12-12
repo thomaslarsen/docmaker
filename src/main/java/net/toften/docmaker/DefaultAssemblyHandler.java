@@ -291,7 +291,7 @@ AssemblyHandler {
 				case SECTION:
 				case METASECTION:
 				case PSECTION:
-				case CHAPTER:
+//				case CHAPTER:
 					writeDivCloseTag();
 					break;
 					
@@ -351,7 +351,7 @@ AssemblyHandler {
 		currentRepoName = attributes.getValue("repo");
 		if (repos.containsKey(currentRepoName)) {
 			// Write the chapter div tag
-			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, currentRepoName, rotateCurrentChapter);
+//			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, currentRepoName, rotateCurrentChapter);
 
 			int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
 			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
@@ -486,7 +486,7 @@ AssemblyHandler {
 	}
 
 	protected void writeChapterDivOpenTag(String sectionName, String fragmentName, String repoName, boolean isRotated) throws IOException {
-		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'));
+		writeDivOpenTag("chapter" + (isRotated ? " rotate" : ""), (getTocFileName() + "-" + sectionName + "-" + fragmentName).toLowerCase().replace(' ', '-'), fragmentName);
 	}
 	
 	protected void writeMetaSectionDivOpenTag(String sectionName, boolean isRotated) throws IOException {
@@ -515,11 +515,11 @@ AssemblyHandler {
 	 * 
 	 * @param divClass the value of the {@code class} attribute
 	 * @param divId the value of the {@code id} attribute
-	 * @param divName the value of the {@code name} attribute
+	 * @param divTitle the value of the {@code title} attribute
 	 * @throws IOException
 	 */
-	protected void writeDivOpenTag(String divClass, String divId, String divName) throws IOException {
-		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\" name=\"" + divName + "\">");
+	protected void writeDivOpenTag(String divClass, String divId, String divTitle) throws IOException {
+		writeToOutputFile("<div class=\"" + divClass + "\" id=\"" + divId + "\" title=\"" + divTitle + "\">");
 	}
 
 	/**

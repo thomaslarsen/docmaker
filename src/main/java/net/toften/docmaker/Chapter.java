@@ -48,7 +48,7 @@ public class Chapter {
 	public String getDivOpenTag(AssemblyHandler handler) {
 		String classAttr = getDivClassName() + (isRotated() ? " rotate" : "");
 		
-		return constructDivOpenTag(classAttr, getIdAttr(handler));
+		return constructDivOpenTag(classAttr, getIdAttr(handler), getFragmentName());
 	}
 	
 	public String getIdAttr(AssemblyHandler handler) {
@@ -59,8 +59,8 @@ public class Chapter {
 		return "chapter";
 	}
 
-	protected String constructDivOpenTag(String divClass, String divId) {
-		return "<div class=\"" + divClass + "\" id=\"" + divId + "\">";
+	protected String constructDivOpenTag(String divClass, String divId, String divTitle) {
+		return "<div class=\"" + divClass + "\" id=\"" + divId + "\" title=\"" + divTitle + "\">";
 	}
 
 }
