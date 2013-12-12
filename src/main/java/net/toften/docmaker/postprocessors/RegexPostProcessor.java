@@ -76,4 +76,8 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	protected AssemblyHandler getCurrentHandler() {
 		return currentHandler;
 	}
+	
+	protected String calcElementId(String elementText) {
+		return getCurrentChapter().getIdAttr(getCurrentHandler()) + "-" + elementText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+	}
 }
