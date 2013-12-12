@@ -16,10 +16,11 @@ import net.toften.docmaker.postprocessors.RegexPostProcessor;
  *
  */
 public class InjectHeaderIdPostProcessor extends RegexPostProcessor {
-
+	public static final String HEADER_SEARCH_REGEX = "<h(\\d)>(.*?)</h\\d>";
+	
 	@Override
 	protected String getRegex() {
-		return "<h(\\d)>(.*?)</h\\d>";
+		return HEADER_SEARCH_REGEX;
 	}
 
 	/**
@@ -29,10 +30,6 @@ public class InjectHeaderIdPostProcessor extends RegexPostProcessor {
 	 */
 	@Override
 	protected String getReplacement(Matcher m) {
-		String headerText = m.group(2);
-		
-		String headerId = (getCurrentChapter().getIdAttr(getCurrentHandler()) + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
-		
-		return "<h$1 id=\"" + headerId + "\">$2</h$1>";
+		return "<h$1 id=\"" + calcElementId(m.group(2)) + "\">$2</h$1>";
 	}
 }
