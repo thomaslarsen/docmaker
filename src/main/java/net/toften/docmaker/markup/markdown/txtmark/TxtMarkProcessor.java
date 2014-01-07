@@ -12,6 +12,7 @@ import com.github.rjeschke.txtmark.Processor;
 
 public class TxtMarkProcessor implements MarkupProcessor {
 	private Builder b;
+	private String encoding;
 
 	public TxtMarkProcessor() {
 		b = Configuration.builder();
@@ -22,10 +23,16 @@ public class TxtMarkProcessor implements MarkupProcessor {
 	}
 
 	public String process(File inFile) throws IOException {
+		this.b.setEncoding(this.encoding);
 		return Processor.process(inFile, b.build());
 	}
 
 	public String getFileExtension() {
 		return "md";
 	}
+	
+	@Override
+	public void setEncoding(final String encodingString) {
+		this.encoding = encodingString;
+	}	
 }

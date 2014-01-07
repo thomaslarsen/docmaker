@@ -34,8 +34,8 @@ public class AssemblyTest {
 					}
 
 					@Override
-					public void init(String filename) throws IOException {
-						System.out.println("Output file: " + filename);
+					public void init(String filename, String encodingString) throws IOException {
+						System.out.println("Output file: " + filename + ", Encoding: " + encodingString);
 					}
 
 					@Override

@@ -2,11 +2,13 @@ package net.toften.docmaker;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -59,10 +61,10 @@ implements
 InterimFileHandler, 
 AssemblyHandler {
 	public static class GenericFileHandler implements InterimFileHandler {
-		private FileWriter htmlFile;
+		private OutputStreamWriter htmlFile;
 
-		public void init(String filename) throws IOException {
-			htmlFile = new FileWriter(filename);
+		public void init(final String filename, final String encodingString) throws IOException {
+			this.htmlFile = new OutputStreamWriter(new FileOutputStream(filename), Charset.forName(encodingString).newEncoder());
 		}
 
 		public void close() throws IOException {
@@ -117,8 +119,8 @@ AssemblyHandler {
 	}
 
 	@Override
-	public void init(String filename) throws IOException {
-		currentFileHandler.init(filename);
+	public void init(final String filename, final String encodingString) throws IOException {
+		this.currentFileHandler.init(filename, encodingString);
 	}
 
 	@Override

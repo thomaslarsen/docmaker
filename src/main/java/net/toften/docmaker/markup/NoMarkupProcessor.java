@@ -2,8 +2,10 @@ package net.toften.docmaker.markup;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 /**
  * {@link MarkupProcessor} that passes the fragment file through without any
@@ -15,9 +17,13 @@ import java.io.IOException;
  */
 public class NoMarkupProcessor implements MarkupProcessor {
 
+	private String encoding;
+
 	@Override
 	public String process(File inFile) throws IOException {
-		BufferedReader reader = new BufferedReader(new FileReader(inFile));
+		InputStreamReader fileReader = new InputStreamReader(new FileInputStream(inFile),
+			Charset.forName(this.encoding));
+		BufferedReader reader = new BufferedReader(fileReader);
 
 		StringBuffer asHTML = new StringBuffer();
 		String line;
@@ -33,5 +39,10 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	@Override
 	public String getFileExtension() {
 		return "html";
+	}
+	
+	@Override
+	public void setEncoding(final String encodingString) {
+		this.encoding = encodingString;
 	}
 }

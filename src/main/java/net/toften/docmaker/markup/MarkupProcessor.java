@@ -26,4 +26,11 @@ public interface MarkupProcessor {
 	 * @return the extension of the markup file
 	 */
 	String getFileExtension();
+	
+	/**
+	 * Sets the Charset encoding string to be used.
+	 * 
+	 * @param encodingString a valid charset.
+	 */
+	void setEncoding(String encodingString);
 }
