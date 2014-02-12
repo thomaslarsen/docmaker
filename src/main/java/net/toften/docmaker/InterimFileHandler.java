@@ -26,9 +26,10 @@ public interface InterimFileHandler {
 	 * Initialise the output file, so it is ready to be {@link #writeToOutputFile(String) written} to.
 	 * 
 	 * @param filename the absolute filename of the output file
+	 * @param encodingString a valid charset.
 	 * @throws IOException
 	 */
-	void init(String filename) throws IOException;
+	void init(String filename, String encodingString) throws IOException;
 	
 	/**
 	 * Flush and close the output file.

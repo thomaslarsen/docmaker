@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -70,12 +73,20 @@ public class DocMakerMojo extends AbstractMojo {
 	private String assemblyHandlerClassname;
 	
 	/**
+	 * Specifies the encoding of the files.
+	 */
+	@Parameter(defaultValue = "${project.build.sourceEncoding}")
+	private String encoding;
+	
+	/**
 	 * Path to the CSS file to be used to style the generated output
 	 */
 	@Parameter
 	private String cssFilePath;
 	
 	public void execute() throws MojoExecutionException, MojoFailureException {
+		// Check if encoding is supplied and/or valid
+		checkEncoding();
 		// Create the path to the output dir if it doesn't exist
 		getLog().info("Writing output to: " + outputDir);
 		outputDir.mkdirs();
@@ -107,6 +118,7 @@ public class DocMakerMojo extends AbstractMojo {
 		MarkupProcessor markupProcessor;
 		try {
 			markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
+			markupProcessor.setEncoding(encoding);			
 		} catch (Exception e) {
 			throw new MojoExecutionException("Can not create MarkupProcessor", e);
 		}
@@ -145,7 +157,7 @@ public class DocMakerMojo extends AbstractMojo {
 			ah = newInstance(AssemblyHandler.class, assemblyHandlerClassname);
 			htmlFileName = outputDir + File.separator + outputFilename + "." + ah.getFileExtension();
 			ah.setBaseURI(baseURI);
-			ah.init(htmlFileName);
+			ah.init(htmlFileName, encoding);
 			ah.setMarkupProcessor(markupProcessor);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
@@ -176,5 +188,44 @@ public class DocMakerMojo extends AbstractMojo {
 	 */
 	public static <K> K newInstance(Class<K> type, String className) throws Exception {
 		return ((Class<K>) Class.forName(className)).newInstance();
+	}
+	
+	/**
+	 * Checks if an encoding is defined in the POM. If it is and valid, returns. Otherwise sets the encoding variable
+	 * to the platform encoding. 
+	 */
+	private void checkEncoding() {
+		if (this.encoding == null || encoding.length() < 1) {
+			this.encoding = usePlatformEncoding();
+			return;
+		}
+		else
+		{
+			try {
+				Charset.forName(this.encoding);
+				getLog().info( "Using '" + encoding + "' encoding to read doc files.");
+				return;
+			} catch (UnsupportedCharsetException e) {
+				getLog().warn("Encoding defined in POM " + this.encoding + " is unsupported.");
+				this.encoding = usePlatformEncoding();
+				return;
+			} catch (IllegalCharsetNameException e) {
+				getLog().warn("Encoding defined in POM " + this.encoding + " is not a legal charset name.");
+				this.encoding = usePlatformEncoding();
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Retrieves the platform encoding, and logs a warning message to the user informing them of the encoding that
+	 * will be used. Uses the same method to get encoding as core Maven classes, i.e. getting the system property 
+	 * "file.encoding". Will default to UTF-8 if no value is found.   
+	 */
+	private String usePlatformEncoding() {
+		String platformEncoding = System.getProperty("file.encoding", "UTF-8");
+		getLog().warn( "Using platform encoding (" + platformEncoding
+			+ " actually) to read doc files, i.e. build is platform dependent!" );
+		return platformEncoding;
 	}
 }

@@ -11,11 +11,18 @@ import org.pegdown.PegDownProcessor;
 
 public class PegdownProcessor implements MarkupProcessor {
 
+	private String encoding;
+
 	public String process(File file) throws IOException {
-		return new PegDownProcessor(Extensions.TABLES).markdownToHtml(new Scanner(file).useDelimiter("\\A").next());
+		return new PegDownProcessor(Extensions.TABLES).markdownToHtml(new Scanner(file, this.encoding).useDelimiter("\\A").next());
 	}
 
 	public String getFileExtension() {
 		return "md";
+	}
+
+	@Override
+	public void setEncoding(final String encodingString) {
+		this.encoding = encodingString;
 	}
 }
