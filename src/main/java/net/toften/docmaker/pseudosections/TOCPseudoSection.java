@@ -10,6 +10,7 @@ import net.toften.docmaker.Chapter;
 import net.toften.docmaker.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.PseudoSectionHandler;
 import net.toften.docmaker.Section;
+import net.toften.docmaker.postprocessors.PostProcessor;
 
 import org.xml.sax.Attributes;
 
@@ -51,8 +52,8 @@ import org.xml.sax.Attributes;
  * @author thomaslarsen
  *
  */
-public class TOCPseudoSection implements PseudoSectionHandler {
-	private static Pattern p = Pattern.compile(InjectHeaderIdPostProcessor.HEADER_SEARCH_REGEX);
+public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
+	protected static Pattern p = Pattern.compile(InjectHeaderIdPostProcessor.HEADER_SEARCH_REGEX);
 
 	private int maxLevel;
 
@@ -61,6 +62,10 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 		maxLevel = Integer.valueOf(attributes.getValue("level"));
 	}
 
+	protected int getMaxLevel() {
+		return maxLevel;
+	}
+	
 	@Override
 	public String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler) {
 		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">");
@@ -70,7 +75,7 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 				Section s = (Section)metaSection;
 				int sectionLevel = s.getSectionLevel();
 
-				if (sectionLevel <= maxLevel) {
+				if (sectionLevel <= getMaxLevel()) {
 					asHtml.
 					append("<a class=\"toc-section level" + sectionLevel + "\" href=\"#").
 					append(s.getIdAttr(handler)).
@@ -102,7 +107,7 @@ public class TOCPseudoSection implements PseudoSectionHandler {
 				
 				int effectiveLevel = hLevel + chapterEffectiveLevel;
 
-				if (effectiveLevel <= maxLevel) {
+				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
 					append(chapter.getIdAttr(handler)).

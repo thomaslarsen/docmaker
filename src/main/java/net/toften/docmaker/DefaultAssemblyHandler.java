@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -104,13 +105,14 @@ AssemblyHandler {
 	private URI baseURI;
 	private String documentTitle;
 	private String currentRepoName;
-	private MarkupProcessor markupProcessor;
+	private Map<String, MarkupProcessor> markupProcessor;
 	private boolean rotateCurrentSection;
 	private boolean rotateCurrentChapter;
+	private String defaultExtension;
 
 	public DefaultAssemblyHandler() {
 		currentFileHandler = new GenericFileHandler();
-		markupProcessor = new NoMarkupProcessor();
+		markupProcessor = Collections.singletonMap("md", (MarkupProcessor)(new NoMarkupProcessor()));
 	}
 
 	@Override
@@ -140,13 +142,18 @@ AssemblyHandler {
 	}
 	
 	@Override
-	public void setMarkupProcessor(MarkupProcessor markupProcessor) {
+	public void setMarkupProcessor(Map<String, MarkupProcessor> markupProcessor) {
 		this.markupProcessor = markupProcessor;
 	}
 	
 	@Override
-	public MarkupProcessor getMarkupProcessor() {
-		return markupProcessor;
+	public void setDefaultFileExtension(String defaultExtension) {
+		this.defaultExtension = defaultExtension;
+	}
+	
+	@Override
+	public MarkupProcessor getMarkupProcessor(String extension) {
+		return markupProcessor.get(extension);
 	}
 
 	@Override
@@ -349,6 +356,8 @@ AssemblyHandler {
 		currentFragmentName = attributes.getValue("fragment");
 		
 		rotateCurrentChapter = attributes.getValue("rotate") != null;
+		
+		String chapterConfig = attributes.getValue("config");
 
 		currentRepoName = attributes.getValue("repo");
 		if (repos.containsKey(currentRepoName)) {
@@ -359,7 +368,7 @@ AssemblyHandler {
 			int normalisedOffset = calcEffectiveLevel(getCurrentSectionLevel(), chapterLevelOffset);
 			
 			try {
-				String htmlFragment = getFragmentAsHTML(currentRepoName, currentFragmentName, chapterLevelOffset);
+				String htmlFragment = getFragmentAsHTML(currentRepoName, currentFragmentName, chapterLevelOffset, chapterConfig);
 				
 				if (normalisedOffset > 0) {
 					htmlFragment = incrementHTag(htmlFragment, normalisedOffset);
@@ -540,20 +549,29 @@ AssemblyHandler {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset, String config) throws IOException, URISyntaxException {
 		URI repoURI = repos.get(repoName);
 		
 		if (!repoURI.isAbsolute())
 			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
 		
-		URI markupFilenameURI = new URI(fragmentName + "." + getMarkupProcessor().getFileExtension());
+		String extension = defaultExtension;
+
+		int i = fragmentName.lastIndexOf('.');
+		if (i > 0) {
+		    extension = fragmentName.substring(i+1);
+		} else {
+			fragmentName += "." + extension;
+		}
+		
+		URI markupFilenameURI = new URI(fragmentName);
 		File markupFile = new File(repoURI.resolve(markupFilenameURI));
 
 		if (!markupFile.exists()) {
 			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
 		}
 
-		String asHtml = getMarkupProcessor().process(markupFile);
+		String asHtml = getMarkupProcessor(extension).process(markupFile, config);
 
 		return asHtml;
 	}

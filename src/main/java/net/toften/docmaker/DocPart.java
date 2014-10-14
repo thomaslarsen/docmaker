@@ -33,6 +33,7 @@ public enum DocPart {
 	REPO 		("repo", 			null, 		false),
 	PROCESSORS	("processors",		null, 		false),
 	PPROCESSOR	("postprocessor",	null, 		false),
+	HSECTION	("hsection",		null, 		false),
 	;
 
 	private String name;

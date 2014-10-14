@@ -22,7 +22,7 @@ public class TxtMarkProcessor implements MarkupProcessor {
 		b.setDecorator(decorator);
 	}
 
-	public String process(File inFile) throws IOException {
+	public String process(File inFile, String config) throws IOException {
 		this.b.setEncoding(this.encoding);
 		return Processor.process(inFile, b.build());
 	}

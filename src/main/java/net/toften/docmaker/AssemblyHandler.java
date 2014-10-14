@@ -3,6 +3,7 @@ package net.toften.docmaker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 
@@ -30,17 +31,21 @@ import org.xml.sax.SAXException;
  *
  */
 public interface AssemblyHandler extends InterimFileHandler {
+	
 	/**
-	 * @return the {@link MarkupProcessor} used to convert the fragments
+	 * Gets the markup processor for a specific file extension.
+	 *
+	 * @param extension the file extension
+	 * @return the {@link MarkupProcessor} used to convert the fragments with the given extension
 	 */
-	MarkupProcessor getMarkupProcessor();
+	MarkupProcessor getMarkupProcessor(String extension);
 
 	/**
-	 * Set the markup processor to be used to convert the fragments
-	 * 
-	 * @param markupProcessor
+	 * Set the markup processors to be used to convert the fragments.
+	 *
+	 * @param processors the processors to use
 	 */
-	void setMarkupProcessor(MarkupProcessor markupProcessor);
+	void setMarkupProcessor(Map<String, MarkupProcessor> processors);
 
 	/**
 	 * Specify CSS to be used to style the converted output.
@@ -99,4 +104,11 @@ public interface AssemblyHandler extends InterimFileHandler {
 	 * @return the filename of the TOC file being processed
 	 */
 	String getTocFileName();
+
+	/**
+	 * Sets the default file extension.
+	 *
+	 * @param defaultExtension the new default file extension
+	 */
+	void setDefaultFileExtension(String defaultExtension);
 }
