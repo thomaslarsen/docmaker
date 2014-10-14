@@ -8,6 +8,8 @@ import net.toften.docmaker.output.OutputProcessor;
 
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import com.lowagie.text.pdf.PdfWriter;
+
 public class FlyingSaucerOutputProcessor implements OutputProcessor {
 	public void process(File inFile, File outputDir, String outputName) throws Exception {
 		if (!inFile.exists())
@@ -26,10 +28,11 @@ public class FlyingSaucerOutputProcessor implements OutputProcessor {
 	    OutputStream os = new FileOutputStream(outputFile);
 		
 	    ITextRenderer renderer = new ITextRenderer();
+
 	    renderer.setDocument(inFile);
+	    renderer.setPDFVersion(PdfWriter.VERSION_1_7);
 	    renderer.layout();
 	    renderer.createPDF(os);
-
 	    os.close();
 	}
 

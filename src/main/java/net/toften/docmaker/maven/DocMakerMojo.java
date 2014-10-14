@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -57,8 +59,14 @@ public class DocMakerMojo extends AbstractMojo {
 	/**
 	 * The class name of the {@link MarkupProcessor}
 	 */
-	@Parameter (defaultValue = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor" )
-	private String markupProcessorClassname;
+	@Parameter
+	private Map<String, String> markupProcessorClassname;
+	
+	/** 
+	 * The default extension to use if files don't specify an extension
+	 */
+	@Parameter (defaultValue = "md")
+	private String defaultExtension;
 	
 	/**
 	 * The class name of the {@link OutputProcessor}
@@ -115,14 +123,19 @@ public class DocMakerMojo extends AbstractMojo {
 			throw new MojoExecutionException("Can not create SAX parser", e);
 		}
 		
-		MarkupProcessor markupProcessor;
-		try {
-			markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
-			markupProcessor.setEncoding(encoding);			
-		} catch (Exception e) {
-			throw new MojoExecutionException("Can not create MarkupProcessor", e);
+		Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
+		for (String extension : markupProcessorClassname.keySet()) {
+			MarkupProcessor markupProcessor;
+			try {
+				markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname.get(extension));
+				markupProcessor.setEncoding(encoding);
+				
+				processors.put(extension, markupProcessor);
+			} catch (Exception e) {
+				throw new MojoExecutionException("Can not create MarkupProcessor", e);
+			}
+			getLog().info("Using " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName() + " for extension " + extension);
 		}
-		getLog().info("Using " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName());
 		
 		OutputProcessor postProcessor;
 		try {
@@ -137,28 +150,27 @@ public class DocMakerMojo extends AbstractMojo {
 		getLog().info("Using " + assemblyHandlerClassname + " as " + AssemblyHandler.class.getName() + " for parsing TOCs");
 		
 		if (tocFile.isFile() && tocFile.getName().endsWith(tocFileExt)) {
-			parseAndProcessFile(tocFile, p, baseURI, markupProcessor, postProcessor);
+			parseAndProcessFile(tocFile, p, baseURI, processors, postProcessor);
 		} else if (tocFile.isDirectory()) {
 			for (File f : tocFile.listFiles()) {
 				if (f.isFile() && f.getName().endsWith(tocFileExt))
-					parseAndProcessFile(f, p, baseURI, markupProcessor, postProcessor);
+					parseAndProcessFile(f, p, baseURI, processors, postProcessor);
 			}
 		}
 	}
 
-	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, MarkupProcessor markupProcessor, OutputProcessor postProcessor) throws MojoExecutionException {
-		String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
-		
+	private void parseAndProcessFile(File tocFile, SAXParser p, URI baseURI, Map<String, MarkupProcessor> processors, OutputProcessor postProcessor) throws MojoExecutionException {
 		getLog().info("Parsing TOC: " + tocFile.getName());
 		
 		AssemblyHandler ah;
 		String htmlFileName;
 		try {
 			ah = newInstance(AssemblyHandler.class, assemblyHandlerClassname);
-			htmlFileName = outputDir + File.separator + outputFilename + "." + ah.getFileExtension();
+			htmlFileName = outputDir + File.separator + tocFile.getName().replaceFirst("[.][^.]+$", "") + "." + ah.getFileExtension();
 			ah.setBaseURI(baseURI);
 			ah.init(htmlFileName, encoding);
-			ah.setMarkupProcessor(markupProcessor);
+			ah.setMarkupProcessor(processors);
+			ah.setDefaultFileExtension(defaultExtension);
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
 		}
@@ -172,7 +184,7 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 		
 		try {
-			postProcessor.process(new File(htmlFileName), outputDir, outputFilename);
+			postProcessor.process(new File(htmlFileName), outputDir, ah.getDocumentTitle());
 		} catch (Exception e) {
 			throw new MojoExecutionException("Could not post process file " + tocFile.getAbsolutePath(), e);
 		}

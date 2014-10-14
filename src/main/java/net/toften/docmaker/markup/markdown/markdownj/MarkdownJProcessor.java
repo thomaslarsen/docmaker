@@ -12,7 +12,7 @@ public class MarkdownJProcessor implements MarkupProcessor {
 
 	private String encoding;
 
-	public String process(File inFile) throws IOException {
+	public String process(File inFile, String config) throws IOException {
 		return new MarkdownProcessor().markdown(new Scanner(inFile, this.encoding).useDelimiter("\\A").next());
 	}
 

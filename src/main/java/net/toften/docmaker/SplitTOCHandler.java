@@ -17,6 +17,7 @@ import org.xml.sax.SAXException;
 public class SplitTOCHandler extends DefaultAssemblyHandler {
 	
 	private List<BaseSection> sections = new LinkedList<BaseSection>();
+	private List<HeaderSection> headerSections = new LinkedList<HeaderSection>();
 	private List<PostProcessor> postProcessors = new LinkedList<PostProcessor>();
 	private BaseSection currentSection;
 	private boolean writeToOutput = false;
@@ -67,6 +68,8 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 			handlePseudoSectionElement(attributes);
 		} else if (dp == DocPart.PPROCESSOR) {
 			handlePostProcessorElement(attributes);
+		} else if (dp == DocPart.HSECTION) {
+			handleHeaderSectionElement(attributes);
 		}
 	}
 	
@@ -83,6 +86,12 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 		
 		currentSection = new PseudoSection(getCurrentSectionName(), pSectionHandlerClassname, attributes, rotateCurrentSection);
 		sections.add(currentSection);
+	}
+
+	protected void handleHeaderSectionElement(Attributes attributes) throws Exception {
+		String hSectionHandlerClassname = attributes.getValue("classname");
+		
+		headerSections.add(new HeaderSection(hSectionHandlerClassname, attributes));
 	}
 
 	@Override
@@ -109,10 +118,10 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 	}
 	
 	@Override
-	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset) throws IOException, URISyntaxException {
+	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset, String config) throws IOException, URISyntaxException {
 		if (currentSection instanceof Section) {
 			// Deliberately using '0' as the offset
-			String fragmentAsHtml = super.getFragmentAsHTML(repoName, fragmentName, 0);
+			String fragmentAsHtml = super.getFragmentAsHTML(repoName, fragmentName, 0, config);
 			
 			((Section)currentSection).addChapter(fragmentName, repoName, chapterLevelOffset, fragmentAsHtml, isRotateCurrentChapter());
 		} else
@@ -153,6 +162,13 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 				writeToOutputFile("/>");
 			}
 			
+			/*
+			 * Write header sections
+			 */
+			for (HeaderSection hSection : headerSections) {
+				writeToOutputFile(hSection.getSectionHandler().getSectionAsHtml(sections, this));
+			}
+			
 			writeToOutputFile(DocPart.HEADER.postElement());
 
 			// Metadata
@@ -186,16 +202,17 @@ public class SplitTOCHandler extends DefaultAssemblyHandler {
 					}
 					
 					writeToOutputFile(DocPart.CHAPTERS.postElement());
-					writeDivCloseTag();
 				} else if (s instanceof PseudoSection) {
 					writeToOutputFile(((PseudoSection)s).getSectionHandler().getSectionAsHtml(sections, this));
-					writeDivCloseTag();
 				} else if (s instanceof MetaSection) {
 					for (String[] e : ((MetaSection)s).getElements()) {
 						writeElement(e[0], e[1]);
 					}
-					writeDivCloseTag();
 				}
+				
+				// Only write the close tag, if we wrote the open tag
+				if (s.getDivOpenTag(this) != null)
+					writeDivCloseTag();
 				
 				writeToOutputFile(DocPart.SECTION.postElement());
 			}

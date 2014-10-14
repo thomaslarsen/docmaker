@@ -13,7 +13,7 @@ public class PegdownProcessor implements MarkupProcessor {
 
 	private String encoding;
 
-	public String process(File file) throws IOException {
+	public String process(File file, String config) throws IOException {
 		return new PegDownProcessor(Extensions.TABLES).markdownToHtml(new Scanner(file, this.encoding).useDelimiter("\\A").next());
 	}
 

@@ -20,7 +20,7 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	private String encoding;
 
 	@Override
-	public String process(File inFile) throws IOException {
+	public String process(File inFile, String config) throws IOException {
 		InputStreamReader fileReader = new InputStreamReader(new FileInputStream(inFile),
 			Charset.forName(this.encoding));
 		BufferedReader reader = new BufferedReader(fileReader);

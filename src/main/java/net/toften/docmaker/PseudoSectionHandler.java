@@ -2,7 +2,7 @@ package net.toften.docmaker;
 
 import java.util.List;
 
-import net.toften.docmaker.postprocessors.PostProcessor;
+import org.xml.sax.Attributes;
 
 /**
  * The {@link PseudoSectionHandler} is used to generate the contents of a 
@@ -16,7 +16,7 @@ import net.toften.docmaker.postprocessors.PostProcessor;
  * @author thomaslarsen
  *
  */
-public interface PseudoSectionHandler extends PostProcessor {
+public interface PseudoSectionHandler {
 	/**
 	 * This method must generate the HTML output of the pseudo section.
 	 * <p>
@@ -29,4 +29,11 @@ public interface PseudoSectionHandler extends PostProcessor {
 	 * @return the HTML contents of the pseudo section
 	 */
 	String getSectionAsHtml(final List<BaseSection> sections, final AssemblyHandler handler);
+	
+	/**
+	 * Method called when the PseudoSectionHandler is initialized by the {@link PseudoSection} class.
+	 * 
+	 * @param attributes from the TOC element; Can be <code>null</code>
+	 */
+	void init(Attributes attributes);
 }

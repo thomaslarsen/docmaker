@@ -39,7 +39,9 @@ public interface PostProcessor {
 	/**
 	 * Method called when the PostProcessor is specified in the TOC.
 	 * 
-	 * If the PostProcessor is included in the {@link AssemblyHandler}, this method is not invoked.
+	 * If the PostProcessor is included directly from the {@link AssemblyHandler}, this method is not invoked
+	 * as no attributes are available. The {@link PostProcessor} should then do all necessary initialization in
+	 * the default constructor.
 	 * 
 	 * @param attributes from the TOC element; Can be <code>null</code>
 	 */

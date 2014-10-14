@@ -20,7 +20,7 @@ public interface MarkupProcessor {
 	 * @return HTML fragment of the processed markup file
 	 * @throws IOException
 	 */
-	String process(File inFile) throws IOException;
+	String process(File inFile, String config) throws IOException;
 
 	/**
 	 * @return the extension of the markup file

@@ -104,7 +104,7 @@ public class TOCSectionTest {
 			
 			@Override
 			protected String getFragmentAsHTML(String repoName, 
-					String fragmentName, int chapterLevelOffset)
+					String fragmentName, int chapterLevelOffset, String config)
 					throws IOException, URISyntaxException {
 				return currentFragment;
 			}
