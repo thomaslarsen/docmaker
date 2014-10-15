@@ -60,7 +60,13 @@ public class DocMakerMojo extends AbstractMojo {
 	 * The class name of the {@link MarkupProcessor}
 	 */
 	@Parameter
-	private Map<String, String> markupProcessorClassname;
+	private Map<String, String> markupProcessors;
+	
+	/**
+	 * The class name of the default {@link MarkupProcessor} if the markupProcessors is not specified
+	 */
+	@Parameter ( defaultValue = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor" )
+	private String markupProcessorClassname;
 	
 	/** 
 	 * The default extension to use if files don't specify an extension
@@ -124,17 +130,30 @@ public class DocMakerMojo extends AbstractMojo {
 		}
 		
 		Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
-		for (String extension : markupProcessorClassname.keySet()) {
+		if (markupProcessors == null) {
 			MarkupProcessor markupProcessor;
 			try {
-				markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname.get(extension));
+				markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
 				markupProcessor.setEncoding(encoding);
 				
-				processors.put(extension, markupProcessor);
+				processors.put(defaultExtension, markupProcessor);
 			} catch (Exception e) {
 				throw new MojoExecutionException("Can not create MarkupProcessor", e);
 			}
-			getLog().info("Using " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName() + " for extension " + extension);
+			getLog().info("Using default" + markupProcessorClassname + " as the " + MarkupProcessor.class.getName() + " for extension " + defaultExtension);
+		} else {
+			for (String extension : markupProcessors.keySet()) {
+				MarkupProcessor markupProcessor;
+				try {
+					markupProcessor = newInstance(MarkupProcessor.class, markupProcessors.get(extension));
+					markupProcessor.setEncoding(encoding);
+					
+					processors.put(extension, markupProcessor);
+				} catch (Exception e) {
+					throw new MojoExecutionException("Can not create MarkupProcessor", e);
+				}
+				getLog().info("Using " + markupProcessors.get(extension) + " as the " + MarkupProcessor.class.getName() + " for extension " + extension);
+			}
 		}
 		
 		OutputProcessor postProcessor;
