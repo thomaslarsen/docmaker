@@ -3,6 +3,7 @@ package net.toften.docmaker.markup.markdown.txtmark;
 import java.io.File;
 import java.io.IOException;
 
+import net.toften.docmaker.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 
 import com.github.rjeschke.txtmark.Configuration;
@@ -22,7 +23,7 @@ public class TxtMarkProcessor implements MarkupProcessor {
 		b.setDecorator(decorator);
 	}
 
-	public String process(File inFile, String config) throws IOException {
+	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
 		this.b.setEncoding(this.encoding);
 		return Processor.process(inFile, b.build());
 	}
@@ -34,5 +35,11 @@ public class TxtMarkProcessor implements MarkupProcessor {
 	@Override
 	public void setEncoding(final String encodingString) {
 		this.encoding = encodingString;
+	}
+
+	@Override
+	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
+		this.b.setEncoding(this.encoding);
+		return Processor.process(inString, b.build());
 	}	
 }
