@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import net.toften.docmaker.AssemblyHandler;
+
 /**
  * {@link MarkupProcessor} that passes the fragment file through without any
  * processing.
@@ -20,7 +22,7 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	private String encoding;
 
 	@Override
-	public String process(File inFile, String config) throws IOException {
+	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
 		InputStreamReader fileReader = new InputStreamReader(new FileInputStream(inFile),
 			Charset.forName(this.encoding));
 		BufferedReader reader = new BufferedReader(fileReader);
@@ -44,5 +46,10 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	@Override
 	public void setEncoding(final String encodingString) {
 		this.encoding = encodingString;
+	}
+
+	@Override
+	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
+		return inString;
 	}
 }

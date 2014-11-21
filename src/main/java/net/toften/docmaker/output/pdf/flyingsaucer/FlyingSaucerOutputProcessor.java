@@ -28,7 +28,6 @@ public class FlyingSaucerOutputProcessor implements OutputProcessor {
 	    OutputStream os = new FileOutputStream(outputFile);
 		
 	    ITextRenderer renderer = new ITextRenderer();
-
 	    renderer.setDocument(inFile);
 	    renderer.setPDFVersion(PdfWriter.VERSION_1_7);
 	    renderer.layout();

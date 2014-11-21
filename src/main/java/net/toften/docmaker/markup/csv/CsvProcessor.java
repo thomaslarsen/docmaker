@@ -3,6 +3,7 @@ package net.toften.docmaker.markup.csv;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -69,11 +71,19 @@ import au.com.bytecode.opencsv.CSVReader;
  * <li>Only rows where the contents of the <i>Component/s</i> column matches the 
  * <code>.*Platform.*</code> Regex will be included</li>
  * </ul>
-
  */
 public class CsvProcessor implements MarkupProcessor {
 	@Override
-	public String process(File inFile, String config) throws IOException {
+	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
+		return process(new CSVReader(new FileReader(inFile)), config, handler);
+	}
+
+	@Override
+	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
+		return process(new CSVReader(new StringReader(inString)), config, handler);
+	}
+	
+	public String process(CSVReader reader, String config, AssemblyHandler handler) throws IOException {
 		
 		/*
 		 * Extract config
@@ -93,6 +103,7 @@ public class CsvProcessor implements MarkupProcessor {
 		String format = "t";
 		List<String> columns = null;
 		Map<String, Pattern> filters = null;
+		String textProcessor = null;
 		
 		if (config != null) {
 			String[] settings = config.split(";");
@@ -104,13 +115,16 @@ public class CsvProcessor implements MarkupProcessor {
 					if (settings.length > 2) {
 						endSkip = Integer.parseInt(settings[2]);
 						if (settings.length > 3) {
-							columns = new ArrayList<String>(Arrays.asList(settings[3].split("\\s*,\\s*")));
+							textProcessor = settings[3];
 							if (settings.length > 4) {
-								// Filters
-								filters = new HashMap<String, Pattern>();
-								for (String f : settings[4].split("\\s*,\\s*")) {
-									String[] colRegex = f.split("\\s*:\\s*");
-									filters.put(colRegex[0], Pattern.compile(colRegex[1]));
+								columns = new ArrayList<String>(Arrays.asList(settings[4].split("\\s*,\\s*")));
+								if (settings.length > 5) {
+									// Filters
+									filters = new HashMap<String, Pattern>();
+									for (String f : settings[5].split("\\s*,\\s*")) {
+										String[] colRegex = f.split("\\s*:\\s*");
+										filters.put(colRegex[0], Pattern.compile(colRegex[1]));
+									}
 								}
 							}
 						}
@@ -118,8 +132,12 @@ public class CsvProcessor implements MarkupProcessor {
 				}
 			}
 		}
-
-		CSVReader reader = new CSVReader(new FileReader(inFile));
+		
+		MarkupProcessor mp = null;
+		if (textProcessor != null && !textProcessor.equals("")) {
+			mp = handler.getMarkupProcessor(textProcessor);
+		}
+		
         List<String[]> contents = reader.readAll();
 
 		StringBuffer asHtml = new StringBuffer().append(format.equals("t") ? "<table>" : "");
@@ -189,7 +207,7 @@ public class CsvProcessor implements MarkupProcessor {
 				        
 			        	for (Integer c : headerColumnIndex) {
 			        		if (c < currentLine.length)
-			        			asHtml.append("<td>" + currentLine[c] + "</td>");
+			        			asHtml.append("<td>" + processMarkup(currentLine[c], mp, config, handler) + "</td>");
 			        		else
 			        			asHtml.append("<td></td>");
 						}
@@ -203,7 +221,7 @@ public class CsvProcessor implements MarkupProcessor {
 		        				asHtml.append("</h").append(headerLevelIndex.get(i)).append(">");
 		        			} else {
 		        				asHtml.append("<p>");
-		        				asHtml.append(currentLine[headerColumnIndex.get(i)]);
+		        				asHtml.append(processMarkup(currentLine[headerColumnIndex.get(i)], mp, config, handler));
 		        				asHtml.append("</p>");
 		        			}
 		        		}
@@ -217,6 +235,10 @@ public class CsvProcessor implements MarkupProcessor {
 	    reader.close();
 	    
 	    return asHtml.toString();
+	}
+	
+	private String processMarkup(String markup, MarkupProcessor mp, String config, AssemblyHandler handler) throws IOException {
+		return mp == null ? markup : mp.process(markup, config, handler);
 	}
 
 	@Override

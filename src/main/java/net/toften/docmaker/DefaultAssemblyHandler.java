@@ -571,7 +571,7 @@ AssemblyHandler {
 			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
 		}
 
-		String asHtml = getMarkupProcessor(extension).process(markupFile, config);
+		String asHtml = getMarkupProcessor(extension).process(markupFile, config, this);
 
 		return asHtml;
 	}
