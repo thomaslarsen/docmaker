@@ -2,25 +2,24 @@ package net.toften.docmaker;
 
 import org.xml.sax.Attributes;
 
-import net.toften.docmaker.maven.DocMakerMojo;
-
 public class PseudoSection extends BaseSection {
 
-	private PseudoSectionHandler sectionHandler;
+    private PseudoSectionHandler sectionHandler;
 
-	public PseudoSection(String sectionName, String pSectionHandlerClassname, Attributes attributes, boolean isRotated) throws Exception {
-		super(sectionName, isRotated);
-		
-		sectionHandler = DocMakerMojo.newInstance(PseudoSectionHandler.class, pSectionHandlerClassname);
-		sectionHandler.init(attributes);
-	}
-	
-	public PseudoSectionHandler getSectionHandler() {
-		return sectionHandler;
-	}
-	
-	@Override
-	protected String getDivClassName() {
-		return "pseudo-section";
-	}
+    public PseudoSection(final String sectionName, final String pSectionHandlerClassname, final Attributes attributes,
+            final boolean isRotated) throws Exception {
+        super(sectionName, isRotated);
+
+        this.sectionHandler = Docmaker.newInstance(PseudoSectionHandler.class, pSectionHandlerClassname);
+        this.sectionHandler.init(attributes);
+    }
+
+    public PseudoSectionHandler getSectionHandler() {
+        return this.sectionHandler;
+    }
+
+    @Override
+    protected String getDivClassName() {
+        return "pseudo-section";
+    }
 }
