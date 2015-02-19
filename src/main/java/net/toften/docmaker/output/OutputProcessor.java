@@ -2,6 +2,9 @@ package net.toften.docmaker.output;
 
 import java.io.File;
 
+import net.toften.docmaker.handler.InterimFileHandler;
+import net.toften.docmaker.toc.TOC;
+
 /**
  * Interface describing the processor of the interim output file.
  * <p>
@@ -11,7 +14,7 @@ import java.io.File;
  * @author tlarsen
  *
  */
-public interface OutputProcessor {
+public interface OutputProcessor extends InterimFileHandler {
 
 	/**
 	 * Process and convert the interim file and write it to the file
@@ -27,5 +30,5 @@ public interface OutputProcessor {
 	 * 	behaviour of the implementing class
 	 * @throws Exception
 	 */
-	void process(File inFile, File outputDir, String outputName) throws Exception;
+	void process(File outputDir, String outputName, String encoding, TOC t) throws Exception;
 }

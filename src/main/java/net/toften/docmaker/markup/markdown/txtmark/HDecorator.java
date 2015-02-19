@@ -1,6 +1,6 @@
 package net.toften.docmaker.markup.markdown.txtmark;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.handler.AssemblyHandler;
 
 import com.github.rjeschke.txtmark.DefaultDecorator;
 

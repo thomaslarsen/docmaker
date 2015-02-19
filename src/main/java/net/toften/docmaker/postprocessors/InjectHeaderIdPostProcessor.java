@@ -1,15 +1,15 @@
-package net.toften.docmaker;
+package net.toften.docmaker.postprocessors;
 
 import java.util.regex.Matcher;
 
-import net.toften.docmaker.postprocessors.PostProcessor;
-import net.toften.docmaker.postprocessors.RegexPostProcessor;
+import net.toften.docmaker.handler.AssemblyHandler;
+import net.toften.docmaker.handler.standard.TOCChapter;
 
 /**
  * This {@link PostProcessor} will inject an id attribute into all HTML
  * header ({@code <h>}) elements.
  * <p>
- * The value of the injected id attribute is the value of the {@link Chapter#getIdAttr(AssemblyHandler) chapter id}
+ * The value of the injected id attribute is the value of the {@link TOCChapter#getIdAttr(AssemblyHandler) chapter id}
  * attribute with the text in the header appended.
  * 
  * @author thomaslarsen

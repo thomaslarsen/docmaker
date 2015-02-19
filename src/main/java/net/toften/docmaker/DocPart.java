@@ -11,8 +11,8 @@ public enum DocPart {
 		@Override
 		public String preElement() {
 			// Override so we can write the proper xhtml bumpf
-			return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">"
-					+ "<html xmlns=\"http://www.w3.org/1999/xhtml\">";
+			return "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+					+ "<html xmlns=\"http://www.w3.org/1999/xhtml\">\n";
 		}
 	},
 	/**
@@ -28,11 +28,14 @@ public enum DocPart {
 	LINK 		("link", 			null, 		false),
 	HEADER 		("header", 			"head", 	false), 
 	META 		("meta", 			null, 		false),
+	BASE 		("base", 			null, 		false),
+	PROPERTIES 	("properties", 		null, 		false),
 	PROPERTY 	("property", 		null, 		false),
 	ELEMENT 	("element", 		null, 		true),
+	REPOS 		("repos", 			null, 		false),
 	REPO 		("repo", 			null, 		false),
 	PROCESSORS	("processors",		null, 		false),
-	PPROCESSOR	("postprocessor",	null, 		false),
+	POSTPROC	("postprocessor",	null, 		false),
 	HSECTION	("hsection",		null, 		false),
 	;
 
@@ -113,13 +116,13 @@ public enum DocPart {
 			if (tag == null) {
 				return null;
 			} else {
-				return "<" + postElement + tag + ">";
+				return "<" + postElement + tag + ">\n";
 			}
 		} else {
 			if (tag == null) {
-				return div;
+				return div + "\n";
 			} else {
-				return div + "<" + postElement + tag + ">";
+				return div + "<" + postElement + tag + ">\n";
 			}
 		}
 	}

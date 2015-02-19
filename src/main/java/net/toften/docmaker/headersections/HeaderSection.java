@@ -1,4 +1,7 @@
-package net.toften.docmaker;
+package net.toften.docmaker.headersections;
+
+import net.toften.docmaker.pseudosections.PseudoSection;
+import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
 
@@ -9,7 +12,12 @@ public class HeaderSection extends PseudoSection {
 	}
 
 	@Override
-	public String getDivOpenTag(AssemblyHandler handler) {
+	public String getDivOpenTag(TOC t) {
+		return null;
+	}
+	
+	@Override
+	public String getDivCloseTag() {
 		return null;
 	}
 	

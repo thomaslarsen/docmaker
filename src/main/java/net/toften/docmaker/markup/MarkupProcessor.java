@@ -2,8 +2,9 @@ package net.toften.docmaker.markup;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.handler.AssemblyHandler;
 
 /**
  * Interface for implementation of a markup processor.
@@ -24,6 +25,15 @@ public interface MarkupProcessor {
 	 */
 	String process(File inFile, String config, AssemblyHandler handler) throws IOException;
 	
+	/**
+	 * This method must process a file containing a markup language text. The output must be a String
+	 * containing the HTML version of the markup.
+	 * 
+	 * @param inFile the markup file
+	 * @return HTML fragment of the processed markup file
+	 * @throws IOException
+	 */
+	String process(InputStream is, String config, AssemblyHandler handler) throws IOException;
 	
 	/**
 	 * This method must process a String containing a markup language text. The output must be a String

@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.handler.AssemblyHandler;
 
 /**
  * {@link MarkupProcessor} that passes the fragment file through without any
@@ -23,8 +24,12 @@ public class NoMarkupProcessor implements MarkupProcessor {
 
 	@Override
 	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
-		InputStreamReader fileReader = new InputStreamReader(new FileInputStream(inFile),
-			Charset.forName(this.encoding));
+		return process(new FileInputStream(inFile), config, handler);
+	}
+	
+	@Override
+	public String process(InputStream is, String config, AssemblyHandler handler) throws IOException {
+		InputStreamReader fileReader = new InputStreamReader(is, Charset.forName(this.encoding));
 		BufferedReader reader = new BufferedReader(fileReader);
 
 		StringBuffer asHTML = new StringBuffer();

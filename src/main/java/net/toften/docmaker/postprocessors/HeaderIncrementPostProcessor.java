@@ -2,14 +2,14 @@ package net.toften.docmaker.postprocessors;
 
 import java.util.regex.Matcher;
 
-import net.toften.docmaker.Chapter;
-import net.toften.docmaker.Section;
+import net.toften.docmaker.handler.standard.ContentSection;
+import net.toften.docmaker.handler.standard.TOCChapter;
 
 /**
  * This {@link PostProcessor} will normalise the header level, given the base level of
- * the {@link Section#getSectionLevel() section} and the {@link Chapter#getChapterLevelOffset() chapter}.
+ * the {@link ContentSection#getSectionLevel() section} and the {@link TOCChapter#getChapterLevelOffset() chapter}.
  * <p>
- * The <i>effective level</i> of the heading is calculated using the {@link Chapter#calcEffectiveLevel()}
+ * The <i>effective level</i> of the heading is calculated using the {@link TOCChapter#calcEffectiveLevel()}
  * method.
  * 
  * @author thomaslarsen

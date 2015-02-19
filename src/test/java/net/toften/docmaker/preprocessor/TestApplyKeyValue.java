@@ -4,6 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.Properties;
 
+import net.toften.docmaker.postprocessors.ApplyKeyValue;
+
 import org.junit.Test;
 
 public class TestApplyKeyValue {

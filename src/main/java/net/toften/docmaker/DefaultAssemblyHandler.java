@@ -16,7 +16,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
+import net.toften.docmaker.handler.AssemblyHandler;
+import net.toften.docmaker.handler.InterimFileHandler;
+import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.NoMarkupProcessor;
 
@@ -88,7 +92,7 @@ AssemblyHandler {
 
 	
 	protected Map<String, String> metaData = new HashMap<String, String>();
-	protected Map<String, URI> repos = new HashMap<String, URI>();
+	protected Map<String, Repo> repos = new HashMap<String, Repo>();
 
 	public static String headerRegex = "(\\</?h)(\\d)(>)";
 	public static final int EFFECTIVE_LEVEL_ADJUSTMENT = 2;
@@ -104,7 +108,7 @@ AssemblyHandler {
 
 	private URI baseURI;
 	private String documentTitle;
-	private String currentRepoName;
+	private Repo currentRepoName;
 	private Map<String, MarkupProcessor> markupProcessor;
 	private boolean rotateCurrentSection;
 	private boolean rotateCurrentChapter;
@@ -136,19 +140,18 @@ AssemblyHandler {
 	}
 
 	@Override
-	public void parse(SAXParser parser, InputStream tocStream, String tocName) throws SAXException, IOException {
-		tocFileName = tocName.replaceFirst("[.][^.]+$", "");
-		parser.parse(tocStream, this);
-	}
-	
-	@Override
-	public void setMarkupProcessor(Map<String, MarkupProcessor> markupProcessor) {
+	public void parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor) throws Exception {
+		if (!baseURI.isAbsolute())
+			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
+
+		this.baseURI = baseURI;
 		this.markupProcessor = markupProcessor;
-	}
-	
-	@Override
-	public void setDefaultFileExtension(String defaultExtension) {
 		this.defaultExtension = defaultExtension;
+		tocFileName = tocName.replaceFirst("[.][^.]+$", "");
+        // Create the SAX parser
+        SAXParser p;
+            p = SAXParserFactory.newInstance().newSAXParser();
+		p.parse(tocStream, this);
 	}
 	
 	@Override
@@ -163,14 +166,6 @@ AssemblyHandler {
 	}
 
 	@Override
-	public void setBaseURI(URI baseURI) {
-		if (!baseURI.isAbsolute())
-			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
-
-		this.baseURI = baseURI;
-	}
-
-	@Override
 	public Integer getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
@@ -180,7 +175,8 @@ AssemblyHandler {
 		return currentSectionName;
 	}
 	
-	public boolean isRotateCurrentSection() {
+	@Override
+	public boolean isCurrentSectionRotated() {
 		return rotateCurrentSection;
 	}
 	
@@ -202,7 +198,7 @@ AssemblyHandler {
 		return documentTitle;
 	}
 	
-	public String getCurrentRepoName() {
+	public Repo getCurrentRepo() {
 		return currentRepoName;
 	}
 
@@ -346,7 +342,7 @@ AssemblyHandler {
 		writeMetaSectionDivOpenTag(currentSectionName, rotateCurrentSection);
 	}
 
-	protected void handleChapterElement(Attributes attributes) throws SAXException, IOException {
+	protected void handleChapterElement(Attributes attributes) throws Exception {
 		if (attributes.getValue("fragment") == null)
 			throw new SAXException("Chapter fragment attribute not specified");
 		
@@ -359,8 +355,8 @@ AssemblyHandler {
 		
 		String chapterConfig = attributes.getValue("config");
 
-		currentRepoName = attributes.getValue("repo");
-		if (repos.containsKey(currentRepoName)) {
+		currentRepoName = repos.get(attributes.getValue("repo"));
+		if (repos.containsKey(currentRepoName.getId())) {
 			// Write the chapter div tag
 //			writeChapterDivOpenTag(getCurrentSectionName(), currentFragmentName, currentRepoName, rotateCurrentChapter);
 
@@ -381,7 +377,7 @@ AssemblyHandler {
 				throw new SAXException("Fragment " + currentFragmentName + " could not be converted", e);
 			}
 		} else {
-			throw new SAXException("Repo " + currentRepoName + " not declared");
+			throw new SAXException("Repo " + currentRepoName.getId() + " not declared");
 		}
 	}
 
@@ -429,31 +425,13 @@ AssemblyHandler {
 		writeCSSElement();
 	}
 
-	protected void handleRepoElement(Attributes attributes) throws URISyntaxException, SAXException {
+	protected void handleRepoElement(Attributes attributes) throws Exception {
 		// Add the fragment repo to the repo list
 		String repoId = attributes.getValue("id");
 		String repoURIPath = attributes.getValue("uri");
 		
 		if (!repos.containsKey(repoId)) {
-			URI repoURI = new URI(repoURIPath);
-			if (!repoURI.isAbsolute()) {
-				if (baseURI != null) {
-					repoURI = baseURI.resolve(repoURI);
-				} else {
-					throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath + " AND baseURI is null");
-				}
-			} else 
-				System.out.println("REPO URI IS ABSOLUTE!!!!");
-	
-			if (!repoURI.isAbsolute()) {
-				throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
-			}
-	
-			if (repoURI.getAuthority() != null) {
-				throw new SAXException("Repo URI " + repoURI.toString() + " has an authority (" + repoURI.getAuthority() + "), given " + repoURIPath);
-			}
-	
-			repos.put(repoId, repoURI);
+			repos.put(repoId, new Repo(repoId, baseURI, repoURIPath));
 		}
 	}
 
@@ -549,12 +527,7 @@ AssemblyHandler {
 	 * @throws IOException
 	 * @throws URISyntaxException
 	 */
-	protected String getFragmentAsHTML(String repoName, String fragmentName, int chapterLevelOffset, String config) throws IOException, URISyntaxException {
-		URI repoURI = repos.get(repoName);
-		
-		if (!repoURI.isAbsolute())
-			throw new IllegalArgumentException("The repo URI " + repoURI.toString() + " is not absolute");
-		
+	protected String getFragmentAsHTML(Repo repo, String fragmentName, int chapterLevelOffset, String config) throws Exception {
 		String extension = defaultExtension;
 
 		int i = fragmentName.lastIndexOf('.');
@@ -564,15 +537,10 @@ AssemblyHandler {
 			fragmentName += "." + extension;
 		}
 		
-		URI markupFilenameURI = new URI(fragmentName);
-		File markupFile = new File(repoURI.resolve(markupFilenameURI));
-
-		if (!markupFile.exists()) {
-			throw new FileNotFoundException("Could not find input file: " + markupFile.getAbsolutePath().toString());
-		}
-
-		String asHtml = getMarkupProcessor(extension).process(markupFile, config, this);
-
+		InputStream fis = repo.getFragmentInputStream(fragmentName);
+		String asHtml = getMarkupProcessor(extension).process(fis, config, this);
+		fis.close();
+		
 		return asHtml;
 	}
 	
@@ -620,7 +588,7 @@ AssemblyHandler {
 			return null;
 	}
 
-	public static String injectHeaderIdAttributes(String htmlFragment, String tocFileName, String repoName, String sectionName, String fragmentName) {
+	public static String injectHeaderIdAttributes(String htmlFragment, String tocFileName, Repo repo, String sectionName, String fragmentName) {
 		if (htmlFragment != null) {
 			Matcher m = p.matcher(htmlFragment);
 	
@@ -653,5 +621,10 @@ AssemblyHandler {
 			return sb.toString();
 		} else
 			return null;
+	}
+
+	@Override
+	public String getDefaultExtension() {
+		return defaultExtension;
 	}
 }

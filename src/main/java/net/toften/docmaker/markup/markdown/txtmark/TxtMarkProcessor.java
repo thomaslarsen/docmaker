@@ -1,9 +1,11 @@
 package net.toften.docmaker.markup.markdown.txtmark;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 
 import com.github.rjeschke.txtmark.Configuration;
@@ -24,8 +26,14 @@ public class TxtMarkProcessor implements MarkupProcessor {
 	}
 
 	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
+		return process(new FileInputStream(inFile), config, handler);
+	}
+	
+	@Override
+	public String process(InputStream is, String config, AssemblyHandler handler)
+			throws IOException {
 		this.b.setEncoding(this.encoding);
-		return Processor.process(inFile, b.build());
+		return Processor.process(is, b.build());
 	}
 
 	public String getFileExtension() {

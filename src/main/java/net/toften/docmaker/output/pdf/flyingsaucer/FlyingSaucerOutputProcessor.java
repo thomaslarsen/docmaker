@@ -5,13 +5,15 @@ import java.io.FileOutputStream;
 import java.io.OutputStream;
 
 import net.toften.docmaker.output.OutputProcessor;
+import net.toften.docmaker.toc.TOC;
 
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import com.lowagie.text.pdf.PdfWriter;
 
-public class FlyingSaucerOutputProcessor implements OutputProcessor {
-	public void process(File inFile, File outputDir, String outputName) throws Exception {
+public class FlyingSaucerOutputProcessor extends SingleInterimFile implements OutputProcessor {
+	public void process(File outputDir, String outputName, String encoding, TOC t) throws Exception {
+		File inFile = buildInterimFile(outputName, encoding, t);
 		if (!inFile.exists())
 			throw new IllegalArgumentException("Input file " + inFile.getName() + " can not be found");
 		
@@ -35,7 +37,7 @@ public class FlyingSaucerOutputProcessor implements OutputProcessor {
 	    os.close();
 	}
 
-	private String getFileExtension() {
+	public String getFileExtension() {
 		return "pdf";
 	}
 }

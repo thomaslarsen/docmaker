@@ -1,48 +1,48 @@
 package net.toften.docmaker.headersections;
 
-import java.util.List;
 import java.util.regex.Matcher;
 
-import net.toften.docmaker.AssemblyHandler;
-import net.toften.docmaker.BaseSection;
-import net.toften.docmaker.Chapter;
-import net.toften.docmaker.Section;
 import net.toften.docmaker.pseudosections.TOCPseudoSection;
+import net.toften.docmaker.toc.Chapter;
+import net.toften.docmaker.toc.ChapterSection;
+import net.toften.docmaker.toc.Section;
+import net.toften.docmaker.toc.SectionType;
+import net.toften.docmaker.toc.TOC;
 
 public class TOCBookmarkSection extends TOCPseudoSection {
 	
 	@Override
-	public String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler) {
-		StringBuffer asHtml = new StringBuffer("<bookmarks>");
+	public String getSectionAsHtml(TOC t) {
+		StringBuffer asHtml = new StringBuffer("<bookmarks>\n");
 
-		for (BaseSection metaSection : sections) {
-			if (metaSection instanceof Section) {
-				Section s = (Section)metaSection;
+		for (Section metaSection : t.getSections()) {
+			if (metaSection.getSectionType() == SectionType.CONTENTS_SECTION) {
+				ChapterSection s = (ChapterSection)metaSection;
 				int sectionLevel = s.getSectionLevel();
 
 				if (sectionLevel <= getMaxLevel()) {
 					asHtml.
 					append("<bookmark name=\"" + s.getSectionName() + "\" href=\"#").
-					append(s.getIdAttr(handler)).
-					append("\">");
+					append(s.getIdAttr(t)).
+					append("\">\n");
 					
 					for (Chapter c : s.getChapters()) {
-						processFragment(c, c.getFragmentAsHtml(), asHtml, handler);
+						processFragment(c, c.getAsHtml(), asHtml, t);
 					}
 					
-					asHtml.append("</bookmark>");
+					asHtml.append("</bookmark>\n");
 				}
 
 			}
 		}
 
-		asHtml.append("</bookmarks>");
+		asHtml.append("</bookmarks>\n");
 		
 		return asHtml.toString();
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		int chapterEffectiveLevel = chapter.calcEffectiveLevel();
 
@@ -56,12 +56,11 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<bookmark name=\"" + headerText + "\" href=\"#").
-					append(chapter.getIdAttr(handler)).
+					append(chapter.getIdAttr(t)).
 					append("-" + headerText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
-					append("\" />");
+					append("\" />\n");
 				}
 			}
 		}
 	}
-
 }

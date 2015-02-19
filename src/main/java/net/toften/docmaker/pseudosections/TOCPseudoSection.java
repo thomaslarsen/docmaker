@@ -1,16 +1,15 @@
 package net.toften.docmaker.pseudosections;
 
-import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import net.toften.docmaker.AssemblyHandler;
-import net.toften.docmaker.BaseSection;
-import net.toften.docmaker.Chapter;
-import net.toften.docmaker.InjectHeaderIdPostProcessor;
-import net.toften.docmaker.PseudoSectionHandler;
-import net.toften.docmaker.Section;
+import net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.postprocessors.PostProcessor;
+import net.toften.docmaker.toc.Chapter;
+import net.toften.docmaker.toc.ChapterSection;
+import net.toften.docmaker.toc.Section;
+import net.toften.docmaker.toc.SectionType;
+import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
 
@@ -67,36 +66,36 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 	}
 	
 	@Override
-	public String getSectionAsHtml(List<BaseSection> sections, AssemblyHandler handler) {
-		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">");
+	public String getSectionAsHtml(TOC t) {
+		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">\n");
 
-		for (BaseSection metaSection : sections) {
-			if (metaSection instanceof Section) {
-				Section s = (Section)metaSection;
+		for (Section metaSection : t.getSections()) {
+			if (metaSection.getSectionType() == SectionType.CONTENTS_SECTION) {
+				ChapterSection s = (ChapterSection)metaSection;
 				int sectionLevel = s.getSectionLevel();
 
 				if (sectionLevel <= getMaxLevel()) {
 					asHtml.
 					append("<a class=\"toc-section level" + sectionLevel + "\" href=\"#").
-					append(s.getIdAttr(handler)).
+					append(s.getIdAttr(t)).
 					append("\">").
 					append(s.getSectionName()).
-					append("</a>");
+					append("</a>\n");
 				}
 
 				for (Chapter c : s.getChapters()) {
-					processFragment(c, c.getFragmentAsHtml(), asHtml, handler);
+					processFragment(c, c.getAsHtml(), asHtml, t);
 				}
 			}
 		}
 
-		asHtml.append("</div>");
+		asHtml.append("</div>\n");
 		
 		return asHtml.toString();
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		int chapterEffectiveLevel = chapter.calcEffectiveLevel();
 
@@ -110,11 +109,11 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
-					append(chapter.getIdAttr(handler)).
+					append(chapter.getIdAttr(t)).
 					append("-" + headerText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
 					append("\">").
 					append(headerText).
-					append("</a>");
+					append("</a>\n");
 				}
 			}
 		}

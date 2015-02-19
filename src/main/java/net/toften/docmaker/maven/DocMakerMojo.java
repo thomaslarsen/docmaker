@@ -1,10 +1,11 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.util.Map;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.DocMaker;
 import net.toften.docmaker.DocMakerException;
-import net.toften.docmaker.Docmaker;
+import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.output.OutputProcessor;
 
@@ -50,9 +51,21 @@ public class DocMakerMojo extends AbstractMojo {
     /**
      * The class name of the {@link MarkupProcessor}
      */
+	@Parameter
+	private Map<String, String> markupProcessors;
+	
+	/**
+	 * The class name of the default {@link MarkupProcessor} if the markupProcessors is not specified
+	 */
     @Parameter(defaultValue = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor")
     private String markupProcessorClassname;
 
+	/** 
+	 * The default extension to use if files don't specify an extension
+	 */
+	@Parameter (defaultValue = "md")
+	private String defaultExtension;
+	
     /**
      * The class name of the {@link OutputProcessor}
      */
@@ -62,7 +75,7 @@ public class DocMakerMojo extends AbstractMojo {
     /**
      * The class name of the {@link AssemblyHandler}
      */
-    @Parameter(defaultValue = "net.toften.docmaker.DefaultAssemblyHandler")
+    @Parameter(defaultValue = "net.toften.docmaker.handler.standard.StandardHandler")
     private String assemblyHandlerClassname;
 
     /**
@@ -93,11 +106,28 @@ public class DocMakerMojo extends AbstractMojo {
         };
 
         try {
-            Docmaker.run(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessorClassname,
-                    this.outputProcessorClassname, this.assemblyHandlerClassname, this.toc, this.tocFileExt,
-                    this.cssFilePath);
+            DocMaker dm = new DocMaker(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
+                    this.outputProcessorClassname, this.assemblyHandlerClassname, this.tocFileExt,
+                    this.cssFilePath, this.defaultExtension);
+
+    		
+    		dm.run(this.toc);
         } catch (DocMakerException e) {
             throw new MojoExecutionException(e.getMessage(), e.getCause());
         }
     }
+
+    /**
+     * Utility method to instantiate a class, given an interface.
+     *
+     * @param type the interface type to use as return type
+     * @param className the name of the class (implementing the interface) to instantiate
+     * @return an instance of the class, returned as the interface type
+     * @throws Exception
+     */
+    public static <K> K newInstance(final Class<K> type, final String className) throws Exception {
+    	return ((Class<K>) Class.forName(className)).newInstance();
+    }
 }
+
+

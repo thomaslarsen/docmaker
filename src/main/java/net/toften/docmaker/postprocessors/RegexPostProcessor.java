@@ -3,10 +3,10 @@ package net.toften.docmaker.postprocessors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.xml.sax.Attributes;
+import net.toften.docmaker.toc.Chapter;
+import net.toften.docmaker.toc.TOC;
 
-import net.toften.docmaker.AssemblyHandler;
-import net.toften.docmaker.Chapter;
+import org.xml.sax.Attributes;
 
 /**
  * This implementation of the {@link PostProcessor} is used as a baseclass
@@ -23,7 +23,7 @@ import net.toften.docmaker.Chapter;
 public abstract class RegexPostProcessor implements PostProcessor {
 	private final Pattern p;
 	private Chapter currentChapter;
-	private AssemblyHandler currentHandler;
+	private TOC currentTOC;
 	
 	public RegexPostProcessor() {
 		p = Pattern.compile(getRegex());
@@ -51,10 +51,10 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, AssemblyHandler handler) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		currentChapter = chapter;
-		currentHandler = handler;
+		this.currentTOC = t;
 		
 		while (m.find()) {
 			m.appendReplacement(out, getReplacement(m));
@@ -71,13 +71,13 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	}
 	
 	/**
-	 * @return the {@link AssemblyHandler} processing the current TOC
+	 * @return the {@link TOC} data model
 	 */
-	protected AssemblyHandler getCurrentHandler() {
-		return currentHandler;
+	protected TOC getTOC() {
+		return currentTOC;
 	}
 	
 	protected String calcElementId(String elementText) {
-		return getCurrentChapter().getIdAttr(getCurrentHandler()) + "-" + elementText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+		return getCurrentChapter().getIdAttr(getTOC()) + "-" + elementText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 }

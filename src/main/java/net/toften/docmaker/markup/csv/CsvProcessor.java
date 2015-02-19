@@ -3,6 +3,8 @@ package net.toften.docmaker.markup.csv;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
-import net.toften.docmaker.AssemblyHandler;
+import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -76,6 +78,11 @@ public class CsvProcessor implements MarkupProcessor {
 	@Override
 	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
 		return process(new CSVReader(new FileReader(inFile)), config, handler);
+	}
+	
+	@Override
+	public String process(InputStream is, String config, AssemblyHandler handler) throws IOException {
+		return process(new CSVReader(new InputStreamReader(is)), config, handler);
 	}
 
 	@Override

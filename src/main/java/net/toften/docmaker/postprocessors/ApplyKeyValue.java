@@ -1,4 +1,4 @@
-package net.toften.docmaker.preprocessor;
+package net.toften.docmaker.postprocessors;
 
 import java.io.File;
 import java.io.FileInputStream;

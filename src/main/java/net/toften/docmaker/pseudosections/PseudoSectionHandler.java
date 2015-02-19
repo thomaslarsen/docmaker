@@ -1,6 +1,10 @@
-package net.toften.docmaker;
+package net.toften.docmaker.pseudosections;
 
 import java.util.List;
+
+import net.toften.docmaker.toc.Chapter;
+import net.toften.docmaker.toc.ChapterSection;
+import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
 
@@ -9,7 +13,7 @@ import org.xml.sax.Attributes;
  * section given all the processed sections in the TOC.
  * <p>
  * The input to the pseudo section is a list of all the sections. The HTML contents
- * can be obtained from the {@link Chapter#getFragmentAsHtml()} method.
+ * can be obtained from the {@link Chapter#getAsHtml()} method.
  * 
  * The {@link Chapter}s can be read by iterating over the supplied sections.
  * 
@@ -20,15 +24,15 @@ public interface PseudoSectionHandler {
 	/**
 	 * This method must generate the HTML output of the pseudo section.
 	 * <p>
-	 * I can use the supplied {@link List} of {@link Section}s if needed to get to
-	 * the {@link Chapter}s or the HTML {@link Chapter#getFragmentAsHtml() contents}
+	 * I can use the supplied {@link List} of {@link ChapterSection}s if needed to get to
+	 * the {@link Chapter}s or the HTML {@link Chapter#getAsHtml() contents}
 	 * of the chapters
 	 * 
 	 * @param sections the processed sections of the TOC
-	 * @param handler the {@link AssemblyHandler} processing the TOC
+	 * @param t the {@link TOC} data model
 	 * @return the HTML contents of the pseudo section
 	 */
-	String getSectionAsHtml(final List<BaseSection> sections, final AssemblyHandler handler);
+	String getSectionAsHtml(TOC t);
 	
 	/**
 	 * Method called when the PseudoSectionHandler is initialized by the {@link PseudoSection} class.

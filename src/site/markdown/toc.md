@@ -15,6 +15,8 @@ The TOC structure is:
 		
 		<header title="..">
 			<meta .. />
+			<link .. />
+			<base .. />
 		</header>
 		
 		<properties>
@@ -22,6 +24,7 @@ The TOC structure is:
 		</properties>
 		
 		<sections>
+			<hsection title=".." classname=".." />
 			<section title=".." level="..">
 				<chapters>
 					<chapter level=".." repo=".." fragment=".." />
@@ -57,6 +60,30 @@ If the URI is relative, the specified URI will be added to the [`fragmentURI`](d
 
 Fragment repositories will not produce any HTML output.
 
+## Header
+
+This provides a facility to insert elements into the HTML `head` section.
+
+Docmaker will translate the tag name into the head section. the attributes will be copied across as-is, for example:
+
+	<header title="..>
+		<meta name="description" content="Free Web tutorials" />
+
+Will insert the following HTML:
+
+	<html>
+		<head>
+			<title>...</title>
+			<meta name="description" content="Free Web tutorials" />
+			
+I short, sections will essentially be copied across from the TOC to the HTML.
+
+The following HTML `head` tags are supported:
+
+* `meta`
+* `link`
+* `base`
+
 ## Properties
 
 A property is a key/value pair that can be injected into the generated document using an `element` element inside the `chapters` or `chapter` elements.
@@ -72,6 +99,7 @@ There are three types of sections:
 * Contents Section - `<section>` element
 * Meta Section - `<metasection>` element
 * Pseudo Section - `<psection>` element
+* Header Section - `<hsection>` element
 
 All sections will have the following attributes:
 
@@ -103,6 +131,8 @@ In the transient HTML document, a contents section will be preceded with the fol
 	<div class="section">
 		<div class="section-header name="*title*" id="*generated id*">
 		
+
+If a contents section contains any `elements`, they will be written in the end of the section.
 
 ### Meta section
 

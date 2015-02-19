@@ -1,9 +1,12 @@
-package net.toften.docmaker;
+package net.toften.docmaker.handler.standard;
 
 import java.util.LinkedList;
 import java.util.List;
 
-public class MetaSection extends BaseSection {
+import net.toften.docmaker.toc.ElementsSection;
+import net.toften.docmaker.toc.SectionType;
+
+public class MetaSection extends BaseSection implements ElementsSection {
 	private List<String[]> elements = new LinkedList<String[]>();
 
 	public MetaSection(String sectionName, boolean isRotated) {
@@ -21,5 +24,10 @@ public class MetaSection extends BaseSection {
 	@Override
 	protected String getDivClassName() {
 		return "meta-section";
+	}
+	
+	@Override
+	public SectionType getSectionType() {
+		return SectionType.META_SECTION;
 	}
 }
