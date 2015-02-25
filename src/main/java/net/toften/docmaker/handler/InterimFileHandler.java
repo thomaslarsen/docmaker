@@ -1,5 +1,6 @@
 package net.toften.docmaker.handler;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -29,7 +30,7 @@ public interface InterimFileHandler {
 	 * @param encodingString a valid charset.
 	 * @throws IOException
 	 */
-	void init(String filename, String encodingString) throws IOException;
+	void init(File interimFileDir, String filename, String encodingString) throws IOException;
 	
 	/**
 	 * Flush and close the output file.

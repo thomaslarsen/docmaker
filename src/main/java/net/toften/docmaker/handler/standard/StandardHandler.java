@@ -1,24 +1,18 @@
 package net.toften.docmaker.handler.standard;
 
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandlerAdapter;
-import net.toften.docmaker.handler.InterimFileHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.headersections.HeaderSection;
 import net.toften.docmaker.pseudosections.PseudoSection;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
-import net.toften.docmaker.toc.ElementsSection;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.Section;
 import net.toften.docmaker.toc.SectionType;
-import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -35,26 +29,19 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 		
 		postProcessors.add(new net.toften.docmaker.postprocessors.HeaderIncrementPostProcessor());
 		postProcessors.add(new net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor());
+		postProcessors.add(new net.toften.docmaker.postprocessors.AdjustImageHrefPostProcessor());
+		postProcessors.add(new net.toften.docmaker.postprocessors.ApplyKeyValue());
 	}
 	
 	@Override
 	public void endDocument() throws SAXException {
-//		try {
-			// Run postprocessors
-			for (Section s : getSections()) {
-				if (s.getSectionType() == SectionType.CONTENTS_SECTION) {
-					for (Chapter c : ((ChapterSection)s).getChapters()) {
-						c.runPostProcessors(postProcessors, this, true);
-					}
+		for (Section s : getSections()) {
+			if (s.getSectionType() == SectionType.CONTENTS_SECTION) {
+				for (Chapter c : ((ChapterSection)s).getChapters()) {
+					c.runPostProcessors(postProcessors, this, true);
 				}
 			}
-
-			//writeInterimFile(this, this);
-			
-//			close();
-//		} catch (IOException e) {
-//			throw new SAXException("Outfile could not be closed", e);
-//		}
+		}
 	}
 	
 	@Override
@@ -87,7 +74,7 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	@Override
 	protected void handleElementElement(Attributes attributes) {
 		String key = attributes.getValue(ELEMENT_KEY);
-		getCurrentMetaSection().addElement(key, metaData.get(key));
+		getCurrentMetaSection().addElement(key, (String)getMetaData().get(key));
 	}
 	
 	@Override
@@ -145,106 +132,5 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 			return (PseudoSection) sections.get(sections.size() - 1);
 		else
 			return null;
-	}
-
-	private static void writeInterimFile(TOC t, InterimFileHandler ifh) throws IOException {
-		Map<String, String> metaData = t.getMetaData();
-		Map<String, Map<String, String>> htmlMeta = t.getHtmlMeta();
-		List<GeneratedSection> headerSections = t.getHeaderSections();
-		List<Section> sections = t.getSections();
-		
-		ifh.writeToOutputFile(DocPart.DOCUMENT.preElement());
-		
-		ifh.writeToOutputFile(DocPart.HEADER.preElement());
-		ifh.writeToOutputFile("<title>" + metaData.get(HEADER_TITLE) + "</title>\n");
-		for (String htmlHeadKey : htmlMeta.keySet()) {
-			ifh.writeToOutputFile("<" + htmlHeadKey);
-			for (Entry<String, String> metaAttr : htmlMeta.get(htmlHeadKey).entrySet()) {
-				ifh.writeToOutputFile(" " + metaAttr.getKey() + "=\"" + metaAttr.getValue() + "\"");
-			}
-			ifh.writeToOutputFile(" />\n");
-		}
-		
-		for (GeneratedSection section : headerSections) {
-			ifh.writeToOutputFile(DocPart.HSECTION.preElement());
-			ifh.writeToOutputFile(section.getDivOpenTag(t));
-			ifh.writeToOutputFile(section.getAsHtml(t));
-			ifh.writeToOutputFile(section.getDivCloseTag());
-			ifh.writeToOutputFile(DocPart.HSECTION.postElement());
-		}
-		ifh.writeToOutputFile(DocPart.HEADER.postElement());
-		
-		ifh.writeToOutputFile(DocPart.SECTIONS.preElement());
-		
-		// Write document metadata
-		ifh.writeToOutputFile("<div class=\"metadata\">\n");
-		for (Map.Entry<String, String> m : metaData.entrySet()) {
-			ifh.writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey() + "\">" + m.getValue() + "</div>\n");
-		}
-		ifh.writeToOutputFile("</div>\n");
-
-		for (Section section : sections) {
-			switch (section.getSectionType()) {
-			case CONTENTS_SECTION:
-				ifh.writeToOutputFile(DocPart.SECTION.preElement());
-				writeContentSection((ChapterSection)section, t, ifh);
-				ifh.writeToOutputFile(DocPart.SECTION.postElement());
-				break;
-
-			case META_SECTION:
-				ifh.writeToOutputFile(DocPart.METASECTION.preElement());
-				ifh.writeToOutputFile(section.getDivOpenTag(t));
-				writeMetaElements((ElementsSection)section, t, ifh);
-				ifh.writeToOutputFile(DocPart.METASECTION.postElement());
-				ifh.writeToOutputFile(section.getDivCloseTag());
-				break;
-				
-			case PSEUDO_SECTION:
-				ifh.writeToOutputFile(DocPart.PSECTION.preElement());
-				writePseudoSection((GeneratedSection)section, t, ifh);
-				ifh.writeToOutputFile(DocPart.PSECTION.postElement());
-				break;
-			}
-		}
-		ifh.writeToOutputFile(DocPart.SECTIONS.postElement());
-		
-		ifh.writeToOutputFile(DocPart.DOCUMENT.postElement());
-	}
-
-	private static void writeContentSection(ChapterSection section, TOC t, InterimFileHandler ifh) throws IOException {
-		ifh.writeToOutputFile(section.getDivOpenTag(t));
-		ifh.writeToOutputFile(DocPart.CHAPTERS.preElement());
-		for (Chapter c : section.getChapters()) {
-			ifh.writeToOutputFile(DocPart.CHAPTER.preElement());
-			writeChapter(c, t, ifh);
-			ifh.writeToOutputFile(DocPart.CHAPTER.postElement());
-		}
-		ifh.writeToOutputFile(DocPart.CHAPTERS.postElement());
-		// A contents section might also contain elements
-		writeMetaElements(section, t, ifh);
-		
-		ifh.writeToOutputFile(section.getDivCloseTag());
-	}
-	
-	private static void writeChapter(Chapter c, TOC t, InterimFileHandler ifh) throws IOException {
-		ifh.writeToOutputFile(c.getDivOpenTag(t));
-		String htmlFragment = c.getAsHtml();
-
-		ifh.writeToOutputFile(htmlFragment);
-		ifh.writeToOutputFile(c.getDivCloseTag());
-	}
-
-	private static void writeMetaElements(ElementsSection section, TOC t, InterimFileHandler ifh) throws IOException {
-		for (String[] e : section.getElements()) {
-			ifh.writeToOutputFile(DocPart.ELEMENT.preElement());
-			ifh.writeToOutputFile("<div key=\"" + e[0] + "\">" + e[1] + "</div>\n");
-			ifh.writeToOutputFile(DocPart.ELEMENT.postElement());
-		}
-	}
-	
-	private static void writePseudoSection(GeneratedSection section, TOC t, InterimFileHandler ifh) throws IOException {
-		ifh.writeToOutputFile(section.getDivOpenTag(t));
-		ifh.writeToOutputFile(section.getAsHtml(t));
-		ifh.writeToOutputFile(section.getDivCloseTag());
 	}
 }

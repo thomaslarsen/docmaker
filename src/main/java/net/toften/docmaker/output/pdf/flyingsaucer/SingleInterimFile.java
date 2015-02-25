@@ -3,11 +3,16 @@ package net.toften.docmaker.output.pdf.flyingsaucer;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.Scanner;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandlerAdapter;
@@ -24,8 +29,8 @@ public class SingleInterimFile implements InterimFileHandler {
 	private OutputStreamWriter htmlFile;
 	
 	@Override
-	public void init(final String filename, final String encodingString) throws IOException {
-		this.outputFile = new File(filename);
+	public void init(final File interimFileDir, final String filename, final String encodingString) throws IOException {
+		this.outputFile = new File(interimFileDir, filename + "." + getFileExtension());
 		this.htmlFile = new OutputStreamWriter(new FileOutputStream(outputFile), Charset.forName(encodingString).newEncoder());
 	}
 
@@ -49,11 +54,10 @@ public class SingleInterimFile implements InterimFileHandler {
 		return "html";
 	}
 	
-	protected File buildInterimFile(String filename, String encoding, TOC t) throws IOException {
-		init(filename, encoding);
+	protected File buildInterimFile(File interimFileDir, String filename, String encoding, TOC t) throws IOException, URISyntaxException {
+		init(interimFileDir, filename, encoding);
 		
-		
-		Map<String, String> metaData = t.getMetaData();
+		Properties metaData = t.getMetaData();
 		Map<String, Map<String, String>> htmlMeta = t.getHtmlMeta();
 		List<GeneratedSection> headerSections = t.getHeaderSections();
 		List<Section> sections = t.getSections();
@@ -70,6 +74,20 @@ public class SingleInterimFile implements InterimFileHandler {
 			writeToOutputFile(" />\n");
 		}
 		
+		// Embed stylesheets
+		for (String cssFile : t.getStyleSheets()) {
+			URI cssURI = new URI(cssFile);
+			if (!cssURI.isAbsolute()) {
+				cssURI = t.getBaseURI().resolve(cssURI);
+			}
+			
+			InputStream is = cssURI.toURL().openStream();
+			String text = new Scanner(is, encoding).useDelimiter("\\A").next();
+			writeToOutputFile("<style>\n");
+			writeToOutputFile(text + "\n");
+			writeToOutputFile("</style>\n");
+		}
+		
 		for (GeneratedSection section : headerSections) {
 			writeToOutputFile(DocPart.HSECTION.preElement());
 			writeToOutputFile(section.getDivOpenTag(t));
@@ -83,8 +101,8 @@ public class SingleInterimFile implements InterimFileHandler {
 		
 		// Write document metadata
 		writeToOutputFile("<div class=\"metadata\">\n");
-		for (Map.Entry<String, String> m : metaData.entrySet()) {
-			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey() + "\">" + m.getValue() + "</div>\n");
+		for (Map.Entry<Object, Object> m : metaData.entrySet()) {
+			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey().toString() + "\">" + m.getValue().toString() + "</div>\n");
 		}
 		writeToOutputFile("</div>\n");
 

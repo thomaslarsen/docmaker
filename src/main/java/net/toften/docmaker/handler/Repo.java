@@ -16,14 +16,15 @@ public class Repo {
 		this.id = id;
 		this.repoURI = new URI(repoURIPath);
 		
+		// If the path to the repo is not absolute,
+		// append it to the baseURI
 		if (!repoURI.isAbsolute()) {
 			if (baseURI != null) {
 				repoURI = baseURI.resolve(repoURI);
 			} else {
 				throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath + " AND baseURI is null");
 			}
-		} else 
-			System.out.println("REPO URI IS ABSOLUTE!!!!");
+		}
 
 		if (!repoURI.isAbsolute()) {
 			throw new SAXException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
@@ -43,5 +44,9 @@ public class Repo {
 
 	public String getId() {
 		return id;
+	}
+
+	public URI getURI() {
+		return repoURI;
 	}
 }

@@ -2,7 +2,6 @@ package net.toften.docmaker.output;
 
 import java.io.File;
 
-import net.toften.docmaker.handler.InterimFileHandler;
 import net.toften.docmaker.toc.TOC;
 
 /**
@@ -14,7 +13,7 @@ import net.toften.docmaker.toc.TOC;
  * @author tlarsen
  *
  */
-public interface OutputProcessor extends InterimFileHandler {
+public interface OutputProcessor {
 
 	/**
 	 * Process and convert the interim file and write it to the file
@@ -31,4 +30,6 @@ public interface OutputProcessor extends InterimFileHandler {
 	 * @throws Exception
 	 */
 	void process(File outputDir, String outputName, String encoding, TOC t) throws Exception;
+	
+	public String getFileExtension();
 }

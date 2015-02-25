@@ -15,12 +15,9 @@ public class TestApplyKeyValue {
         Properties p = new Properties();
         p.put("key", "World");
 
-        StringBuffer out = new StringBuffer();
-
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        akv.processFragment(text, out);
-        assertEquals("Hello World", out.toString());
+        assertEquals("Hello World", akv.processFragment(text));
     }
 
     @Test
@@ -30,12 +27,9 @@ public class TestApplyKeyValue {
         p.put("key", "World");
         p.put("home", "London");
 
-        StringBuffer out = new StringBuffer();
-
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        akv.processFragment(text, out);
-        assertEquals("Hello World\nI live in London", out.toString());
+        assertEquals("Hello World\nI live in London", akv.processFragment(text));
     }
 
     @Test
@@ -45,12 +39,9 @@ public class TestApplyKeyValue {
         p.put("key", "World");
         p.put("home", "London");
 
-        StringBuffer out = new StringBuffer();
-
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        akv.processFragment(text, out);
-        assertEquals("Hello London\nI live in London", out.toString());
+        assertEquals("Hello London\nI live in London", akv.processFragment(text));
     }
 
     @Test
@@ -60,12 +51,8 @@ public class TestApplyKeyValue {
         p.put("home", "London");
         p.put("key", "${home} City");
 
-        StringBuffer out = new StringBuffer();
-
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        akv.processFragment(text, out);
-        assertEquals("Hello London City", out.toString());
+        assertEquals("Hello London City", akv.processFragment(text));
     }
-
 }

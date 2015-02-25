@@ -1,15 +1,14 @@
 package net.toften.docmaker.handler;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.net.URI;
-import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -38,8 +37,9 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	public static final String PROPERTY_KEY = "key";
 	public static final String HEADER_TITLE = "title";
 	
-	protected Map<String, Map<String, String>> htmlMeta = new HashMap<String, Map<String, String>>();
-	protected Map<String, String> metaData = new HashMap<String, String>();
+	private Map<String, Map<String, String>> htmlMeta = new HashMap<String, Map<String, String>>();
+	private Properties metaData = new Properties();
+	private List<String> cssFiles = new ArrayList<String>();
 	protected Map<String, Repo> repos = new HashMap<String, Repo>();
 	protected List<PostProcessor> postProcessors = new LinkedList<PostProcessor>();
 	
@@ -58,55 +58,23 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 
 	private String defaultExtension;
 
-	private InterimFileHandler fileHandlerDelegate = new InterimFileHandler() {
-		private OutputStreamWriter htmlFile;
-		
-		@Override
-		public void init(final String filename, final String encodingString) throws IOException {
-			this.htmlFile = new OutputStreamWriter(new FileOutputStream(filename), Charset.forName(encodingString).newEncoder());
-		}
-
-		@Override
-		public void close() throws IOException {
-			try {
-				htmlFile.flush();
-			} finally {
-				htmlFile.close();
-			}
-		}
-
-		@Override
-		public void writeToOutputFile(String text) throws IOException {
-			if (text != null)
-				htmlFile.write(text);
-		}
-
-		@Override
-		public String getFileExtension() {
-			return "html";
-		}
-	};
-
 	public AssemblyHandlerAdapter() {
 		// Empty
 	}
 	
-	public AssemblyHandlerAdapter(InterimFileHandler fileHandlerDelegate) {
-		setInterrimFileHandler(fileHandlerDelegate);
-	}
-	
-	public void setInterrimFileHandler(InterimFileHandler fileHandlerDelegate) {
-		this.fileHandlerDelegate = fileHandlerDelegate;
-	}
-	
 	@Override
-	public Map<String, String> getMetaData() {
+	public Properties getMetaData() {
 		return metaData;
 	}
 
 	@Override
 	public Map<String, Map<String, String>> getHtmlMeta() {
 		return htmlMeta;
+	}
+	
+	@Override
+	public URI getBaseURI() {
+		return baseURI;
 	}
 
 	@Override
@@ -115,24 +83,23 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	}
 
 	@Override
-	public void insertCSSFile(String path) {
-		Map<String, String> cssMap = new HashMap<String, String>();
-		cssMap.put("rel", "stylesheet");
-		cssMap.put("type", "text/css");
-		cssMap.put("href", path);
-		htmlMeta.put("link", cssMap);
+	public List<String> getStyleSheets() {
+		return cssFiles;
 	}
 
 	@Override
-	public TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor) 
+	public TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor, Properties baseProperties, List<String> cssFiles) 
 			throws Exception {
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
 
+		if (baseProperties != null)
+			this.metaData = (Properties)baseProperties.clone();
 		this.baseURI = baseURI;
 		this.markupProcessor = markupProcessor;
 		this.defaultExtension = defaultExtension;
 		this.tocFileNameWithoutExtension = tocName.replaceFirst("[.][^.]+$", "");
+		this.cssFiles = cssFiles;
 		
         // Create the SAX parser
         SAXParser p = SAXParserFactory.newInstance().newSAXParser();
@@ -243,26 +210,24 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
 	}
 	
-	protected void handleChapterElement(Attributes attributes) throws Exception  {
-	}
-
 	protected void handleHeaderSection(Attributes attributes) throws Exception  {
 	}
 
-	protected void handlePseudoSection(Attributes attributes) throws Exception  {
-	}
+	protected abstract void handleChapterElement(Attributes attributes) throws Exception;
 
-	protected void handleMetaSectionElement(Attributes attributes) throws Exception  {
-	}
+	protected abstract void handlePseudoSection(Attributes attributes) throws Exception;
 
-	protected void handleContentSectionElement(Attributes attributes) throws Exception  {
-	}
+	protected abstract void handleMetaSectionElement(Attributes attributes) throws Exception;
 
-	protected void handleElementElement(Attributes attributes) throws Exception  {
-	}
+	protected abstract void handleContentSectionElement(Attributes attributes) throws Exception;
+
+	protected abstract void handleElementElement(Attributes attributes) throws Exception;
 
 	protected void handlePostProcessor(Attributes attributes) throws Exception {
-		postProcessors.add(DocMakerMojo.newInstance(PostProcessor.class, attributes.getValue("classname")));
+		PostProcessor pp = DocMakerMojo.newInstance(PostProcessor.class, attributes.getValue("classname"));
+		pp.init(attributes);
+		
+		postProcessors.add(pp);
 	}
 
 	protected void handleRepoElement(Attributes attributes) throws Exception {
@@ -303,6 +268,7 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	}
 
 	protected void handleHeaderElement(Attributes attributes) {
-		metaData.put(HEADER_TITLE, attributes.getValue(HEADER_TITLE));
+		documentTitle = attributes.getValue(HEADER_TITLE);
+		metaData.put(HEADER_TITLE, getDocumentTitle());
 	}
 }

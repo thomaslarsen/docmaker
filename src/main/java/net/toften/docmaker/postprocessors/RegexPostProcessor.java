@@ -53,7 +53,7 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	@Override
 	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
 		Matcher m = p.matcher(fragmentAsHtml);
-		currentChapter = chapter;
+		this.currentChapter = chapter;
 		this.currentTOC = t;
 		
 		while (m.find()) {

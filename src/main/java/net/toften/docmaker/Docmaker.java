@@ -2,6 +2,8 @@ package net.toften.docmaker;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
@@ -10,6 +12,7 @@ import java.nio.charset.UnsupportedCharsetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
@@ -89,21 +92,28 @@ public class DocMaker {
      * Specifies the encoding of the files.
      */
     @com.beust.jcommander.Parameter(names = "-encoding")
-    private String encoding = "UTF-8";
+    private String encoding;
+    
+    @Parameter (names = "-keys")
+    private List<String> propFilenames;
 
     /**
      * Path to the CSS file to be used to style the generated output
      */
-    @com.beust.jcommander.Parameter(names = "-cssFilePath")
-    private String cssFilePath;
+    @Parameter(names = "-cssFilePath")
+    private List<String> cssFilePath;
 
 	private LogWrapper lw;
 
-	private         OutputProcessor outputProcessor;
-	private 		Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
-	private        URI baseURI;
+	private OutputProcessor outputProcessor;
+	private Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
+	private URI baseURI;
 
     private Map<String, String> markupProcessorsMap;
+
+	private Properties props;
+
+	private String actualEncoding;
 
 
     public static void main(final String[] args) throws Exception {
@@ -140,14 +150,14 @@ public class DocMaker {
     }
     
     private DocMaker() {
-    	
+    	// To use with the jCommander parser
     }
     
     public DocMaker(LogWrapper lw, String encoding2, File outputDir2,
-			String fragmentURI2, final Map<String, String> markupProcessors,
+			String fragmentURI2, Map<String, String> markupProcessors,
 			String markupProcessorClassname2, String outputProcessorClassname2,
 			String assemblyHandlerClassname2, String tocFileExt2,
-			String cssFilePath2, String defaultExtension2) throws DocMakerException {
+			List<String> cssFilePath2, String defaultExtension2) throws DocMakerException {
 		this.lw = lw;
 		this.encoding = encoding2;
 		this.outputDir = outputDir2;
@@ -165,7 +175,7 @@ public class DocMaker {
 
 	private void initDocMaker() throws DocMakerException {
         // Check if encoding is supplied and/or valid
-        String actualEncoding = checkEncoding();
+        actualEncoding = checkEncoding();
         // Create the path to the output dir if it doesn't exist
         lw.info("Writing output to: " + outputDir);
         outputDir.mkdirs();
@@ -190,7 +200,7 @@ public class DocMaker {
 			MarkupProcessor markupProcessor;
 			try {
 				markupProcessor = DocMakerMojo.newInstance(MarkupProcessor.class, markupProcessorClassname);
-				markupProcessor.setEncoding(encoding);
+				markupProcessor.setEncoding(actualEncoding);
 				
 				processors.put(defaultExtension, markupProcessor);
 			} catch (Exception e) {
@@ -202,7 +212,7 @@ public class DocMaker {
 				MarkupProcessor markupProcessor;
 				try {
 					markupProcessor = DocMakerMojo.newInstance(MarkupProcessor.class, markupProcessorsMap.get(extension));
-					markupProcessor.setEncoding(encoding);
+					markupProcessor.setEncoding(actualEncoding);
 					
 					processors.put(extension, markupProcessor);
 				} catch (Exception e) {
@@ -221,7 +231,22 @@ public class DocMaker {
         }
 
         lw.info("Using " + assemblyHandlerClassname + " as " + AssemblyHandler.class.getName() + " for parsing TOCs");
-	}
+        
+        // Load the keys
+        props = new Properties();
+        if (propFilenames != null) {
+        	try {
+        		for (String keyFilename : propFilenames) {
+        			lw.info("Loading propertyfile: " + keyFilename);
+        			InputStream in = new FileInputStream(keyFilename);
+        			props.load(in);
+        			in.close();
+        		}
+        	} catch (IOException e) {
+        		throw new DocMakerException("Can not load key file", e);
+        	}
+        }
+    }
 	
 	public void run(String toc) throws DocMakerException {
         File tocFile = new File(toc);
@@ -241,33 +266,28 @@ public class DocMaker {
             throws DocMakerException {
         String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
 
-        lw.info("Parsing TOC: " + tocFile.getName());
-
-        String htmlFileName;
-        
         // Instantiate the AssemblyHandler
         AssemblyHandler ah;
         try {
             ah = DocMakerMojo.newInstance(AssemblyHandler.class, assemblyHandlerClassname);
-//            htmlFileName = outputDir + File.separator + outputFilename + "." + ah.getFileExtension();
-//            ah.init(htmlFileName, encoding);
         } catch (Exception e) {
             throw new DocMakerException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
         }
-
-        // Parse the input
+lw.info("Props: " + props.toString());
+        // Parse the TOC
         TOC t;
         try {
-            ah.insertCSSFile(cssFilePath);
             FileInputStream fis = new FileInputStream(tocFile);
-            t = ah.parse(fis, tocFile.getName(), defaultExtension, baseURI, processors);
+
+            lw.info("Parsing TOC: " + tocFile.getName());
+            t = ah.parse(fis, tocFile.getName(), defaultExtension, baseURI, processors, props, cssFilePath);
         } catch (Exception e) {
             throw new DocMakerException("Could not parse file " + tocFile.getAbsolutePath(), e);
         }
-
+        lw.info("TOC metadata: " + t.getMetaData().toString());
         // Process the output
         try {
-            outputProcessor.process(outputDir, outputFilename, encoding, t);
+            outputProcessor.process(outputDir, outputFilename, actualEncoding, t);
         } catch (Exception e) {
             throw new DocMakerException("Could not post process file " + tocFile.getAbsolutePath(), e);
         }

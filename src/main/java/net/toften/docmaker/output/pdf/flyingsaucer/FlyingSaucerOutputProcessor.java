@@ -13,17 +13,15 @@ import com.lowagie.text.pdf.PdfWriter;
 
 public class FlyingSaucerOutputProcessor extends SingleInterimFile implements OutputProcessor {
 	public void process(File outputDir, String outputName, String encoding, TOC t) throws Exception {
-		File inFile = buildInterimFile(outputName, encoding, t);
-		if (!inFile.exists())
-			throw new IllegalArgumentException("Input file " + inFile.getName() + " can not be found");
+		if (outputName == null)
+			throw new NullPointerException("Output filename is null");
+		
+		File inFile = buildInterimFile(outputDir, outputName, encoding, t);
 		
 		File outputFile;
 		
 		if (outputDir.isDirectory()) {
-			if (outputName == null)
-				throw new NullPointerException("Output filename is null");
-			
-			outputFile = new File(outputDir, outputName + "." + getFileExtension());
+			outputFile = new File(outputDir, outputName + ".pdf");
 		} else
 			outputFile = outputDir;
 		
@@ -35,9 +33,5 @@ public class FlyingSaucerOutputProcessor extends SingleInterimFile implements Ou
 	    renderer.layout();
 	    renderer.createPDF(os);
 	    os.close();
-	}
-
-	public String getFileExtension() {
-		return "pdf";
 	}
 }

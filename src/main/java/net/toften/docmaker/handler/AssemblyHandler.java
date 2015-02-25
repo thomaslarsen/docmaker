@@ -2,7 +2,9 @@ package net.toften.docmaker.handler;
 
 import java.io.InputStream;
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import javax.xml.parsers.SAXParser;
 
@@ -39,15 +41,6 @@ public interface AssemblyHandler {
 	MarkupProcessor getMarkupProcessor(String extension);
 
 	/**
-	 * Specify CSS to be used to style the converted output.
-	 * 
-	 * @param path path to the CSS file
-	 * 
-	 * @see InterimFileHandler
-	 */
-	void insertCSSFile(String path);
-
-	/**
 	 * Parse a TOC file and convert it into the interim file.
 	 * 
 	 * @param tocStream the {@link InputStream} from where to read the TOC
@@ -55,9 +48,10 @@ public interface AssemblyHandler {
 	 * @param defaultExtension the new default file extension
 	 * @param baseURI fragment repository base URI
 	 * @param processors the processors to use
+	 * @param cssFilePath List of CSS files to include
 	 * @throws Exception
 	 */
-	TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> processors) throws Exception;
+	TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> processors, Properties baseProperties, List<String> cssFilePath) throws Exception;
 	
 	/**
 	 * @return the title of the section currently being processed

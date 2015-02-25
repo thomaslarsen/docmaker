@@ -1,6 +1,7 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.Map;
 
 import net.toften.docmaker.DocMaker;
@@ -108,7 +109,7 @@ public class DocMakerMojo extends AbstractMojo {
         try {
             DocMaker dm = new DocMaker(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
                     this.outputProcessorClassname, this.assemblyHandlerClassname, this.tocFileExt,
-                    this.cssFilePath, this.defaultExtension);
+                    Collections.singletonList(cssFilePath), this.defaultExtension);
 
     		
     		dm.run(this.toc);
