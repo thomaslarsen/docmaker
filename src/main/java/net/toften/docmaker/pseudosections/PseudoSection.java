@@ -1,7 +1,6 @@
 package net.toften.docmaker.pseudosections;
 
 import net.toften.docmaker.handler.standard.BaseSection;
-import net.toften.docmaker.maven.DocMakerMojo;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
@@ -15,7 +14,7 @@ public class PseudoSection extends BaseSection implements GeneratedSection {
 	public PseudoSection(String sectionName, String pSectionHandlerClassname, Attributes attributes, boolean isRotated) throws Exception {
 		super(sectionName, isRotated);
 		
-		sectionHandler = DocMakerMojo.newInstance(PseudoSectionHandler.class, pSectionHandlerClassname);
+		sectionHandler = (PseudoSectionHandler) Class.forName(pSectionHandlerClassname).newInstance();
 		sectionHandler.init(attributes);
 	}
 	
