@@ -16,7 +16,8 @@ import java.util.Scanner;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandlerAdapter;
-import net.toften.docmaker.handler.InterimFileHandler;
+import net.toften.docmaker.output.InterimFileHandler;
+import net.toften.docmaker.postprocessors.ApplyKeyValue;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.ElementsSection;
@@ -69,7 +70,9 @@ public class SingleInterimFile implements InterimFileHandler {
 		for (String htmlHeadKey : htmlMeta.keySet()) {
 			writeToOutputFile("<" + htmlHeadKey);
 			for (Entry<String, String> metaAttr : htmlMeta.get(htmlHeadKey).entrySet()) {
-				writeToOutputFile(" " + metaAttr.getKey() + "=\"" + metaAttr.getValue() + "\"");
+				// Apply any potential property value to the metadata
+				String value = ApplyKeyValue.processFragment(t.getMetaData(), metaAttr.getValue());
+				writeToOutputFile(" " + metaAttr.getKey() + "=\"" + value + "\"");
 			}
 			writeToOutputFile(" />\n");
 		}
@@ -83,6 +86,8 @@ public class SingleInterimFile implements InterimFileHandler {
 			
 			InputStream is = cssURI.toURL().openStream();
 			String text = new Scanner(is, encoding).useDelimiter("\\A").next();
+			// Apply any potential property value to the metadata
+			text = ApplyKeyValue.processFragment(t.getMetaData(), text);
 			writeToOutputFile("<style>\n");
 			writeToOutputFile(text + "\n");
 			writeToOutputFile("</style>\n");
@@ -102,7 +107,9 @@ public class SingleInterimFile implements InterimFileHandler {
 		// Write document metadata
 		writeToOutputFile("<div class=\"metadata\">\n");
 		for (Map.Entry<Object, Object> m : metaData.entrySet()) {
-			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey().toString() + "\">" + m.getValue().toString() + "</div>\n");
+			// Apply any potential property value to the metadata
+			String value = ApplyKeyValue.processFragment(t.getMetaData(), m.getValue().toString());
+			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey().toString() + "\">" + value + "</div>\n");
 		}
 		writeToOutputFile("</div>\n");
 
@@ -174,5 +181,4 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(section.getAsHtml(t));
 		writeToOutputFile(section.getDivCloseTag());
 	}
-
 }
