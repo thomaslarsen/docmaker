@@ -28,7 +28,7 @@ import java.util.regex.Matcher;
  * @author thomaslarsen
  *
  */
-public class AdjustImageHrefPostProcessor extends RegexPostProcessor implements PostProcessor {
+public class AdjustImageHrefPostProcessor extends RegexPostProcessor {
 	@Override
 	protected String getRegex() {
 		return "<img(.*?)src=\"(.*?)\"(.*?)/>";

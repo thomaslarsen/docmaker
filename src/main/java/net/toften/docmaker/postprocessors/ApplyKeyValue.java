@@ -4,7 +4,7 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class ApplyKeyValue extends RegexPostProcessor implements PostProcessor {
+public class ApplyKeyValue extends RegexPostProcessor {
     private static final String REGEX = "\\$\\{(.*?)\\}";
     private static final Pattern p = Pattern.compile(REGEX);
     private Properties keyValue;
