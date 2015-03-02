@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.toften.docmaker.DocMaker;
 import net.toften.docmaker.DocMakerException;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.output.OutputProcessor;
@@ -104,6 +105,11 @@ public class DocMakerMojo extends AbstractMojo {
             public void info(final String message) {
                 getLog().info(message);
             }
+
+			@Override
+			public void debug(String message) {
+				getLog().debug(message);
+			}
         };
 
         try {

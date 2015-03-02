@@ -1,5 +1,6 @@
 package net.toften.docmaker;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -227,5 +228,21 @@ public class URITest {
 		assertEquals("test", "test.xml".replaceFirst(regexString, ""));
 		assertEquals("test", "test".replaceFirst(regexString, ""));
 		assertEquals("test.2", "test.2.xml".replaceFirst(regexString, ""));
+	}
+	
+	@Test
+	public void testLocalDir() {
+		URI hd = new File("").toURI();
+		System.out.println(hd.toString());
+		assertTrue(hd.isAbsolute());
+	}
+
+	@Test
+	public void testLocalDirFromProperty() throws URISyntaxException {
+		String hd = System.getProperty("user.dir");
+		System.out.println(hd);
+		URI hdu = new URI("file", hd, null);
+		System.out.println(hdu.toString());
+		assertTrue(hdu.isAbsolute());
 	}
 }

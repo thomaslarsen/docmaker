@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class ApplyKeyValue extends RegexPostProcessor implements PostProcessor {
     private static final String REGEX = "\\$\\{(.*?)\\}";
-    private final Pattern p = Pattern.compile(REGEX);
+    private static final Pattern p = Pattern.compile(REGEX);
     private Properties keyValue;
 
     public ApplyKeyValue() {
@@ -17,7 +17,7 @@ public class ApplyKeyValue extends RegexPostProcessor implements PostProcessor {
 		this.keyValue = keyValue;
 	}
 
-    public String processFragment(final String fragmentAsHtml) {
+    public static String processFragment(final Properties keyValue, final String fragmentAsHtml) {
     	boolean matchFound = true;
 
 		String value = fragmentAsHtml;
@@ -28,7 +28,7 @@ public class ApplyKeyValue extends RegexPostProcessor implements PostProcessor {
     		Matcher m = p.matcher(value);
 
     		while (m.find()) {
-    			m.appendReplacement(out, Matcher.quoteReplacement((keyValue == null ? getTOC().getMetaData() : keyValue).getProperty(m.group(1))));
+    			m.appendReplacement(out, Matcher.quoteReplacement(keyValue.getProperty(m.group(1))));
     			matchFound = true;
     		}
 
@@ -46,6 +46,6 @@ public class ApplyKeyValue extends RegexPostProcessor implements PostProcessor {
 
 	@Override
 	protected String getReplacement(Matcher m) {
-		return processFragment(m.group(1));
+		return processFragment(keyValue == null ? getTOC().getMetaData() : keyValue, m.group(1));
 	}
 }

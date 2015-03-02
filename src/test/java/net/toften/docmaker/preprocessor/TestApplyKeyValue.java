@@ -17,7 +17,7 @@ public class TestApplyKeyValue {
 
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        assertEquals("Hello World", akv.processFragment(text));
+        assertEquals("Hello World", akv.processFragment(p, text));
     }
 
     @Test
@@ -29,7 +29,7 @@ public class TestApplyKeyValue {
 
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        assertEquals("Hello World\nI live in London", akv.processFragment(text));
+        assertEquals("Hello World\nI live in London", akv.processFragment(p, text));
     }
 
     @Test
@@ -41,7 +41,7 @@ public class TestApplyKeyValue {
 
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        assertEquals("Hello London\nI live in London", akv.processFragment(text));
+        assertEquals("Hello London\nI live in London", akv.processFragment(p, text));
     }
 
     @Test
@@ -53,6 +53,6 @@ public class TestApplyKeyValue {
 
         ApplyKeyValue akv = new ApplyKeyValue(p);
 
-        assertEquals("Hello London City", akv.processFragment(text));
+        assertEquals("Hello London City", akv.processFragment(p, text));
     }
 }

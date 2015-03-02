@@ -1,4 +1,4 @@
-package net.toften.docmaker.handler;
+package net.toften.docmaker.output;
 
 import java.io.File;
 import java.io.IOException;

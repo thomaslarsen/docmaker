@@ -17,7 +17,6 @@ import java.util.Properties;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.maven.DocMakerMojo;
-import net.toften.docmaker.maven.LogWrapper;
 import net.toften.docmaker.output.OutputProcessor;
 import net.toften.docmaker.toc.TOC;
 
@@ -48,7 +47,7 @@ public class DocMaker {
      * provided, this will be ignored.
      */
     @com.beust.jcommander.Parameter(names = "-fragmentURI")
-    private String fragmentURI = "file://./";
+    private String fragmentURI;
 
     /**
      * The directory where the generated file and the transient HTML file will be located.
@@ -73,7 +72,7 @@ public class DocMaker {
 	/** 
 	 * The default extension to use if files don't specify an extension
 	 */
-	@Parameter (names = "-defaultValue")
+	@Parameter (names = "-defaultExtension")
 	private String defaultExtension = "md";
 	
     /**
@@ -100,14 +99,14 @@ public class DocMaker {
     /**
      * Path to the CSS file to be used to style the generated output
      */
-    @Parameter(names = "-cssFilePath")
+    @Parameter(names = "-cssFilePath", required = true)
     private List<String> cssFilePath;
 
 	private LogWrapper lw;
 
 	private OutputProcessor outputProcessor;
 	private Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
-	private URI baseURI;
+	private URI baseURI = new File(".").toURI();
 
     private Map<String, String> markupProcessorsMap;
 
@@ -131,6 +130,11 @@ public class DocMaker {
             public void warn(final String message) {
                 System.out.println("[WARNING] " + message);
             }
+
+			@Override
+			public void debug(String message) {
+                System.out.println("[DEBUG] " + message);
+			}
         };
         
         /*
@@ -180,19 +184,21 @@ public class DocMaker {
         lw.info("Writing output to: " + outputDir);
         outputDir.mkdirs();
 
-        // Convert "\" in URI to "/" to support Windows paths
-        fragmentURI = fragmentURI.replace('\\', '/');
-
-        // Validate the base URI
-        try {
-            baseURI = new URI(fragmentURI);
-            lw.info("Base URI is: " + baseURI.toString() + ", created from " + fragmentURI);
-        } catch (URISyntaxException e1) {
-            throw new DocMakerException("Could not parse base URI", e1);
-        }
-
-        if (!baseURI.isAbsolute()) {
-            throw new DocMakerException("Base URI is not absolute");
+        if (fragmentURI != null) {
+	        // Convert "\" in URI to "/" to support Windows paths
+	        fragmentURI = fragmentURI.replace('\\', '/');
+	
+	        // Validate the base URI
+	        try {
+	            baseURI = new URI(fragmentURI);
+	            lw.info("Base URI is: " + baseURI.toString() + ", created from " + fragmentURI);
+	        } catch (URISyntaxException e1) {
+	            throw new DocMakerException("Could not parse base URI", e1);
+	        }
+	
+	        if (!baseURI.isAbsolute()) {
+	            throw new DocMakerException("Base URI is not absolute");
+	        }
         }
 
         // Instantiate the markup processors

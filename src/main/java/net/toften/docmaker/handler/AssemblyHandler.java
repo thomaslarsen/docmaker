@@ -10,6 +10,7 @@ import javax.xml.parsers.SAXParser;
 
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.NoMarkupProcessor;
+import net.toften.docmaker.output.InterimFileHandler;
 import net.toften.docmaker.toc.TOC;
 
 /**

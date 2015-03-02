@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.toften</groupId>
 	<artifactId>docmaker</artifactId>
@@ -38,8 +39,8 @@
 		<connection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</developerConnection>
 		<url>https://bitbucket.org/toften/docmaker</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<ciManagement>
 		<system>Jenkins</system>
@@ -116,7 +117,7 @@
 			<groupId>com.beust</groupId>
 			<artifactId>jcommander</artifactId>
 			<version>1.47</version>
-		</dependency>	
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -168,7 +169,7 @@
 					<useReleaseProfile>false</useReleaseProfile>
 					<releaseProfiles>release</releaseProfiles>
 					<goals>deploy</goals>
- 				</configuration>
+				</configuration>
 			</plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
@@ -191,7 +192,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>		
+			</plugin>
 		</plugins>
 	</build>
 
@@ -236,9 +237,9 @@
 						<executions>
 							<execution>
 								<id>attach-sources</id>
-							<goals>
-								<goal>jar-no-fork</goal>
-							</goals>
+								<goals>
+									<goal>jar-no-fork</goal>
+								</goals>
 							</execution>
 						</executions>
 					</plugin>

@@ -3,7 +3,6 @@ package net.toften.docmaker.handler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -15,8 +14,11 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.markup.MarkupProcessor;
-import net.toften.docmaker.maven.DocMakerMojo;
 import net.toften.docmaker.postprocessors.PostProcessor;
+import net.toften.docmaker.toc.Chapter;
+import net.toften.docmaker.toc.ChapterSection;
+import net.toften.docmaker.toc.Section;
+import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
@@ -28,6 +30,9 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 
 	public static String headerRegex = "(\\</?h)(\\d)(>)";
 
+	public static final String POSTPROCESSOR_CLASSNAME = "classname";
+	public static final String REPO_URI = "uri";
+	public static final String REPO_ID = "id";
 	public static final String ELEMENT_KEY = "key";
 	public static final String SECTION_ROTATE = "rotate";
 	public static final String SECTION_LEVEL = "level";
@@ -36,30 +41,36 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	public static final String PROPERTY_VALUE = "value";
 	public static final String PROPERTY_KEY = "key";
 	public static final String HEADER_TITLE = "title";
+	public static final String PROPERTY_SRC = "src";
+	public static final String CHAPTER_ROTATE = "rotate";
+	public static final String CHAPTER_CONFIG = "config";
+	public static final String CHAPTER_LEVEL = "level";
+	public static final String CHAPTER_REPO = "repo";
+	public static final String CHAPTER_FRAGMENT = "fragment";
 	
-	private Map<String, Map<String, String>> htmlMeta = new HashMap<String, Map<String, String>>();
-	private Properties metaData = new Properties();
-	private List<String> cssFiles = new ArrayList<String>();
-	protected Map<String, Repo> repos = new HashMap<String, Repo>();
-	protected List<PostProcessor> postProcessors = new LinkedList<PostProcessor>();
-	
+	private Map<String, Map<String, String>> htmlMeta;
+	private Properties metaData;
+	private List<String> cssFiles;
+	private Map<String, Repo> repos;
+	private List<PostProcessor> postProcessors = new LinkedList<PostProcessor>();;
 	private String tocFileNameWithoutExtension;
 	private String documentTitle;
-
 	private String currentSectionName;
-
 	private Integer currentSectionLevel;
-
 	private boolean currentSectionRotate;
-
 	private URI baseURI;
-
 	private Map<String, MarkupProcessor> markupProcessor;
-
 	private String defaultExtension;
 
 	public AssemblyHandlerAdapter() {
-		// Empty
+	}
+	
+	protected Map<String, Repo> getRepos() {
+		return repos;
+	}
+	
+	protected  List<PostProcessor> getPostProcessors() {
+		return postProcessors;
 	}
 	
 	@Override
@@ -93,8 +104,13 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
 
+		// Initialise handler
+		htmlMeta = new HashMap<String, Map<String, String>>();
+		metaData = new Properties();
+		repos = new HashMap<String, Repo>();
+
 		if (baseProperties != null)
-			this.metaData = (Properties)baseProperties.clone();
+			this.metaData.putAll(baseProperties);
 		this.baseURI = baseURI;
 		this.markupProcessor = markupProcessor;
 		this.defaultExtension = defaultExtension;
@@ -224,7 +240,7 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	protected abstract void handleElementElement(Attributes attributes) throws Exception;
 
 	protected void handlePostProcessor(Attributes attributes) throws Exception {
-		PostProcessor pp = DocMakerMojo.newInstance(PostProcessor.class, attributes.getValue("classname"));
+		PostProcessor pp = (PostProcessor) Class.forName(attributes.getValue(POSTPROCESSOR_CLASSNAME)).newInstance();
 		pp.init(attributes);
 		
 		postProcessors.add(pp);
@@ -232,8 +248,8 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 
 	protected void handleRepoElement(Attributes attributes) throws Exception {
 		// Add the fragment repo to the repo list
-		String repoId = attributes.getValue("id");
-		String repoURIPath = attributes.getValue("uri");
+		String repoId = attributes.getValue(REPO_ID);
+		String repoURIPath = attributes.getValue(REPO_URI);
 		
 		if (!repos.containsKey(repoId)) {
 			repos.put(repoId, new Repo(repoId, baseURI, repoURIPath));
@@ -253,8 +269,39 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		currentSectionRotate = attributes.getValue(SECTION_ROTATE) != null;
 	}
 
-	protected void handlePropertyElement(Attributes attributes) {
-		metaData.put(attributes.getValue(PROPERTY_KEY), attributes.getValue(PROPERTY_VALUE));
+	protected void handlePropertyElement(Attributes attributes) throws Exception {
+		if (attributes.getValue(PROPERTY_SRC) != null) {
+			/*
+			 * A properties file has been specified
+			 * Load the properties from the file and add them
+			 * to the list of metadata
+			 */
+			String filePath = attributes.getValue(PROPERTY_SRC);
+			URI propFileURI = new URI(filePath);
+			if (!propFileURI.isAbsolute()) {
+				propFileURI = getBaseURI().resolve(propFileURI);
+			}
+			
+			// Load properties
+			InputStream is = propFileURI.toURL().openStream();
+			Properties fileProps = new Properties();
+			fileProps.load(is);
+			is.close();
+			metaData.putAll(fileProps);
+		} else {
+			/*
+			 * A single property has been specified
+			 * Get the key/value pair and add to the metadata
+			 */
+			String key = attributes.getValue(PROPERTY_KEY);
+			if (key == null)
+				throw new SAXException("Property key not specified");
+			
+			if (attributes.getValue(PROPERTY_VALUE) == null)
+				throw new SAXException("Value for property " + key + " not specified");
+			
+			metaData.put(key, attributes.getValue(PROPERTY_VALUE));
+		}
 	}
 
 	protected void handleHeadElement(String qName, Attributes attributes) {
@@ -270,5 +317,15 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	protected void handleHeaderElement(Attributes attributes) {
 		documentTitle = attributes.getValue(HEADER_TITLE);
 		metaData.put(HEADER_TITLE, getDocumentTitle());
+	}
+	
+	protected void runPostProcessors(boolean apply) {
+		for (Section s : getSections()) {
+			if (s.getSectionType() == SectionType.CONTENTS_SECTION) {
+				for (Chapter c : ((ChapterSection)s).getChapters()) {
+					c.runPostProcessors(getPostProcessors(), this, apply);
+				}
+			}
+		}
 	}
 }

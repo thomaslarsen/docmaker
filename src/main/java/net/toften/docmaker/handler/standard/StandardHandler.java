@@ -1,6 +1,5 @@
 package net.toften.docmaker.handler.standard;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,11 +7,8 @@ import net.toften.docmaker.handler.AssemblyHandlerAdapter;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.headersections.HeaderSection;
 import net.toften.docmaker.pseudosections.PseudoSection;
-import net.toften.docmaker.toc.Chapter;
-import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.Section;
-import net.toften.docmaker.toc.SectionType;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -27,21 +23,21 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	public StandardHandler() {
 		super();
 		
-		postProcessors.add(new net.toften.docmaker.postprocessors.HeaderIncrementPostProcessor());
-		postProcessors.add(new net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor());
-		postProcessors.add(new net.toften.docmaker.postprocessors.AdjustImageHrefPostProcessor());
-		postProcessors.add(new net.toften.docmaker.postprocessors.ApplyKeyValue());
+		getPostProcessors().add(new net.toften.docmaker.postprocessors.HeaderIncrementPostProcessor());
+		getPostProcessors().add(new net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor());
+		getPostProcessors().add(new net.toften.docmaker.postprocessors.AdjustImageHrefPostProcessor());
+		getPostProcessors().add(new net.toften.docmaker.postprocessors.ApplyKeyValue());
 	}
 	
 	@Override
 	public void endDocument() throws SAXException {
-		for (Section s : getSections()) {
-			if (s.getSectionType() == SectionType.CONTENTS_SECTION) {
-				for (Chapter c : ((ChapterSection)s).getChapters()) {
-					c.runPostProcessors(postProcessors, this, true);
-				}
-			}
-		}
+		/*
+		 * Run all the postprocessors for the document
+		 * 
+		 * Each postprocessor will be run over each chapter.
+		 * This is done in the order of the chapters
+		 */
+		runPostProcessors(true);
 	}
 	
 	@Override
@@ -79,18 +75,20 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	
 	@Override
 	protected void handleChapterElement(Attributes attributes) throws Exception {		
-		if (attributes.getValue("fragment") == null)
+		if (attributes.getValue(CHAPTER_FRAGMENT) == null)
 			throw new SAXException("Chapter fragment attribute not specified");
 
-		if (attributes.getValue("repo") == null)
+		if (attributes.getValue(CHAPTER_REPO) == null)
 			throw new SAXException("Chapter repo attribute not specified");
 
-		currentFragmentName = attributes.getValue("fragment");
-		currentChapterRepo = repos.get(attributes.getValue("repo"));
+		currentFragmentName = attributes.getValue(CHAPTER_FRAGMENT);
+		currentChapterRepo = getRepos().get(attributes.getValue(CHAPTER_REPO));
 
-		int chapterLevelOffset = attributes.getValue("level") == null ? 0 : Integer.valueOf(attributes.getValue("level"));
+		int chapterLevelOffset = attributes.getValue(CHAPTER_LEVEL) == null ? 0 : Integer.valueOf(attributes.getValue(CHAPTER_LEVEL));
+		String chapterConfig = attributes.getValue(CHAPTER_CONFIG);
+		boolean chapterRotate = attributes.getValue(CHAPTER_ROTATE) != null;
 		
-		getCurrentContentSection().addChapter(currentFragmentName, attributes.getValue("config"), this, currentChapterRepo, chapterLevelOffset, attributes.getValue("rotate") != null);
+		getCurrentContentSection().addChapter(currentFragmentName, chapterConfig, this, currentChapterRepo, chapterLevelOffset, chapterRotate);
 	}
 
 	@Override
