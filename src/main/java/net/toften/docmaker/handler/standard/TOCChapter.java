@@ -6,7 +6,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.toften.docmaker.handler.AssemblyHandler;
-import net.toften.docmaker.handler.AssemblyHandlerAdapter;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
@@ -14,8 +13,9 @@ import net.toften.docmaker.toc.TOC;
 
 public class TOCChapter implements Chapter {
 	public static final int EFFECTIVE_LEVEL_ADJUSTMENT = 2;
+	public static String headerRegex = "(\\</?h)(\\d)(>)";
 	
-	private static Pattern p = Pattern.compile(AssemblyHandlerAdapter.headerRegex);
+	private static Pattern p = Pattern.compile(headerRegex);
 	
 	private ContentSection section;
 	private String fragmentName;

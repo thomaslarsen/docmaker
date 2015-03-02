@@ -28,8 +28,6 @@ import org.xml.sax.helpers.DefaultHandler;
 public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		AssemblyHandler, TOC {
 
-	public static String headerRegex = "(\\</?h)(\\d)(>)";
-
 	public static final String POSTPROCESSOR_CLASSNAME = "classname";
 	public static final String REPO_URI = "uri";
 	public static final String REPO_ID = "id";
