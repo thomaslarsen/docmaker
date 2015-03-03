@@ -31,13 +31,13 @@ public class DocMaker {
      *
      * @see #tocFileExt
      */
-    @Parameter(names = "-toc", required = true)
+    @Parameter(names = { "-toc", "-t" }, required = true, description = "The path to a TOC file, or a directory containing a number of TOC files.")
     private String toc;
 
     /**
      * The extension of the TOC files.
      */
-    @com.beust.jcommander.Parameter(names = "-tocFileExt")
+    @Parameter(names = "-tocFileExt", description = "The extension of the TOC files.")
     private String tocFileExt = "xml";
 
     /**
@@ -46,62 +46,71 @@ public class DocMaker {
      * Note, that this will only be used if a relative repository URI is provided. If an absolute repository URI is
      * provided, this will be ignored.
      */
-    @com.beust.jcommander.Parameter(names = "-fragmentURI")
+    @Parameter(names = "-fragmentURI", description = "The base URI from where fragment repositories will be identified.")
     private String fragmentURI;
 
     /**
      * The directory where the generated file and the transient HTML file will be located.
      */
-    @com.beust.jcommander.Parameter(names = "-outputDir")
+    @Parameter(names = { "-outputDir", "-o" }, description = "The directory where the generated file and the transient HTML file will be located.")
     private File outputDir = new File(".");
 
 	/**
-	 * The class name of the {@link MarkupProcessor}.
+	 * List of {@link MarkupProcessor} class name mappings to file extensions.
 	 * 
 	 * Syntax is "<file extension>:<markup processor classname>"
 	 */
-	@Parameter(names = "-markupProcessors")
+	@Parameter(names = "-markupProcessors", description = "List of MarkupProcessor class name mappings to file extensions")
 	private List<String> markupProcessors;
 	
 	/**
-	 * The class name of the default {@link MarkupProcessor} if the markupProcessors is not specified
+	 * The class name of the default {@link MarkupProcessor} if the markupProcessors is not specified.
 	 */
-    @com.beust.jcommander.Parameter(names = "-markupProcessorClassname")
+    @Parameter(names = "-markupProcessorClassname", description = "The class name of the default MarkupProcessor if mappings are not specified is not specified.")
     private String markupProcessorClassname = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor";
 
 	/** 
-	 * The default extension to use if files don't specify an extension
+	 * The default extension to use if fragments in the TOC don't specify an extension.
 	 */
-	@Parameter (names = "-defaultExtension")
+	@Parameter (names = "-defaultExtension", description = "The default extension to use if fragments in the TOC don't specify an extension.")
 	private String defaultExtension = "md";
 	
     /**
      * The class name of the {@link OutputProcessor}
      */
-    @com.beust.jcommander.Parameter(names = "-outputProcessorClassname")
+    @Parameter(names = "-outputProcessorClassname", description = "The class name of the OutputProcessor")
     private String outputProcessorClassname = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor";
 
     /**
      * The class name of the {@link AssemblyHandler}
      */
-    @com.beust.jcommander.Parameter(names = "-assemblyHandlerClassname")
+    @Parameter(names = "-assemblyHandlerClassname", description = "The class name of the {@link AssemblyHandler}")
     private String assemblyHandlerClassname = "net.toften.docmaker.handler.standard.StandardHandler";
 
     /**
      * Specifies the encoding of the files.
      */
-    @com.beust.jcommander.Parameter(names = "-encoding")
+    @Parameter(names = "-encoding", description = "Specifies the encoding of the files.")
     private String encoding;
     
-    @Parameter (names = "-keys")
+    /**
+     * Specifies a list of property files for key/value replacement.
+     */
+    @Parameter (names = "-keys", description = "Specifies a list of property files for key/value replacement.")
     private List<String> propFilenames;
 
     /**
-     * Path to the CSS file to be used to style the generated output
+     * List of CSS file to be used to style the generated output.
      */
-    @Parameter(names = "-cssFilePath", required = true)
+    @Parameter(names = { "-cssFilePath", "-css" }, required = true, description = "List of CSS file to be used to style the generated output.")
     private List<String> cssFilePath;
 
+    /**
+     * Provides help
+     */
+    @Parameter(names =  { "--help", "-h" }, help = true, description = "Provides help")
+    private boolean help;
+    
 	private LogWrapper lw;
 
 	private OutputProcessor outputProcessor;
@@ -118,39 +127,45 @@ public class DocMaker {
     public static void main(final String[] args) throws Exception {
         DocMaker mojo = new DocMaker();
 
-        new JCommander(mojo, args);
-
-        mojo.lw = new LogWrapper() {
-            @Override
-            public void info(final String message) {
-                System.out.println("[INFO] " + message);
-            }
-
-            @Override
-            public void warn(final String message) {
-                System.out.println("[WARNING] " + message);
-            }
-
-			@Override
-			public void debug(String message) {
-                System.out.println("[DEBUG] " + message);
-			}
-        };
+        JCommander jc = new JCommander(mojo, args);
         
-        /*
-         * Parse the jCommander version of the markupprocessor list
-         * This is necessary, as you can't pass Maps into jCommander
-         */
-        if (mojo.markupProcessors != null) {
-        	mojo.markupProcessorsMap = new HashMap<String, String>();
-	        for (String processorMapping : mojo.markupProcessors) {
-				String[] pm = processorMapping.split(":");
-				mojo.markupProcessorsMap.put(pm[0], pm[1]);
-			}
+        jc.setProgramName("DocMaker");
+        
+        if (mojo.help) {
+        	jc.usage();
+        } else {
+	        mojo.lw = new LogWrapper() {
+	            @Override
+	            public void info(final String message) {
+	                System.out.println("[INFO] " + message);
+	            }
+	
+	            @Override
+	            public void warn(final String message) {
+	                System.out.println("[WARNING] " + message);
+	            }
+	
+				@Override
+				public void debug(String message) {
+	                System.out.println("[DEBUG] " + message);
+				}
+	        };
+	        
+	        /*
+	         * Parse the jCommander version of the markupprocessor list
+	         * This is necessary, as you can't pass Maps into jCommander
+	         */
+	        if (mojo.markupProcessors != null) {
+	        	mojo.markupProcessorsMap = new HashMap<String, String>();
+		        for (String processorMapping : mojo.markupProcessors) {
+					String[] pm = processorMapping.split(":");
+					mojo.markupProcessorsMap.put(pm[0], pm[1]);
+				}
+	        }
+	        
+	        mojo.initDocMaker();
+	        mojo.run(mojo.toc);
         }
-        
-        mojo.initDocMaker();
-        mojo.run(mojo.toc);
     }
     
     private DocMaker() {
