@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
-import net.toften.docmaker.DocMaker;
+import net.toften.docmaker.DocMakerMain;
 import net.toften.docmaker.DocMakerException;
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
@@ -117,7 +117,7 @@ public class DocMakerMojo extends AbstractMojo {
         };
 
         try {
-            DocMaker dm = new DocMaker(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
+            DocMakerMain dm = new DocMakerMain(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
                     this.outputProcessorClassname, this.assemblyHandlerClassname, this.tocFileExt,
                     Arrays.asList(cssFilePaths), this.defaultExtension, Arrays.asList(filters));
 

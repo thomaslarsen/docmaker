@@ -176,7 +176,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>net.toften.docmaker.DocMaker</mainClass>
+							<mainClass>net.toften.docmaker.DocMakerMain</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
