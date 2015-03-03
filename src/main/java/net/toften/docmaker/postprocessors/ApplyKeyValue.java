@@ -28,7 +28,11 @@ public class ApplyKeyValue extends RegexPostProcessor {
     		Matcher m = p.matcher(value);
 
     		while (m.find()) {
-    			m.appendReplacement(out, Matcher.quoteReplacement(keyValue.getProperty(m.group(1))));
+    			String foundKey = m.group(1);
+    			
+    			String replaceValue = keyValue.containsKey(foundKey) ? keyValue.getProperty(foundKey) : "KEY: <b>" + foundKey + "</b> NOT FOUND";
+
+    			m.appendReplacement(out, Matcher.quoteReplacement(replaceValue));
     			matchFound = true;
     		}
 
