@@ -66,7 +66,7 @@ public class DocMaker {
 	/**
 	 * The class name of the default {@link MarkupProcessor} if the markupProcessors is not specified.
 	 */
-    @Parameter(names = "-markupProcessorClassname", description = "The class name of the default MarkupProcessor if mappings are not specified is not specified.")
+    @Parameter(names = "-markupProcessorClassname", description = "The class name of the default MarkupProcessor if mappings are not specified.")
     private String markupProcessorClassname = "net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor";
 
 	/** 
@@ -176,7 +176,8 @@ public class DocMaker {
 			String fragmentURI2, Map<String, String> markupProcessors,
 			String markupProcessorClassname2, String outputProcessorClassname2,
 			String assemblyHandlerClassname2, String tocFileExt2,
-			List<String> cssFilePath2, String defaultExtension2) throws DocMakerException {
+			List<String> cssFilePath2, String defaultExtension2,
+			List<String> filters) throws DocMakerException {
 		this.lw = lw;
 		this.encoding = encoding2;
 		this.outputDir = outputDir2;
@@ -188,6 +189,7 @@ public class DocMaker {
 		this.cssFilePath = cssFilePath2;
 		this.defaultExtension = defaultExtension2;
 		this.markupProcessorsMap = markupProcessors;
+		this.propFilenames = filters;
 		
 		initDocMaker();
 	}
@@ -227,7 +229,7 @@ public class DocMaker {
 			} catch (Exception e) {
 				throw new DocMakerException("Can not create MarkupProcessor", e);
 			}
-			lw.info("Using default" + markupProcessorClassname + " as the " + MarkupProcessor.class.getName() + " for extension " + defaultExtension);
+			lw.info("Using default " + markupProcessorClassname + " as the " + MarkupProcessor.class.getName() + " for extension " + defaultExtension);
 		} else {
 			for (String extension : markupProcessorsMap.keySet()) {
 				MarkupProcessor markupProcessor;
@@ -294,7 +296,9 @@ public class DocMaker {
         } catch (Exception e) {
             throw new DocMakerException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
         }
-lw.info("Props: " + props.toString());
+        
+        lw.debug("Properties pre TOC parsing: " + props.toString());
+        
         // Parse the TOC
         TOC t;
         try {
@@ -305,7 +309,9 @@ lw.info("Props: " + props.toString());
         } catch (Exception e) {
             throw new DocMakerException("Could not parse file " + tocFile.getAbsolutePath(), e);
         }
-        lw.info("TOC metadata: " + t.getMetaData().toString());
+        
+        lw.debug("Properties pre TOC parsing: " + t.getMetaData().toString());
+        
         // Process the output
         try {
             outputProcessor.process(outputDir, outputFilename, actualEncoding, t);

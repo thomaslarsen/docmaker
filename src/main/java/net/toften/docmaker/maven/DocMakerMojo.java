@@ -1,6 +1,7 @@
 package net.toften.docmaker.maven;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 
@@ -51,7 +52,7 @@ public class DocMakerMojo extends AbstractMojo {
     private File outputDir;
 
     /**
-     * The class name of the {@link MarkupProcessor}
+     * List of {@link MarkupProcessor} class name mappings to file extensions.
      */
 	@Parameter
 	private Map<String, String> markupProcessors;
@@ -90,7 +91,10 @@ public class DocMakerMojo extends AbstractMojo {
      * Path to the CSS file to be used to style the generated output
      */
     @Parameter
-    private String cssFilePath;
+    private String[] cssFilePaths;
+    
+    @Parameter(defaultValue = "${project.filters}")
+    private String[] filters;
 
     @Override
     public void execute() throws MojoExecutionException, MojoFailureException {
@@ -115,7 +119,7 @@ public class DocMakerMojo extends AbstractMojo {
         try {
             DocMaker dm = new DocMaker(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
                     this.outputProcessorClassname, this.assemblyHandlerClassname, this.tocFileExt,
-                    Collections.singletonList(cssFilePath), this.defaultExtension);
+                    Arrays.asList(cssFilePaths), this.defaultExtension, Arrays.asList(filters));
 
     		
     		dm.run(this.toc);
@@ -136,5 +140,3 @@ public class DocMakerMojo extends AbstractMojo {
     	return ((Class<K>) Class.forName(className)).newInstance();
     }
 }
-
-
