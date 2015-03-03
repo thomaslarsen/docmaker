@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.toften</groupId>
 	<artifactId>docmaker</artifactId>
-	<version>0.0.8</version>
+	<version>0.0.9-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
 
 	<name>docmaker</name>
@@ -38,7 +38,7 @@
 		<connection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</connection>
 		<developerConnection>scm:git:ssh://git@bitbucket.org/toften/docmaker.git</developerConnection>
 		<url>https://bitbucket.org/toften/docmaker</url>
-		<tag>docmaker-0.0.8</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<ciManagement>
