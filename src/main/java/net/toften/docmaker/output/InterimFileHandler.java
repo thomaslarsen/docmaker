@@ -3,6 +3,8 @@ package net.toften.docmaker.output;
 import java.io.File;
 import java.io.IOException;
 
+import net.toften.docmaker.LogWrapper;
+
 /**
  * This interface defines the handler of writing the converted markup contents
  * to the interim output file.
@@ -30,7 +32,7 @@ public interface InterimFileHandler {
 	 * @param encodingString a valid charset.
 	 * @throws IOException
 	 */
-	void init(File interimFileDir, String filename, String encodingString) throws IOException;
+	void init(File interimFileDir, String filename, String encodingString, LogWrapper lw) throws IOException;
 	
 	/**
 	 * Flush and close the output file.

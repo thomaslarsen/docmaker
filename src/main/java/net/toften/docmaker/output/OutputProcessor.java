@@ -2,6 +2,7 @@ package net.toften.docmaker.output;
 
 import java.io.File;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.toc.TOC;
 
 /**
@@ -29,7 +30,7 @@ public interface OutputProcessor {
 	 * 	behaviour of the implementing class
 	 * @throws Exception
 	 */
-	void process(File outputDir, String outputName, String encoding, TOC t) throws Exception;
+	void process(File outputDir, String outputName, String encoding, TOC t, LogWrapper lw) throws Exception;
 	
 	public String getFileExtension();
 }

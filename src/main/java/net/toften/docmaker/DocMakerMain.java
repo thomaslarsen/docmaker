@@ -314,7 +314,7 @@ public class DocMakerMain {
         
         // Process the output
         try {
-            outputProcessor.process(outputDir, outputFilename, actualEncoding, t);
+            outputProcessor.process(outputDir, outputFilename, actualEncoding, t, lw);
         } catch (Exception e) {
             throw new DocMakerException("Could not post process file " + tocFile.getAbsolutePath(), e);
         }
