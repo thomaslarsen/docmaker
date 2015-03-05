@@ -62,15 +62,15 @@ public class SingleInterimFile implements InterimFileHandler {
 	protected File buildInterimFile(File interimFileDir, String filename, String encoding, TOC t, LogWrapper lw) throws IOException, URISyntaxException {
 		init(interimFileDir, filename, encoding, lw);
 		
-		Properties metaData = t.getMetaData();
-		Map<String, Map<String, String>> htmlMeta = t.getHtmlMeta();
-		List<GeneratedSection> headerSections = t.getHeaderSections();
-		List<Section> sections = t.getSections();
+		Properties 							metaData 		= t.getMetaData();
+		Map<String, Map<String, String>> 	htmlMeta 		= t.getHtmlMeta();
+		List<GeneratedSection> 				headerSections 	= t.getHeaderSections();
+		List<Section> 						sections 		= t.getSections();
 		
 		writeToOutputFile(DocPart.DOCUMENT.preElement());
 		
 		writeToOutputFile(DocPart.HEADER.preElement());
-		writeToOutputFile("<title>" + metaData.get(AssemblyHandlerAdapter.HEADER_TITLE) + "</title>\n");
+		writeToOutputFile("<title>" + ApplyKeyValue.processFragment(metaData, t.getDocumentTitle()) + "</title>\n");
 		lw.debug("Writing " + htmlMeta.size() + " keys of metadata");
 		for (String htmlHeadKey : htmlMeta.keySet()) {
 			lw.debug("Writing key: " + htmlHeadKey);
@@ -113,13 +113,18 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.SECTIONS.preElement());
 		
 		// Write document metadata
-		writeToOutputFile("<div class=\"metadata\">\n");
+		lw.debug("Writing " + metaData.size() + " metadata records.");
+		writeToOutputFile(DocPart.PROPERTIES.preElement());
 		for (Map.Entry<Object, Object> m : metaData.entrySet()) {
 			// Apply any potential property value to the metadata
+			String key = m.getKey().toString();
 			String value = ApplyKeyValue.processFragment(t.getMetaData(), m.getValue().toString());
-			writeToOutputFile("<div class=\"meta\" key=\"" + m.getKey().toString() + "\">" + value + "</div>\n");
+			lw.debug("Writing metadata: " + key + " = " + value + " (" + m.getValue().toString() + ")");
+			writeToOutputFile(DocPart.PROPERTY.preElement(new String[][]{{ "key", key}}, true));
+			writeToOutputFile(value + "\n");
+			writeToOutputFile(DocPart.PROPERTY.postElement());
 		}
-		writeToOutputFile("</div>\n");
+		writeToOutputFile(DocPart.PROPERTIES.postElement());
 
 		for (Section section : sections) {
 			lw.debug("Writing " + section.getSectionType().name() + " " + section.getSectionName() + " (" + section.getIdAttr(t) + ")");
