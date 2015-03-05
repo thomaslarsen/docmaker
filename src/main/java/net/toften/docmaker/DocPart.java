@@ -29,8 +29,8 @@ public enum DocPart {
 	HEADER 		("header", 			"head", 	false), 
 	META 		("meta", 			null, 		false),
 	BASE 		("base", 			null, 		false),
-	PROPERTIES 	("properties", 		null, 		false),
-	PROPERTY 	("property", 		null, 		false),
+	PROPERTIES 	("properties", 		null, 		true),
+	PROPERTY 	("property", 		null, 		true),
 	ELEMENT 	("element", 		null, 		true),
 	REPOS 		("repos", 			null, 		false),
 	REPO 		("repo", 			null, 		false),
@@ -79,12 +79,11 @@ public enum DocPart {
 	}
 
 	public String preElement(DocPartCallback c, Attributes a) {
-
 		if (writeDiv) {
 			String[][] e = c.getPreElementAttributes(this, a);
 
 			if (e != null) {
-				return preElement(e);
+				return preElement(e, false);
 			} else
 				return preElement();
 		}
@@ -92,19 +91,23 @@ public enum DocPart {
 		return null;
 	}
 	
-	public String preElement(String[][] e) {
-		String divTag = null;
-		if (e != null) {
-			divTag = "<div";
-			for (String[] ee : e) {
-				divTag += " " + ee[0];
-				divTag += "=\"" + ee[1] + "\"";
+	public String preElement(String[][] e, boolean includeClass) {
+		if (writeDiv) {
+			String divTag = null;
+			if (e != null) {
+				divTag = "<div" + (includeClass ? " class=\"" + name + "\"": "");
+				for (String[] ee : e) {
+					divTag += " " + ee[0];
+					divTag += "=\"" + ee[1] + "\"";
+				}
+	
+				divTag +=">";
 			}
-
-			divTag +=">";
+			
+			return concat(divTag, tag, "");
 		}
 		
-		return concat(divTag, tag, "");
+		return null;
 	}
 
 	public String postElement() {
