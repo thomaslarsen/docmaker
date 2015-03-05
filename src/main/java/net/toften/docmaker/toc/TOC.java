@@ -61,4 +61,6 @@ public interface TOC {
 	 * 
 	 */
 	URI getBaseURI();
+	
+	String getDocumentTitle();
 }
