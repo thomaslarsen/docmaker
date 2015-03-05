@@ -36,8 +36,7 @@ public class Repo {
 	}
 	
 	public InputStream getFragmentInputStream(String fragmentName) throws IOException, URISyntaxException {
-		URI markupFilenameURI = new URI(fragmentName);
-		URL fileURL = repoURI.resolve(markupFilenameURI).toURL();
+		URL fileURL = getFragmentURI(fragmentName).toURL();
 		
 		return fileURL.openStream();
 	}
@@ -48,5 +47,9 @@ public class Repo {
 
 	public URI getURI() {
 		return repoURI;
+	}
+	
+	public URI getFragmentURI(String fragmentName) throws URISyntaxException {
+		return getURI().resolve(new URI(fragmentName));
 	}
 }

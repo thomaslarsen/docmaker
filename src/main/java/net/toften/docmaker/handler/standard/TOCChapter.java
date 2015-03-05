@@ -1,6 +1,8 @@
 package net.toften.docmaker.handler.standard;
 
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -83,6 +85,10 @@ public class TOCChapter implements Chapter {
 	
 	public Repo getRepo() {
 		return repo;
+	}
+	
+	public URI getFragmentURI() throws URISyntaxException {
+		return repo.getFragmentURI(fragmentName);
 	}
 	
 	public boolean isRotated() {
