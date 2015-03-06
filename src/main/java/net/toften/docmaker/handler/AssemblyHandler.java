@@ -71,20 +71,10 @@ public interface AssemblyHandler {
 	boolean isCurrentSectionRotated();
 
 	/**
-	 * @return the name of the fragment currently being processed
-	 */
-	String getCurrentFragmentName();
-	
-	/**
 	 * @return the title of the document
 	 */
 	String getDocumentTitle();
 
-	/**
-	 * @return the id of the repo containing the current fragment
-	 */
-	Repo getCurrentRepo();
-	
 	/**
 	 * This method must return the filename portion of the TOC file, i.e.
 	 * the filename <i>without</i> the file extension.

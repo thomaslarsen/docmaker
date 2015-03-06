@@ -42,18 +42,6 @@ public class AssemblyHandlerAdapterTest {
 		}
 		
 		@Override
-		public Repo getCurrentRepo() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		@Override
-		public String getCurrentFragmentName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-		@Override
 		protected void handlePseudoSection(Attributes attributes) throws Exception {
 			// TODO Auto-generated method stub
 			
