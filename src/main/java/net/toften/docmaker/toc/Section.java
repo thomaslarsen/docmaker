@@ -8,6 +8,8 @@ public interface Section {
 
 	String getDivCloseTag();
 	
+	boolean isRotated();
+	
 	String getSectionName();
 	
 	String getIdAttr(TOC t);

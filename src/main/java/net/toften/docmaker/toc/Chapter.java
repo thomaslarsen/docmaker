@@ -17,6 +17,8 @@ public interface Chapter {
 	String getDivOpenTag(TOC t);
 
 	String getDivCloseTag();
+	
+	boolean isRotated();
 
 	int calcEffectiveLevel();
 
