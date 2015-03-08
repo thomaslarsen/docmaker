@@ -35,15 +35,16 @@ public class TOCChapter implements Chapter {
 		this.isRotated = isRotated;
 		
 		// Normalise the fragment file extension
+		String fragmentFilename = fragmentName;
 		this.extension = handler.getDefaultExtension();
 		int i = this.fragmentName.lastIndexOf('.');
 		if (i > 0) {
 		    this.extension = this.fragmentName.substring(i + 1);
 		} else {
-			this.fragmentName += "." + this.extension;
+			fragmentFilename += "." + this.extension;
 		}
 		
-		InputStream fragmentIs = repo.getFragmentInputStream(this.fragmentName);
+		InputStream fragmentIs = repo.getFragmentInputStream(fragmentFilename);
 		fragmentAsHtml = handler.getMarkupProcessor(this.extension).process(fragmentIs, config, handler);
 		fragmentIs.close();
 	}
