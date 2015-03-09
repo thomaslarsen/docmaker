@@ -36,8 +36,7 @@ public class AdjustImageHrefPostProcessor extends RegexPostProcessor {
 
 	@Override
 	protected String getReplacement(Matcher m) {
-		String href = getCurrentChapter().getRepo().getURI().getPath() + "/" + m.group(2);
-		
+		String href = getCurrentChapter().getRepo().getURI().resolve("./" + m.group(2)).normalize().getPath();
 		
 		return	"<img$1src=\"" + href + "\"$3/>";
 	}

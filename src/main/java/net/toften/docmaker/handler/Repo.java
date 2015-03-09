@@ -50,6 +50,6 @@ public class Repo {
 	}
 	
 	public URI getFragmentURI(String fragmentName) throws URISyntaxException {
-		return getURI().resolve(new URI(fragmentName));
+		return getURI().resolve(fragmentName).normalize();
 	}
 }
