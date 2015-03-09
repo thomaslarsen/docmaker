@@ -79,12 +79,12 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 					append("<a class=\"toc-section level" + sectionLevel + "\" href=\"#").
 					append(s.getIdAttr(t)).
 					append("\">").
-					append(s.getSectionName()).
+					append(s.getName()).
 					append("</a>\n");
 				}
 
 				for (Chapter c : s.getChapters()) {
-					processFragment(c, c.getAsHtml(), asHtml, t);
+					processFragment(c, c.getAsHtml(t), asHtml, t);
 				}
 			}
 		}

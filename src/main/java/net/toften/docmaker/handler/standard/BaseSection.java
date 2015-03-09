@@ -4,15 +4,16 @@ import net.toften.docmaker.toc.Section;
 import net.toften.docmaker.toc.TOC;
 
 public abstract class BaseSection implements Section {
-	private String sectionName;
+	private String name;
 	private boolean isRotated;
 
 	public BaseSection(String sectionName, boolean isRotated) {
-		this.sectionName = sectionName;
+		this.name = sectionName;
+		this.isRotated = isRotated;
 	}
 	
-	public String getSectionName() {
-		return sectionName;
+	public String getName() {
+		return name;
 	}
 
 	public boolean isRotated() {
@@ -22,7 +23,7 @@ public abstract class BaseSection implements Section {
 	public String getDivOpenTag(TOC t) {
 		String classAttr = getDivClassName() + (isRotated() ? " rotate" : "");
 		
-		return constructDivOpenTag(classAttr, getIdAttr(t), getSectionName());
+		return constructDivOpenTag(classAttr, getIdAttr(t), getName());
 	}
 	
 	public String getDivCloseTag() {
@@ -30,7 +31,7 @@ public abstract class BaseSection implements Section {
 	}
 	
 	public String getIdAttr(TOC t) {
-		return (t.getTocFileName() + "-" + getSectionName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+		return (t.getTocFileName() + "-" + getName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 	
 	protected String getDivClassName() {

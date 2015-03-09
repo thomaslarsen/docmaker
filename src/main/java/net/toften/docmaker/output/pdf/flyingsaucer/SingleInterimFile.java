@@ -127,28 +127,24 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.PROPERTIES.postElement());
 
 		for (Section section : sections) {
-			lw.debug("Writing " + section.getDocPart().name() + " " + section.getSectionName() + " (" + section.getIdAttr(t) + ")");
+			lw.debug("Writing " + section.getDocPart().name() + " " + section.getName() + " (" + section.getIdAttr(t) + ")");
+			writeToOutputFile(section.getDocPart().preElement());
+			writeToOutputFile(section.getDivOpenTag(t));
 			switch (section.getDocPart()) {
 			case SECTION:
-				writeToOutputFile(DocPart.SECTION.preElement());
 				writeContentSection((ChapterSection)section, metaData, t);
-				writeToOutputFile(DocPart.SECTION.postElement());
 				break;
 
 			case METASECTION:
-				writeToOutputFile(DocPart.METASECTION.preElement());
-				writeToOutputFile(section.getDivOpenTag(t));
 				writeMetaElements((ElementsSection)section, metaData, t);
-				writeToOutputFile(DocPart.METASECTION.postElement());
-				writeToOutputFile(section.getDivCloseTag());
 				break;
 				
 			case PSECTION:
-				writeToOutputFile(DocPart.PSECTION.preElement());
 				writePseudoSection((GeneratedSection)section, t);
-				writeToOutputFile(DocPart.PSECTION.postElement());
 				break;
 			}
+			writeToOutputFile(section.getDivCloseTag());
+			writeToOutputFile(section.getDocPart().postElement());
 		}
 		writeToOutputFile(DocPart.SECTIONS.postElement());
 		
@@ -160,27 +156,20 @@ public class SingleInterimFile implements InterimFileHandler {
 	}
 
 	private void writeContentSection(ChapterSection section, Properties metaData, TOC t) throws IOException, URISyntaxException {
-		writeToOutputFile(section.getDivOpenTag(t));
 		writeToOutputFile(DocPart.CHAPTERS.preElement());
 		for (Chapter c : section.getChapters()) {
-			writeToOutputFile(DocPart.CHAPTER.preElement());
 			lw.debug("Writing CHAPTER: " + c.getFragmentURI().toString() + " (" + c.getIdAttr(t) + ")");
-			writeChapter(c, t);
+			writeToOutputFile(DocPart.CHAPTER.preElement());
+			
+			writeToOutputFile(c.getDivOpenTag(t));
+			writeToOutputFile(c.getAsHtml(t));
+			writeToOutputFile(c.getDivCloseTag());
+			
 			writeToOutputFile(DocPart.CHAPTER.postElement());
 		}
 		writeToOutputFile(DocPart.CHAPTERS.postElement());
 		// A contents section might also contain elements
 		writeMetaElements(section, metaData, t);
-		
-		writeToOutputFile(section.getDivCloseTag());
-	}
-	
-	private void writeChapter(Chapter c, TOC t) throws IOException {
-		writeToOutputFile(c.getDivOpenTag(t));
-		String htmlFragment = c.getAsHtml();
-
-		writeToOutputFile(htmlFragment);
-		writeToOutputFile(c.getDivCloseTag());
 	}
 
 	private void writeMetaElements(ElementsSection section, Properties metaData, TOC t) throws IOException {
@@ -192,8 +181,6 @@ public class SingleInterimFile implements InterimFileHandler {
 	}
 	
 	private void writePseudoSection(GeneratedSection section, TOC t) throws IOException {
-		writeToOutputFile(section.getDivOpenTag(t));
 		writeToOutputFile(section.getAsHtml(t));
-		writeToOutputFile(section.getDivCloseTag());
 	}
 }

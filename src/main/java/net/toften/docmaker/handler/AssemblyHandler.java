@@ -10,12 +10,11 @@ import javax.xml.parsers.SAXParser;
 
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.NoMarkupProcessor;
-import net.toften.docmaker.output.InterimFileHandler;
 import net.toften.docmaker.toc.TOC;
 
 /**
  * The {@link AssemblyHandler} is responsible for converting the TOC into the
- * transient HTML file written as described in the {@link InterimFileHandler}.
+ * {@link TOC TOC model}.
  * <p>
  * The AssemblyHandler will use a {@link SAXParser} to process the TOC XML file.
  * 
@@ -34,7 +33,7 @@ import net.toften.docmaker.toc.TOC;
 public interface AssemblyHandler {
 	
 	/**
-	 * Gets the markup processor for a specific file extension.
+	 * Returns the markup processor for a specific file extension.
 	 *
 	 * @param extension the file extension
 	 * @return the {@link MarkupProcessor} used to convert the fragments with the given extension
@@ -67,5 +66,11 @@ public interface AssemblyHandler {
 	 */
 	String getTocFileName();
 
+	/**
+	 * Return the file extension to append to fragment files, that is not
+	 * specified with an extension
+	 * 
+	 * @return the default fragment file extension
+	 */
 	String getDefaultExtension();
 }

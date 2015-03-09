@@ -49,7 +49,7 @@ public class StandardHandlerTest {
 		
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
-		assertEquals("S1", s.getSectionName());
+		assertEquals("S1", s.getName());
 		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		
@@ -84,7 +84,7 @@ public class StandardHandlerTest {
 		
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
-		assertEquals("S1", s.getSectionName());
+		assertEquals("S1", s.getName());
 		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		
@@ -93,7 +93,7 @@ public class StandardHandlerTest {
 		assertEquals(2, cs.getSectionLevel().intValue());
 		
 		Chapter c = cs.getChapters().get(0);
-		assertEquals("intro", c.getFragmentName());
+		assertEquals("intro", c.getName());
 		assertEquals(1, c.getChapterLevelOffset());
 		assertEquals(1, c.calcEffectiveLevel());
 		assertFalse(c.isRotated());
@@ -135,7 +135,7 @@ public class StandardHandlerTest {
 		
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
-		assertEquals("S1", s.getSectionName());
+		assertEquals("S1", s.getName());
 		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		assertEquals("<div class=\"section-header\" id=\"test-s1\" title=\"S1\">\n", s.getDivOpenTag(t));
@@ -145,14 +145,14 @@ public class StandardHandlerTest {
 		assertEquals(2, cs.getSectionLevel().intValue());
 		
 		Chapter c = cs.getChapters().get(0);
-		assertEquals("intro", c.getFragmentName());
+		assertEquals("intro", c.getName());
 		assertEquals(1, c.getChapterLevelOffset());
 		assertEquals(1, c.calcEffectiveLevel());
 		assertFalse(c.isRotated());
 		assertEquals("<div class=\"chapter\" id=\"test-s1-intro\" title=\"intro\">\n", c.getDivOpenTag(t));
 		
 		c = cs.getChapters().get(1);
-		assertEquals("copyright", c.getFragmentName());
+		assertEquals("copyright", c.getName());
 		assertEquals(2, c.getChapterLevelOffset());
 		assertEquals(2, c.calcEffectiveLevel());
 		assertTrue(c.isRotated());

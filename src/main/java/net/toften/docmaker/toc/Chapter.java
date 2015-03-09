@@ -4,40 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.Repo;
-import net.toften.docmaker.output.InterimFileHandler;
 import net.toften.docmaker.postprocessors.PostProcessor;
 
 
-public interface Chapter {
-
-	DocPart getDocPart();
-	
-	/**
-	 * Return the name of the fragment as specified in the title attribute in the chapter element:
-	 * 
-	 * @return the name of the fragment
-	 */
-	String getFragmentName();
-
-	public String getAsHtml();
-	
-	/**
-	 * Return the complete <div> open tag to include in the {@link InterimFileHandler interim file}
-	 * 
-	 * @param t the processed TOC
-	 * @return
-	 */
-	String getDivOpenTag(TOC t);
-
-	String getDivCloseTag();
-	
-	/**
-	 * @return <code>true</code> if the chapter is rotated
-	 */
-	boolean isRotated();
-
+public interface Chapter extends GeneratedSection {
 	/**
 	 * Return the value the header tags in the {@link Chapter#getAsHtml() HTML} should be incremented by.
 	 * <p>
@@ -65,18 +36,6 @@ public interface Chapter {
 	 * @return
 	 */
 	int getChapterLevelOffset();
-
-	/**
-	 * Returns the ID attribute for the chapter.
-	 * <p>
-	 * This should be used as the value of the id attribute in the <div> tag that surrounds
-	 * the chapter section.
-	 * This will allow links to reference the chapter section specifically.
-	 * 
-	 * @param t
-	 * @return
-	 */
-	String getIdAttr(TOC t);
 
 	/**
 	 * Run a List of {@link PostProcessor}s over the {@link Chapter#getAsHtml() HTML} of the chapter.

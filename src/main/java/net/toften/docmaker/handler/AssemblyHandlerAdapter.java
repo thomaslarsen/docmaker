@@ -218,9 +218,11 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	}	
 	
 	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
+		// Empty
 	}
 	
 	protected void handleHeaderSection(Attributes attributes) throws Exception  {
+		// Empty
 	}
 
 	protected abstract void handleChapterElement(Attributes attributes) throws Exception;

@@ -22,12 +22,12 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 
 				if (sectionLevel <= getMaxLevel()) {
 					asHtml.
-					append("<bookmark name=\"" + s.getSectionName() + "\" href=\"#").
+					append("<bookmark name=\"" + s.getName() + "\" href=\"#").
 					append(s.getIdAttr(t)).
 					append("\">\n");
 					
 					for (Chapter c : s.getChapters()) {
-						processFragment(c, c.getAsHtml(), asHtml, t);
+						processFragment(c, c.getAsHtml(t), asHtml, t);
 					}
 					
 					asHtml.append("</bookmark>\n");
