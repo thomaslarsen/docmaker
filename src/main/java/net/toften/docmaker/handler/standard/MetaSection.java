@@ -3,8 +3,8 @@ package net.toften.docmaker.handler.standard;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.toc.ElementsSection;
-import net.toften.docmaker.toc.SectionType;
 
 public class MetaSection extends BaseSection implements ElementsSection {
 	private List<String[]> elements = new LinkedList<String[]>();
@@ -27,7 +27,7 @@ public class MetaSection extends BaseSection implements ElementsSection {
 	}
 	
 	@Override
-	public SectionType getSectionType() {
-		return SectionType.META_SECTION;
+	public DocPart getDocPart() {
+		return DocPart.METASECTION;
 	}
 }

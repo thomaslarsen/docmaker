@@ -3,11 +3,11 @@ package net.toften.docmaker.handler.standard;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
-import net.toften.docmaker.toc.SectionType;
 
 public class ContentSection extends MetaSection implements ChapterSection {
 	private List<Chapter> chapters = new LinkedList<Chapter>();
@@ -34,9 +34,9 @@ public class ContentSection extends MetaSection implements ChapterSection {
 	protected String getDivClassName() {
 		return "section-header";
 	}
-	
+
 	@Override
-	public SectionType getSectionType() {
-		return SectionType.CONTENTS_SECTION;
+	public DocPart getDocPart() {
+		return DocPart.SECTION;
 	}
 }

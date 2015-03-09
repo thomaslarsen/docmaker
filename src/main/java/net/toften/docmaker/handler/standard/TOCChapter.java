@@ -93,6 +93,11 @@ public class TOCChapter implements Chapter {
 	public String getIdAttr(TOC t) {
 		return (getSection().getIdAttr(t) + "-" + getFragmentName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
+	
+	@Override
+	public DocPart getDocPart() {
+		return DocPart.CHAPTER;
+	}
 
 	private String getDivClassName() {
 		return DocPart.CHAPTER.getName();

@@ -3,12 +3,12 @@ package net.toften.docmaker.pseudosections;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.Section;
-import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
@@ -70,7 +70,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">\n");
 
 		for (Section metaSection : t.getSections()) {
-			if (metaSection.getSectionType() == SectionType.CONTENTS_SECTION) {
+			if (metaSection.getDocPart() == DocPart.SECTION) {
 				ChapterSection s = (ChapterSection)metaSection;
 				int sectionLevel = s.getSectionLevel();
 

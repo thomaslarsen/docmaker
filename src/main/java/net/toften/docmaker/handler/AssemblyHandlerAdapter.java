@@ -18,7 +18,6 @@ import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.Section;
-import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
@@ -319,7 +318,7 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	
 	protected void runPostProcessors(boolean apply) {
 		for (Section s : getSections()) {
-			if (s.getSectionType() == SectionType.CONTENTS_SECTION) {
+			if (s.getDocPart() == DocPart.SECTION) {
 				for (Chapter c : ((ChapterSection)s).getChapters()) {
 					c.runPostProcessors(getPostProcessors(), this, apply);
 				}

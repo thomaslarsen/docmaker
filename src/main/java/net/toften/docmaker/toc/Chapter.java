@@ -4,12 +4,15 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.output.InterimFileHandler;
 import net.toften.docmaker.postprocessors.PostProcessor;
 
 
 public interface Chapter {
+
+	DocPart getDocPart();
 	
 	/**
 	 * Return the name of the fragment as specified in the title attribute in the chapter element:

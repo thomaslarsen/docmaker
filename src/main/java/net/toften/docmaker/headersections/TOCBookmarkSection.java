@@ -2,11 +2,11 @@ package net.toften.docmaker.headersections;
 
 import java.util.regex.Matcher;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.pseudosections.TOCPseudoSection;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.Section;
-import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 public class TOCBookmarkSection extends TOCPseudoSection {
@@ -16,7 +16,7 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 		StringBuffer asHtml = new StringBuffer("<bookmarks>\n");
 
 		for (Section metaSection : t.getSections()) {
-			if (metaSection.getSectionType() == SectionType.CONTENTS_SECTION) {
+			if (metaSection.getDocPart() == DocPart.SECTION) {
 				ChapterSection s = (ChapterSection)metaSection;
 				int sectionLevel = s.getSectionLevel();
 

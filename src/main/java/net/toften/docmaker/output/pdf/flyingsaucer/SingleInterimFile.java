@@ -127,15 +127,15 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.PROPERTIES.postElement());
 
 		for (Section section : sections) {
-			lw.debug("Writing " + section.getSectionType().name() + " " + section.getSectionName() + " (" + section.getIdAttr(t) + ")");
-			switch (section.getSectionType()) {
-			case CONTENTS_SECTION:
+			lw.debug("Writing " + section.getDocPart().name() + " " + section.getSectionName() + " (" + section.getIdAttr(t) + ")");
+			switch (section.getDocPart()) {
+			case SECTION:
 				writeToOutputFile(DocPart.SECTION.preElement());
 				writeContentSection((ChapterSection)section, metaData, t);
 				writeToOutputFile(DocPart.SECTION.postElement());
 				break;
 
-			case META_SECTION:
+			case METASECTION:
 				writeToOutputFile(DocPart.METASECTION.preElement());
 				writeToOutputFile(section.getDivOpenTag(t));
 				writeMetaElements((ElementsSection)section, metaData, t);
@@ -143,7 +143,7 @@ public class SingleInterimFile implements InterimFileHandler {
 				writeToOutputFile(section.getDivCloseTag());
 				break;
 				
-			case PSEUDO_SECTION:
+			case PSECTION:
 				writeToOutputFile(DocPart.PSECTION.preElement());
 				writePseudoSection((GeneratedSection)section, t);
 				writeToOutputFile(DocPart.PSECTION.postElement());

@@ -1,8 +1,8 @@
 package net.toften.docmaker.pseudosections;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.standard.BaseSection;
 import net.toften.docmaker.toc.GeneratedSection;
-import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
@@ -26,10 +26,10 @@ public class PseudoSection extends BaseSection implements GeneratedSection {
 	protected String getDivClassName() {
 		return "pseudo-section";
 	}
-	
+
 	@Override
-	public SectionType getSectionType() {
-		return SectionType.PSEUDO_SECTION;
+	public DocPart getDocPart() {
+		return DocPart.PSECTION;
 	}
 	
 	@Override

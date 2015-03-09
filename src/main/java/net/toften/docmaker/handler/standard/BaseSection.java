@@ -33,7 +33,9 @@ public abstract class BaseSection implements Section {
 		return (t.getTocFileName() + "-" + getSectionName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 	
-	protected abstract String getDivClassName();
+	protected String getDivClassName() {
+		return getDocPart().getName();
+	}
 
 	protected String constructDivOpenTag(String divClass, String divId, String divTitle) {
 		return "<div class=\"" + divClass + "\" id=\"" + divId + "\" title=\"" + divTitle + "\">" + "\n";

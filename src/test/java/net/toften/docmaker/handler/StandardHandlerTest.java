@@ -1,6 +1,9 @@
 package net.toften.docmaker.handler;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -12,13 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.standard.StandardHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.Section;
-import net.toften.docmaker.toc.SectionType;
 import net.toften.docmaker.toc.TOC;
 
 import org.junit.Test;
@@ -47,7 +50,7 @@ public class StandardHandlerTest {
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
 		assertEquals("S1", s.getSectionName());
-		assertEquals(SectionType.CONTENTS_SECTION, s.getSectionType());
+		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		
 		ChapterSection cs = (ChapterSection)s;
@@ -82,7 +85,7 @@ public class StandardHandlerTest {
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
 		assertEquals("S1", s.getSectionName());
-		assertEquals(SectionType.CONTENTS_SECTION, s.getSectionType());
+		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		
 		ChapterSection cs = (ChapterSection)s;
@@ -133,7 +136,7 @@ public class StandardHandlerTest {
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
 		assertEquals("S1", s.getSectionName());
-		assertEquals(SectionType.CONTENTS_SECTION, s.getSectionType());
+		assertEquals(DocPart.SECTION, s.getDocPart());
 		assertFalse(s.isRotated());
 		assertEquals("<div class=\"section-header\" id=\"test-s1\" title=\"S1\">\n", s.getDivOpenTag(t));
 

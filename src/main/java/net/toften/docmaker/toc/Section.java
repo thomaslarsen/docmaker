@@ -1,9 +1,11 @@
 package net.toften.docmaker.toc;
 
+import net.toften.docmaker.DocPart;
+
 
 public interface Section {
-	SectionType getSectionType();
-
+	DocPart getDocPart();
+	
 	String getDivOpenTag(TOC t);
 
 	String getDivCloseTag();
