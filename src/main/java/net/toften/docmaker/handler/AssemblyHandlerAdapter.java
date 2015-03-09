@@ -13,6 +13,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
@@ -58,6 +59,28 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	private URI baseURI;
 	private Map<String, MarkupProcessor> markupProcessor;
 	private String defaultExtension;
+	
+	// Initialise with empty log wrapper
+	protected LogWrapper lw = new LogWrapper() {
+		
+		@Override
+		public void warn(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void info(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void debug(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 
 	public AssemblyHandlerAdapter() {
 	}
@@ -96,8 +119,11 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	}
 
 	@Override
-	public TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor, Properties baseProperties, List<String> cssFiles) 
+	public TOC parse(LogWrapper lw, InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor, Properties baseProperties, List<String> cssFiles) 
 			throws Exception {
+		if (lw != null)
+			this.lw = lw;
+		
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.Section;
@@ -26,6 +27,27 @@ public class AssemblyHandlerAdapterTest {
 	Map<String, MarkupProcessor> markupProcessor = null; 
 	Properties baseProperties = null; 
 	List<String> cssFiles = null;
+	
+	private LogWrapper lw = new LogWrapper() {
+		
+		@Override
+		public void warn(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void info(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void debug(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 	
 	private class TestHandler extends AssemblyHandlerAdapter {
 		
@@ -86,7 +108,7 @@ public class AssemblyHandlerAdapterTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		
 		assertEquals(1, t.getMetaData().size());
 		assertTrue(t.getMetaData().containsKey("key"));
@@ -105,7 +127,7 @@ public class AssemblyHandlerAdapterTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		
 		assertEquals(1, t.getMetaData().size());
 		assertTrue(t.getMetaData().containsKey("key"));
@@ -125,7 +147,7 @@ public class AssemblyHandlerAdapterTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		
 		assertEquals(2, t.getMetaData().size());
 		assertTrue(t.getMetaData().containsKey("key"));
@@ -154,6 +176,6 @@ public class AssemblyHandlerAdapterTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 	}
 }

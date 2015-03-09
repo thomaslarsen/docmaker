@@ -305,7 +305,7 @@ public class DocMakerMain {
             FileInputStream fis = new FileInputStream(tocFile);
 
             lw.info("Parsing TOC: " + tocFile.getName());
-            t = ah.parse(fis, tocFile.getName(), defaultExtension, baseURI, processors, props, cssFilePath);
+            t = ah.parse(lw, fis, tocFile.getName(), defaultExtension, baseURI, processors, props, cssFilePath);
         } catch (Exception e) {
             throw new DocMakerException("Could not parse file " + tocFile.getAbsolutePath(), e);
         }

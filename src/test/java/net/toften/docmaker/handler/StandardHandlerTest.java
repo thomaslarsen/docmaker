@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Properties;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.standard.StandardHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.markdown.pegdown.PegdownProcessor;
@@ -33,6 +34,27 @@ public class StandardHandlerTest {
 	Map<String, MarkupProcessor> markupProcessor = null; 
 	Properties baseProperties = null; 
 	List<String> cssFiles = null;
+	
+	private LogWrapper lw = new LogWrapper() {
+		
+		@Override
+		public void warn(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void info(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		@Override
+		public void debug(String message) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 
 	@Test
 	public void testSectionNoChapters() throws Exception {
@@ -45,7 +67,7 @@ public class StandardHandlerTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
@@ -80,7 +102,7 @@ public class StandardHandlerTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		
 		assertEquals(1, t.getSections().size());
 		Section s = t.getSections().get(0);
@@ -124,7 +146,7 @@ public class StandardHandlerTest {
 				+ "</document>";
 		InputStream is = new ByteArrayInputStream(toc.getBytes(StandardCharsets.UTF_8));
 		
-		TOC t = handler.parse(is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
+		TOC t = handler.parse(lw, is, tocName, defaultExtension, baseURI, markupProcessor, baseProperties, cssFiles);
 		assertEquals("Doc", t.getDocumentTitle());
 		assertEquals(tocName, t.getTocFileName());
 		assertEquals(0, t.getHeaderSections().size());
