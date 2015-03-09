@@ -109,8 +109,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
-					append(chapter.getIdAttr(t)).
-					append("-" + headerText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
+					append((chapter.getIdAttr(t) + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
 					append("\">").
 					append(headerText).
 					append("</a>\n");

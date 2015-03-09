@@ -105,7 +105,7 @@ public class TOCChapter implements Chapter {
 	
 	@Override
 	public String getIdAttr(TOC t) {
-		return (t.getTocFileName() + "-" + getSection().getSectionName() + "-" + getFragmentName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+		return (getSection().getIdAttr(t) + "-" + getFragmentName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 
 	private String getDivClassName() {

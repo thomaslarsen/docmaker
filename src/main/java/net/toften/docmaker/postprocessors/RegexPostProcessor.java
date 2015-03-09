@@ -78,6 +78,6 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	}
 	
 	protected String calcElementId(String elementText) {
-		return getCurrentChapter().getIdAttr(getTOC()) + "-" + elementText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
+		return (getCurrentChapter().getIdAttr(getTOC()) + "-" + elementText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 }

@@ -56,8 +56,7 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<bookmark name=\"" + headerText + "\" href=\"#").
-					append(chapter.getIdAttr(t)).
-					append("-" + headerText.trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
+					append((chapter.getIdAttr(t) + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
 					append("\" />\n");
 				}
 			}
