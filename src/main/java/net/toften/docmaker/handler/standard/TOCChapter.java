@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.postprocessors.PostProcessor;
@@ -49,21 +50,6 @@ public class TOCChapter implements Chapter {
 		fragmentIs.close();
 	}
 		
-	/**
-	 * This method returns the effective base heading level of a chapter.
-	 * <p>
-	 * Examples:
-	 * 	SL	CL	EL	+
-	 * 	1	0	1	0
-	 * 	1	1	2	1
-	 * 	1	2	3	2
-	 * 	2	0	2	1
-	 * 	2	1	3	2
-	 * 
-	 * @param currentSectionLevel
-	 * @param chapterLevelOffset
-	 * @return
-	 */
 	public int calcEffectiveLevel() {
 		return getChapterLevelOffset() + getSection().getSectionLevel() - EFFECTIVE_LEVEL_ADJUSTMENT;
 	}
@@ -89,7 +75,7 @@ public class TOCChapter implements Chapter {
 	}
 	
 	public URI getFragmentURI() throws URISyntaxException {
-		return repo.getFragmentURI(fragmentName);
+		return repo.getFragmentURI(getFragmentName());
 	}
 	
 	public boolean isRotated() {
@@ -109,7 +95,7 @@ public class TOCChapter implements Chapter {
 	}
 
 	private String getDivClassName() {
-		return "chapter";
+		return DocPart.CHAPTER.getName();
 	}
 
 	protected String constructDivOpenTag(String divClass, String divId, String divTitle) {
