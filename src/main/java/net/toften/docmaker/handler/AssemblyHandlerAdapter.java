@@ -126,18 +126,15 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		return defaultExtension;
 	}
 	
-	@Override
-	public String getCurrentSectionName() {
+	protected String getCurrentSectionName() {
 		return currentSectionName;
 	}
 
-	@Override
-	public Integer getCurrentSectionLevel() {
+	protected Integer getCurrentSectionLevel() {
 		return currentSectionLevel;
 	}
 	
-	@Override
-	public boolean isCurrentSectionRotated() {
+	protected boolean isCurrentSectionRotated() {
 		return currentSectionRotate;
 	}
 

@@ -10,10 +10,4 @@ public class HDecorator extends DefaultDecorator {
 	public HDecorator(AssemblyHandler callback) {
 		this.callback = callback;
 	}
-	
-	@Override
-	public void openImage(StringBuilder out) {
-		String sectionName = callback.getCurrentSectionName();
-		out.append("<img class=\"" + sectionName + "\"");
-	}
 }

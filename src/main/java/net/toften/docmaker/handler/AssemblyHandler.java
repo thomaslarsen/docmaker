@@ -55,22 +55,6 @@ public interface AssemblyHandler {
 	TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> processors, Properties baseProperties, List<String> cssFilePath) throws Exception;
 	
 	/**
-	 * @return the title of the section currently being processed
-	 */
-	String getCurrentSectionName();
-	
-	/**
-	 * @return the level of the section currently being processed, or <code>null</code>
-	 * if the current section is a meta-section
-	 */
-	Integer getCurrentSectionLevel();
-	
-	/**
-	 * @return <code>true</code> if the current section is rotated
-	 */
-	boolean isCurrentSectionRotated();
-
-	/**
 	 * @return the title of the document
 	 */
 	String getDocumentTitle();
