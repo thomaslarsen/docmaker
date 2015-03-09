@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
@@ -66,7 +67,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 	}
 	
 	@Override
-	public String getSectionAsHtml(TOC t) {
+	public String getSectionAsHtml(TOC t, LogWrapper lw) {
 		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">\n");
 
 		for (Section metaSection : t.getSections()) {
@@ -84,7 +85,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 				}
 
 				for (Chapter c : s.getChapters()) {
-					processFragment(c, c.getAsHtml(t), asHtml, t);
+					processFragment(c, c.getAsHtml(t, lw), asHtml, t, lw);
 				}
 			}
 		}
@@ -95,7 +96,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t, LogWrapper lw) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		int chapterEffectiveLevel = chapter.calcEffectiveLevel();
 

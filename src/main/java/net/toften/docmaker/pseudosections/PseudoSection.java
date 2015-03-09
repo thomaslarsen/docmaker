@@ -1,6 +1,7 @@
 package net.toften.docmaker.pseudosections;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.standard.BaseSection;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.TOC;
@@ -33,7 +34,7 @@ public class PseudoSection extends BaseSection implements GeneratedSection {
 	}
 	
 	@Override
-	public String getAsHtml(TOC t) {
-		return getSectionHandler().getSectionAsHtml(t);
+	public String getAsHtml(TOC t, LogWrapper lw) {
+		return getSectionHandler().getSectionAsHtml(t, lw);
 	}
 }

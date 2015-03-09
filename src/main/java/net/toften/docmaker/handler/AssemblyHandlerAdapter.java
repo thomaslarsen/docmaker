@@ -345,7 +345,7 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		for (Section s : getSections()) {
 			if (s.getDocPart() == DocPart.SECTION) {
 				for (Chapter c : ((ChapterSection)s).getChapters()) {
-					c.runPostProcessors(getPostProcessors(), this, apply);
+					c.runPostProcessors(getPostProcessors(), this, apply, lw);
 				}
 			}
 		}

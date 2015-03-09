@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.postprocessors.PostProcessor;
@@ -55,7 +56,7 @@ public class TOCChapter extends BaseSection implements Chapter {
 		return chapterLevelOffset;
 	}
 	
-	public String getAsHtml(TOC t) {
+	public String getAsHtml(TOC t, LogWrapper lw) {
 		return fragmentAsHtml;
 	}
 	
@@ -78,13 +79,13 @@ public class TOCChapter extends BaseSection implements Chapter {
 	}
 
 	@Override
-	public String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply) {
-		String htmlFragment = getAsHtml(t);
+	public String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply, LogWrapper lw) {
+		String htmlFragment = getAsHtml(t, lw);
 		
 		// Run postprocessors
 		for (PostProcessor pp : postProcessors) {
 			StringBuffer out = new StringBuffer();
-			pp.processFragment(this, htmlFragment, out, t);
+			pp.processFragment(this, htmlFragment, out, t, lw);
 			
 			htmlFragment = out.toString();
 		}

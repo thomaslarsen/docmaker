@@ -104,7 +104,7 @@ public class SingleInterimFile implements InterimFileHandler {
 		for (GeneratedSection section : headerSections) {
 			writeToOutputFile(DocPart.HSECTION.preElement());
 			writeToOutputFile(section.getDivOpenTag(t));
-			writeToOutputFile(section.getAsHtml(t));
+			writeToOutputFile(section.getAsHtml(t, lw));
 			writeToOutputFile(section.getDivCloseTag());
 			writeToOutputFile(DocPart.HSECTION.postElement());
 		}
@@ -162,7 +162,7 @@ public class SingleInterimFile implements InterimFileHandler {
 			writeToOutputFile(DocPart.CHAPTER.preElement());
 			
 			writeToOutputFile(c.getDivOpenTag(t));
-			writeToOutputFile(c.getAsHtml(t));
+			writeToOutputFile(c.getAsHtml(t, lw));
 			writeToOutputFile(c.getDivCloseTag());
 			
 			writeToOutputFile(DocPart.CHAPTER.postElement());
@@ -181,6 +181,6 @@ public class SingleInterimFile implements InterimFileHandler {
 	}
 	
 	private void writePseudoSection(GeneratedSection section, TOC t) throws IOException {
-		writeToOutputFile(section.getAsHtml(t));
+		writeToOutputFile(section.getAsHtml(t, lw));
 	}
 }

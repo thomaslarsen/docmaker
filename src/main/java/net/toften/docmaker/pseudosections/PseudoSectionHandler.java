@@ -2,6 +2,7 @@ package net.toften.docmaker.pseudosections;
 
 import java.util.List;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.TOC;
@@ -32,7 +33,7 @@ public interface PseudoSectionHandler {
 	 * @param t the {@link TOC} data model
 	 * @return the HTML contents of the pseudo section
 	 */
-	String getSectionAsHtml(TOC t);
+	String getSectionAsHtml(TOC t, LogWrapper lw);
 	
 	/**
 	 * Method called when the PseudoSectionHandler is initialized by the {@link PseudoSection} class.

@@ -3,6 +3,7 @@ package net.toften.docmaker.postprocessors;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.TOC;
 
@@ -24,6 +25,7 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	private final Pattern p;
 	private Chapter currentChapter;
 	private TOC currentTOC;
+	protected LogWrapper lw;
 	
 	public RegexPostProcessor() {
 		p = Pattern.compile(getRegex());
@@ -51,10 +53,11 @@ public abstract class RegexPostProcessor implements PostProcessor {
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t, LogWrapper lw) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		this.currentChapter = chapter;
 		this.currentTOC = t;
+		this.lw = lw;
 		
 		while (m.find()) {
 			m.appendReplacement(out, getReplacement(m));

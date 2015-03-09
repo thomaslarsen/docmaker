@@ -3,6 +3,7 @@ package net.toften.docmaker.headersections;
 import java.util.regex.Matcher;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.pseudosections.TOCPseudoSection;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
@@ -12,7 +13,7 @@ import net.toften.docmaker.toc.TOC;
 public class TOCBookmarkSection extends TOCPseudoSection {
 	
 	@Override
-	public String getSectionAsHtml(TOC t) {
+	public String getSectionAsHtml(TOC t, LogWrapper lw) {
 		StringBuffer asHtml = new StringBuffer("<bookmarks>\n");
 
 		for (Section metaSection : t.getSections()) {
@@ -27,7 +28,7 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 					append("\">\n");
 					
 					for (Chapter c : s.getChapters()) {
-						processFragment(c, c.getAsHtml(t), asHtml, t);
+						processFragment(c, c.getAsHtml(t, lw), asHtml, t, lw);
 					}
 					
 					asHtml.append("</bookmark>\n");
@@ -42,7 +43,7 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 	}
 
 	@Override
-	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t) {
+	public void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t, LogWrapper lw) {
 		Matcher m = p.matcher(fragmentAsHtml);
 		int chapterEffectiveLevel = chapter.calcEffectiveLevel();
 
