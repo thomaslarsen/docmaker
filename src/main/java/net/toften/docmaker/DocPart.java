@@ -55,13 +55,21 @@ public enum DocPart {
 			lookup = new HashMap<String, DocPart>();
 
 			for (DocPart dp : DocPart.values()) {
-				lookup.put(dp.name, dp);
+				lookup.put(dp.getName(), dp);
 			}
 		}
 
 		return lookup.get(qName);
 	}
 
+	public String getName() {
+		return name;
+	}
+	
+	public String getTag() {
+		return tag;
+	}
+	
 	/**
 	 * The default pre element method will insert a <div> tag with the doc part
 	 * as the class. For example the SECTION will insert:
@@ -75,7 +83,7 @@ public enum DocPart {
 	 * @see #writeDiv
 	 */
 	public String preElement() {
-		return concat(writeDiv ? "<div class=\"" + name + "\">" : null, tag, "");
+		return concat(writeDiv ? "<div class=\"" + getName() + "\">" : null, getTag(), "");
 	}
 
 	public String preElement(DocPartCallback c, Attributes a) {
@@ -95,7 +103,7 @@ public enum DocPart {
 		if (writeDiv) {
 			String divTag = null;
 			if (e != null) {
-				divTag = "<div" + (includeClass ? " class=\"" + name + "\"": "");
+				divTag = "<div" + (includeClass ? " class=\"" + getName() + "\"": "");
 				for (String[] ee : e) {
 					divTag += " " + ee[0];
 					divTag += "=\"" + ee[1] + "\"";
@@ -104,14 +112,14 @@ public enum DocPart {
 				divTag +=">";
 			}
 			
-			return concat(divTag, tag, "");
+			return concat(divTag, getTag(), "");
 		}
 		
 		return null;
 	}
 
 	public String postElement() {
-		return concat(writeDiv ? "</div>" : null, tag, "/");
+		return concat(writeDiv ? "</div>" : null, getTag(), "/");
 	}
 
 	public static String concat(String div, String tag, String postElement) {
