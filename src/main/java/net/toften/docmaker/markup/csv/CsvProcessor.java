@@ -122,7 +122,7 @@ public class CsvProcessor implements MarkupProcessor {
 		
 		if (config != null) {
 			String[] settings = config.split(";");
-			
+			lw.debug(settings.length + " settings");			
 			if (settings.length > 0) {
 				format = settings[0];
 				if (settings.length > 1) {
@@ -147,6 +147,12 @@ public class CsvProcessor implements MarkupProcessor {
 				}
 			}
 		}
+		lw.debug("Format: " + format);
+		lw.debug("Start skip: " + startSkip);
+		lw.debug("End skip: " + endSkip);
+		lw.debug("Text processor: " + textProcessor);
+		lw.debug("Columns: " + columns.toString());
+		lw.debug("Filters: " + (filters == null ? "none" : filters.toString()));
 		
 		MarkupProcessor mp = null;
 		if (textProcessor != null && !textProcessor.equals("")) {
@@ -154,6 +160,7 @@ public class CsvProcessor implements MarkupProcessor {
 		}
 		
         List<String[]> contents = reader.readAll();
+        lw.debug("Contents size: " + contents.size());
 
 		StringBuffer asHtml = new StringBuffer().append(format.equals("t") ? "<table>" : "");
 		List<Integer> headerColumnIndex = new LinkedList<Integer>();
@@ -163,7 +170,7 @@ public class CsvProcessor implements MarkupProcessor {
 	    int lineCount = startSkip;
 		while (lineCount < contents.size() - endSkip) {
 			String[] currentLine = contents.get(lineCount);
-
+			lw.debug("Line " + lineCount + ": " + Arrays.toString(currentLine));
 	        if (lineCount == startSkip) { // We are at the header line
 		        List<String> headersAsList = Arrays.asList(currentLine);
 		        // Find the header columns to include
@@ -171,6 +178,7 @@ public class CsvProcessor implements MarkupProcessor {
 		        	for (String columnName : columns) {
 		        		String[] headerInfo = columnName.split("\\s*:\\s*");
 		        		int index = headersAsList.indexOf(headerInfo[0]);
+		        		lw.debug("Looking for header: " + headerInfo[0] + " in " + headersAsList.toString() + "[" + index + "]");
 		        		if (index >= 0) {
 		        			headerColumnIndex.add(index);
 		        			headerLevelIndex.add(headerInfo.length < 2 ? -1 : Integer.parseInt(headerInfo[1]));
@@ -206,6 +214,7 @@ public class CsvProcessor implements MarkupProcessor {
 			        asHtml.append("</thead>");
 			        asHtml.append("<tbody>");
 	        	}
+	        	lw.debug("Headers to output: " + headerColumnIndex.toString());
 	        } else {
 	        	boolean include = true;
 	        	// Check filters
