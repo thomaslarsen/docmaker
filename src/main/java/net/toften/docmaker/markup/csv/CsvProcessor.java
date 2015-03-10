@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import au.com.bytecode.opencsv.CSVReader;
@@ -83,21 +84,21 @@ public class CsvProcessor implements MarkupProcessor {
 	}
 
 	@Override
-	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
-		return process(new CSVReader(new FileReader(inFile)), config, handler);
+	public String process(File inFile, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
+		return process(new CSVReader(new FileReader(inFile)), config, handler, lw);
 	}
 	
 	@Override
-	public String process(InputStream is, String config, AssemblyHandler handler) throws IOException {
-		return process(new CSVReader(new InputStreamReader(is, getEncoding())), config, handler);
+	public String process(InputStream is, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
+		return process(new CSVReader(new InputStreamReader(is, getEncoding())), config, handler, lw);
 	}
 
 	@Override
-	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
-		return process(new CSVReader(new StringReader(inString)), config, handler);
+	public String process(String inString, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
+		return process(new CSVReader(new StringReader(inString)), config, handler, lw);
 	}
 	
-	public String process(CSVReader reader, String config, AssemblyHandler handler) throws IOException {
+	public String process(CSVReader reader, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
 		
 		/*
 		 * Extract config
@@ -221,7 +222,7 @@ public class CsvProcessor implements MarkupProcessor {
 				        
 			        	for (Integer c : headerColumnIndex) {
 			        		if (c < currentLine.length)
-			        			asHtml.append("<td>" + processMarkup(currentLine[c], mp, config, handler) + "</td>");
+			        			asHtml.append("<td>" + processMarkup(currentLine[c], mp, config, handler, lw) + "</td>");
 			        		else
 			        			asHtml.append("<td></td>");
 						}
@@ -235,7 +236,7 @@ public class CsvProcessor implements MarkupProcessor {
 		        				asHtml.append("</h").append(headerLevelIndex.get(i)).append(">");
 		        			} else {
 		        				asHtml.append("<p>");
-		        				asHtml.append(processMarkup(currentLine[headerColumnIndex.get(i)], mp, config, handler));
+		        				asHtml.append(processMarkup(currentLine[headerColumnIndex.get(i)], mp, config, handler, lw));
 		        				asHtml.append("</p>");
 		        			}
 		        		}
@@ -251,8 +252,8 @@ public class CsvProcessor implements MarkupProcessor {
 	    return asHtml.toString();
 	}
 	
-	private String processMarkup(String markup, MarkupProcessor mp, String config, AssemblyHandler handler) throws IOException {
-		return mp == null ? markup : mp.process(markup, config, handler);
+	private String processMarkup(String markup, MarkupProcessor mp, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
+		return mp == null ? markup : mp.process(markup, config, handler, lw);
 	}
 
 	@Override

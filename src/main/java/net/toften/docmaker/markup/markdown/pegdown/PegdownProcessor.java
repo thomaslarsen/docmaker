@@ -2,6 +2,7 @@ package net.toften.docmaker.markup.markdown.pegdown;
 
 import java.io.IOException;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.markdown.MarkupProcessorAdapter;
@@ -15,7 +16,7 @@ public class PegdownProcessor extends MarkupProcessorAdapter implements MarkupPr
 	}
 
 	@Override
-	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
+	public String process(String inString, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
 		return new PegDownProcessor(Extensions.TABLES).markdownToHtml(inString);
 	}
 }

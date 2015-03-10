@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 
 /**
@@ -23,12 +24,12 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	private String encoding;
 
 	@Override
-	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
-		return process(new FileInputStream(inFile), config, handler);
+	public String process(File inFile, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
+		return process(new FileInputStream(inFile), config, handler, lw);
 	}
 	
 	@Override
-	public String process(InputStream is, String config, AssemblyHandler handler) throws IOException {
+	public String process(InputStream is, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
 		InputStreamReader fileReader = new InputStreamReader(is, Charset.forName(this.encoding));
 		BufferedReader reader = new BufferedReader(fileReader);
 
@@ -54,7 +55,7 @@ public class NoMarkupProcessor implements MarkupProcessor {
 	}
 
 	@Override
-	public String process(String inString, String config, AssemblyHandler handler) throws IOException {
+	public String process(String inString, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
 		return inString;
 	}
 }

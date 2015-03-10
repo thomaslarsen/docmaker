@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.toften.docmaker.DocPart;
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.toc.Chapter;
@@ -18,8 +19,8 @@ public class ContentSection extends MetaSection implements ChapterSection {
 		this.sectionLevel = sectionLevel;
 	}
 	
-	public void addChapter(String fragmentName, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated) throws Exception {
-		chapters.add(new TOCChapter(this, fragmentName, config, handler, repo, chapterLevelOffset, isRotated));
+	public void addChapter(String fragmentName, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
+		chapters.add(new TOCChapter(this, fragmentName, config, handler, repo, chapterLevelOffset, isRotated, lw));
 	}
 	
 	public List<Chapter> getChapters() {

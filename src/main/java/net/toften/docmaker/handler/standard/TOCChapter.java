@@ -21,7 +21,7 @@ public class TOCChapter extends BaseSection implements Chapter {
 	private int chapterLevelOffset;
 	private String fragmentAsHtml;
 
-	public TOCChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated) throws Exception {
+	public TOCChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
 		super(name, isRotated);
 		
 		this.section = section;
@@ -40,7 +40,7 @@ public class TOCChapter extends BaseSection implements Chapter {
 		
 		// Load and process the fragment
 		InputStream fragmentIs = getRepo().getFragmentInputStream(fragmentFilename);
-		fragmentAsHtml = handler.getMarkupProcessor(extension).process(fragmentIs, config, handler);
+		fragmentAsHtml = handler.getMarkupProcessor(extension).process(fragmentIs, config, handler, lw);
 		fragmentIs.close();
 	}
 		

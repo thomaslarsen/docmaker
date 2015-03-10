@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Scanner;
 
+import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 
@@ -13,11 +14,11 @@ public abstract class MarkupProcessorAdapter implements MarkupProcessor {
 	private String encoding;
 
 	@Override
-	public String process(File inFile, String config, AssemblyHandler handler)
+	public String process(File inFile, String config, AssemblyHandler handler, LogWrapper lw)
 			throws IOException {
 		String markup = new Scanner(inFile, getEncoding()).useDelimiter("\\A").next();
 
-		return process(markup, config, handler);
+		return process(markup, config, handler, lw);
 	}
 
 	protected String getEncoding() {
@@ -25,11 +26,11 @@ public abstract class MarkupProcessorAdapter implements MarkupProcessor {
 	}
 
 	@Override
-	public String process(InputStream is, String config, AssemblyHandler handler)
+	public String process(InputStream is, String config, AssemblyHandler handler, LogWrapper lw)
 			throws IOException {
 		String markup = new Scanner(is, getEncoding()).useDelimiter("\\A").next();
 
-		return process(markup, config, handler);
+		return process(markup, config, handler, lw);
 	}
 
 	@Override

@@ -88,7 +88,7 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 		
 		int chapterLevelOffset = fragmentLevel == null ? 0 : Integer.valueOf(fragmentLevel);
 		
-		getCurrentContentSection().addChapter(currentFragmentName, chapterConfig, this, getRepos().get(fragmentRepo), chapterLevelOffset, chapterRotate);
+		getCurrentContentSection().addChapter(currentFragmentName, chapterConfig, this, getRepos().get(fragmentRepo), chapterLevelOffset, chapterRotate, lw);
 	}
 
 	@Override
