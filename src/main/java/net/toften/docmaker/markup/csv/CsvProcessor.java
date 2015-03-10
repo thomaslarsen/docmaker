@@ -75,6 +75,13 @@ import au.com.bytecode.opencsv.CSVReader;
  * </ul>
  */
 public class CsvProcessor implements MarkupProcessor {
+
+	private String encoding;
+
+	protected String getEncoding() {
+		return encoding;
+	}
+
 	@Override
 	public String process(File inFile, String config, AssemblyHandler handler) throws IOException {
 		return process(new CSVReader(new FileReader(inFile)), config, handler);
@@ -82,7 +89,7 @@ public class CsvProcessor implements MarkupProcessor {
 	
 	@Override
 	public String process(InputStream is, String config, AssemblyHandler handler) throws IOException {
-		return process(new CSVReader(new InputStreamReader(is)), config, handler);
+		return process(new CSVReader(new InputStreamReader(is, getEncoding())), config, handler);
 	}
 
 	@Override
@@ -254,6 +261,7 @@ public class CsvProcessor implements MarkupProcessor {
 	}
 
 	@Override
-	public void setEncoding(final String encodingString) {
+	public void setEncoding(String encodingString) {
+		this.encoding = encodingString;
 	}
 }
