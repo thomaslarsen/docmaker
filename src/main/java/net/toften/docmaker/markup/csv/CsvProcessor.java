@@ -160,7 +160,7 @@ public class CsvProcessor implements MarkupProcessor {
 		Map<Integer, Pattern> filterColumnIndex = new HashMap<Integer, Pattern>();
 		
 	    int lineCount = startSkip;
-		while (lineCount <= contents.size() - endSkip) {
+		while (lineCount < contents.size() - endSkip) {
 			String[] currentLine = contents.get(lineCount);
 
 	        if (lineCount == startSkip) { // We are at the header line
@@ -170,7 +170,7 @@ public class CsvProcessor implements MarkupProcessor {
 		        	for (String columnName : columns) {
 		        		String[] headerInfo = columnName.split("\\s*:\\s*");
 		        		int index = headersAsList.indexOf(headerInfo[0]);
-		        		if (index > 0) {
+		        		if (index >= 0) {
 		        			headerColumnIndex.add(index);
 		        			headerLevelIndex.add(headerInfo.length < 2 ? -1 : Integer.parseInt(headerInfo[1]));
 		        		}
