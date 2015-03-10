@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,8 +79,8 @@ public class DocMakerMain {
     /**
      * The class name of the {@link OutputProcessor}
      */
-    @Parameter(names = "-outputProcessorClassname", description = "The class name of the OutputProcessor")
-    private String outputProcessorClassname = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor";
+    @Parameter(names = "-outputProcessor -op", description = "The class name of the OutputProcessor")
+    private List<String> outputProcessors = Arrays.asList(new String[]{"net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor"});
 
     /**
      * The class name of the {@link AssemblyHandler}
@@ -113,7 +114,6 @@ public class DocMakerMain {
     
 	private LogWrapper lw;
 
-	private OutputProcessor outputProcessor;
 	private Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
 	private URI baseURI = new File(".").toURI();
 
@@ -174,7 +174,7 @@ public class DocMakerMain {
     
     public DocMakerMain(LogWrapper lw, String encoding2, File outputDir2,
 			String fragmentURI2, Map<String, String> markupProcessors,
-			String markupProcessorClassname2, String outputProcessorClassname2,
+			String markupProcessorClassname2, List<String> outputProcessorClassname2,
 			String assemblyHandlerClassname2, String tocFileExt2,
 			List<String> cssFilePath2, String defaultExtension2,
 			List<String> filters) throws DocMakerException {
@@ -183,7 +183,7 @@ public class DocMakerMain {
 		this.outputDir = outputDir2;
 		this.fragmentURI = fragmentURI2;
 		this.markupProcessorClassname = markupProcessorClassname2;
-		this.outputProcessorClassname = outputProcessorClassname2;
+		this.outputProcessors = outputProcessorClassname2;
 		this.assemblyHandlerClassname = assemblyHandlerClassname2;
 		this.tocFileExt = tocFileExt2;
 		this.cssFilePath = cssFilePath2;
@@ -245,14 +245,6 @@ public class DocMakerMain {
 			}
 		}
 
-		// Instantiate the outputprocessor
-        try {
-            outputProcessor = DocMakerMojo.newInstance(OutputProcessor.class, outputProcessorClassname);
-            lw.info("Using " + outputProcessorClassname + " as the " + OutputProcessor.class.getName());
-        } catch (Exception e) {
-            throw new DocMakerException("Can not create OutputProcessor", e);
-        }
-
         lw.info("Using " + assemblyHandlerClassname + " as " + AssemblyHandler.class.getName() + " for parsing TOCs");
         
         // Load the keys
@@ -312,11 +304,22 @@ public class DocMakerMain {
         
         lw.debug("Properties pre TOC parsing: " + t.getMetaData().toString());
         
-        // Process the output
-        try {
-            outputProcessor.process(outputDir, outputFilename, actualEncoding, t, lw);
-        } catch (Exception e) {
-            throw new DocMakerException("Could not post process file " + tocFile.getAbsolutePath(), e);
+        // Process the output		
+        for (String op : outputProcessors) {
+        	// Instantiate the outputprocessor
+        	OutputProcessor outputProcessor;
+	        try {
+	            outputProcessor = DocMakerMojo.newInstance(OutputProcessor.class, op);
+	            lw.info("Using " + outputProcessors + " as the " + OutputProcessor.class.getName());
+	        } catch (Exception e) {
+	            throw new DocMakerException("Can not create OutputProcessor", e);
+	        }
+	
+	        try {
+	            outputProcessor.process(outputDir, outputFilename, actualEncoding, t, lw);
+	        } catch (Exception e) {
+	            throw new DocMakerException("Could not post process file " + tocFile.getAbsolutePath(), e);
+	        }
         }
     }
 

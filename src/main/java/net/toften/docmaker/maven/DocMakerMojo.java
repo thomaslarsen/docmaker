@@ -2,11 +2,11 @@ package net.toften.docmaker.maven;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
-import net.toften.docmaker.DocMakerMain;
 import net.toften.docmaker.DocMakerException;
+import net.toften.docmaker.DocMakerMain;
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
@@ -70,11 +70,11 @@ public class DocMakerMojo extends AbstractMojo {
 	private String defaultExtension;
 	
     /**
-     * The class name of the {@link OutputProcessor}
+     * List of {@link OutputProcessor} classnames
      */
-    @Parameter(defaultValue = "net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor")
-    private String outputProcessorClassname;
-
+    @Parameter
+    private List<String> outputProcessors;
+    
     /**
      * The class name of the {@link AssemblyHandler}
      */
@@ -118,7 +118,7 @@ public class DocMakerMojo extends AbstractMojo {
 
         try {
             DocMakerMain dm = new DocMakerMain(lw, this.encoding, this.outputDir, this.fragmentURI, this.markupProcessors, this.markupProcessorClassname,
-                    this.outputProcessorClassname, this.assemblyHandlerClassname, this.tocFileExt,
+                    this.outputProcessors, this.assemblyHandlerClassname, this.tocFileExt,
                     Arrays.asList(cssFilePaths), this.defaultExtension, Arrays.asList(filters));
 
     		
