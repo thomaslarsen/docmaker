@@ -4,10 +4,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
-import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.postprocessors.PostProcessor;
-
 
 public interface Chapter extends GeneratedSection {
 	/**
@@ -48,10 +46,9 @@ public interface Chapter extends GeneratedSection {
 	 * @param postProcessors
 	 * @param t
 	 * @param apply <code>true</code> if the output should be retained
-	 * @param lw 
 	 * @return
 	 */
-	String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply, LogWrapper lw);
+	String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply);
 
 	/**
 	 * Return the {@link Repo} from where the fragment is loaded.

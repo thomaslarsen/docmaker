@@ -14,6 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
 
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
@@ -24,7 +28,17 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 
 public class DocMakerMain {
-    /**
+	private static Logger lw = Logger.getLogger(DocMakerMain.class.getName());	
+
+	static void setLogLevel(Level level){
+		Logger log = LogManager.getLogManager().getLogger("");
+		log.setLevel(level);
+		for (Handler h : log.getHandlers()) {
+		    h.setLevel(level);
+		}
+	}
+
+	/**
      * The path to a TOC file, or a directory containing a number of TOC files.
      * <p>
      * If a path to a directory is given, all TOC files in this directory will be processed.
@@ -111,9 +125,12 @@ public class DocMakerMain {
     @Parameter(names =  { "--help", "-h" }, help = true, description = "Provides help")
     private boolean help;
     
-	private LogWrapper lw;
+    @Parameter(names = "-loglevel", description = "The log level to use")
+    private String logLevel = Level.INFO.getName();
+    
 	private Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
 	private URI baseURI = new File(".").toURI();
+	
     private Map<String, String> markupProcessorsMap;
 	private Properties props;
 	private String actualEncoding;
@@ -128,23 +145,6 @@ public class DocMakerMain {
         if (mojo.help) {
         	jc.usage();
         } else {
-	        mojo.lw = new LogWrapper() {
-	            @Override
-	            public void info(final String message) {
-	                System.out.println("[INFO] " + message);
-	            }
-	
-	            @Override
-	            public void warn(final String message) {
-	                System.out.println("[WARNING] " + message);
-	            }
-	
-				@Override
-				public void debug(String message) {
-	                System.out.println("[DEBUG] " + message);
-				}
-	        };
-	        
 	        /*
 	         * Parse the jCommander version of the markupprocessor list
 	         * This is necessary, as you can't pass Maps into jCommander
@@ -157,6 +157,8 @@ public class DocMakerMain {
 				}
 	        }
 	        
+	        setLogLevel(Level.parse(mojo.logLevel));
+	        
 	        mojo.initDocMaker();
 	        mojo.run(mojo.toc);
         }
@@ -166,13 +168,12 @@ public class DocMakerMain {
     	// To use with the jCommander parser
     }
     
-    public DocMakerMain(LogWrapper lw, String encoding, File outputDir,
+    public DocMakerMain(Level logLevel, String encoding, File outputDir,
 			String fragmentURI, Map<String, String> markupProcessors,
 			String markupProcessorClassname, List<String> outputProcessors,
 			String assemblyHandlerClassname, String tocFileExt,
 			List<String> cssFilePaths, String defaultExtension,
 			List<String> filters) throws DocMakerException {
-		this.lw = lw;
 		this.encoding = encoding;
 		this.outputDir = outputDir;
 		this.fragmentURI = fragmentURI;
@@ -184,12 +185,13 @@ public class DocMakerMain {
 		this.defaultExtension = defaultExtension;
 		this.markupProcessorsMap = markupProcessors;
 		this.propFilenames = filters;
-		
+
+		setLogLevel(logLevel);
 		initDocMaker();
 	}
 
 	private void initDocMaker() throws DocMakerException {
-        // Check if encoding is supplied and/or valid
+		// Check if encoding is supplied and/or valid
         actualEncoding = checkEncoding();
         // Create the path to the output dir if it doesn't exist
         lw.info("Writing output to: " + outputDir);
@@ -286,7 +288,7 @@ public class DocMakerMain {
             throw new DocMakerException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
         }
         
-        lw.debug("Properties pre TOC parsing: " + props.toString());
+        lw.fine("Properties pre TOC parsing: " + props.toString());
         
         // Parse the TOC
         TOC t;
@@ -294,12 +296,12 @@ public class DocMakerMain {
             FileInputStream fis = new FileInputStream(tocFile);
 
             lw.info("Parsing TOC: " + tocFile.getName());
-            t = ah.parse(lw, fis, tocFile.getName(), defaultExtension, baseURI, processors, props, cssFilePath);
+            t = ah.parse(fis, tocFile.getName(), defaultExtension, baseURI, processors, props, cssFilePath);
         } catch (Exception e) {
             throw new DocMakerException("Could not parse file " + tocFile.getAbsolutePath(), e);
         }
         
-        lw.debug("Properties post TOC parsing: " + t.getMetaData().toString());
+        lw.fine("Properties post TOC parsing: " + t.getMetaData().toString());
         
         // Process the output		
         for (String op : outputProcessors) {
@@ -313,7 +315,7 @@ public class DocMakerMain {
 	        }
 	
 	        try {
-	            outputProcessor.process(outputDir, outputFilename, actualEncoding, t, lw);
+	            outputProcessor.process(outputDir, outputFilename, actualEncoding, t);
 	        } catch (Exception e) {
 	            throw new DocMakerException("Could not post process file " + tocFile.getAbsolutePath(), e);
 	        }
@@ -333,10 +335,10 @@ public class DocMakerMain {
                 lw.info("Using '" + encoding + "' encoding to read doc files.");
                 return encoding;
             } catch (UnsupportedCharsetException e) {
-                lw.warn("Encoding defined in POM " + encoding + " is unsupported.");
+                lw.warning("Encoding defined in POM " + encoding + " is unsupported.");
                 return usePlatformEncoding();
             } catch (IllegalCharsetNameException e) {
-                lw.warn("Encoding defined in POM " + encoding + " is not a legal charset name.");
+                lw.warning("Encoding defined in POM " + encoding + " is not a legal charset name.");
                 return usePlatformEncoding();
             }
         }
@@ -349,7 +351,7 @@ public class DocMakerMain {
      */
     private String usePlatformEncoding() {
         String platformEncoding = System.getProperty("file.encoding", "UTF-8");
-        lw.warn("Using platform encoding (" + platformEncoding
+        lw.warning("Using platform encoding (" + platformEncoding
                 + " actually) to read doc files, i.e. build is platform dependent!");
         return platformEncoding;
     }

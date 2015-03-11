@@ -1,6 +1,5 @@
 package net.toften.docmaker.postprocessors;
 
-import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.toc.Chapter;
@@ -37,7 +36,7 @@ public interface PostProcessor {
 	 * @param t the {@link TOC} data model
 	 * @param lw 
 	 */
-	void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t, LogWrapper lw);
+	void processFragment(Chapter chapter, String fragmentAsHtml, StringBuffer out, TOC t);
 
 	/**
 	 * Method called when the PostProcessor is specified in the TOC.

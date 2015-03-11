@@ -13,9 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import net.toften.docmaker.DocPart;
-import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.postprocessors.ApplyKeyValue;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
@@ -25,13 +25,13 @@ import net.toften.docmaker.toc.Section;
 import net.toften.docmaker.toc.TOC;
 
 public class SingleInterimFile implements InterimFileHandler {
+	private static Logger lw = Logger.getLogger(SingleInterimFile.class.getName());	
+
 	private File outputFile;
 	private OutputStreamWriter htmlFile;
-	private LogWrapper lw;
 	
 	@Override
-	public void init(final File interimFileDir, final String filename, final String encodingString, LogWrapper lw) throws IOException {
-		this.lw = lw;
+	public void init(final File interimFileDir, final String filename, final String encodingString) throws IOException {
 		this.outputFile = new File(interimFileDir, filename + "." + getFileExtension());
 		this.htmlFile = new OutputStreamWriter(new FileOutputStream(outputFile), Charset.forName(encodingString).newEncoder());
 
@@ -58,8 +58,8 @@ public class SingleInterimFile implements InterimFileHandler {
 		return "html";
 	}
 	
-	protected File buildInterimFile(File interimFileDir, String filename, String encoding, TOC t, LogWrapper lw) throws IOException, URISyntaxException {
-		init(interimFileDir, filename, encoding, lw);
+	protected File buildInterimFile(File interimFileDir, String filename, String encoding, TOC t) throws IOException, URISyntaxException {
+		init(interimFileDir, filename, encoding);
 		
 		Properties 							metaData 		= t.getMetaData();
 		Map<String, Map<String, String>> 	htmlMeta 		= t.getHtmlMeta();
@@ -69,14 +69,14 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.DOCUMENT.preElement());
 		
 		writeToOutputFile(DocPart.HEADER.preElement());
-		writeToOutputFile("<title>" + ApplyKeyValue.resolve(metaData, t.getDocumentTitle(), lw) + "</title>\n");
-		lw.debug("Writing " + htmlMeta.size() + " keys of metadata");
+		writeToOutputFile("<title>" + ApplyKeyValue.resolve(metaData, t.getDocumentTitle()) + "</title>\n");
+		lw.fine("Writing " + htmlMeta.size() + " keys of metadata");
 		for (String htmlHeadKey : htmlMeta.keySet()) {
-			lw.debug("Writing key: " + htmlHeadKey);
+			lw.fine("Writing key: " + htmlHeadKey);
 			writeToOutputFile("<" + htmlHeadKey);
 			for (Entry<String, String> metaAttr : htmlMeta.get(htmlHeadKey).entrySet()) {
 				// Apply any potential property value to the metadata
-				String value = ApplyKeyValue.resolve(t.getMetaData(), metaAttr.getValue(), lw);
+				String value = ApplyKeyValue.resolve(t.getMetaData(), metaAttr.getValue());
 				writeToOutputFile(" " + metaAttr.getKey() + "=\"" + value + "\"");
 			}
 			writeToOutputFile(" />\n");
@@ -89,12 +89,12 @@ public class SingleInterimFile implements InterimFileHandler {
 				cssURI = t.getBaseURI().resolve(cssURI);
 			}
 			
-			lw.debug("Writing CSS file: " + cssURI.toString());
+			lw.fine("Writing CSS file: " + cssURI.toString());
 			
 			InputStream is = cssURI.toURL().openStream();
 			String text = new Scanner(is, encoding).useDelimiter("\\A").next();
 			// Apply any potential property value to the metadata
-			text = ApplyKeyValue.resolve(t.getMetaData(), text, lw);
+			text = ApplyKeyValue.resolve(t.getMetaData(), text);
 			writeToOutputFile("<style>\n");
 			writeToOutputFile(text + "\n");
 			writeToOutputFile("</style>\n");
@@ -103,7 +103,7 @@ public class SingleInterimFile implements InterimFileHandler {
 		for (GeneratedSection section : headerSections) {
 			writeToOutputFile(DocPart.HSECTION.preElement());
 			writeToOutputFile(section.getDivOpenTag(t));
-			writeToOutputFile(section.getAsHtml(t, lw));
+			writeToOutputFile(section.getAsHtml(t));
 			writeToOutputFile(section.getDivCloseTag());
 			writeToOutputFile(DocPart.HSECTION.postElement());
 		}
@@ -112,13 +112,13 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.SECTIONS.preElement());
 		
 		// Write document metadata
-		lw.debug("Writing " + metaData.size() + " metadata records.");
+		lw.fine("Writing " + metaData.size() + " metadata records.");
 		writeToOutputFile(DocPart.PROPERTIES.preElement());
 		for (Map.Entry<Object, Object> m : metaData.entrySet()) {
 			// Apply any potential property value to the metadata
 			String key = m.getKey().toString();
-			String value = ApplyKeyValue.resolve(t.getMetaData(), m.getValue().toString(), lw);
-			lw.debug("Writing metadata: " + key + " = " + value + " (" + m.getValue().toString() + ")");
+			String value = ApplyKeyValue.resolve(t.getMetaData(), m.getValue().toString());
+			lw.fine("Writing metadata: " + key + " = " + value + " (" + m.getValue().toString() + ")");
 			writeToOutputFile(DocPart.PROPERTY.preElement(new String[][]{{ "key", key}}, true));
 			writeToOutputFile(value + "\n");
 			writeToOutputFile(DocPart.PROPERTY.postElement());
@@ -126,7 +126,7 @@ public class SingleInterimFile implements InterimFileHandler {
 		writeToOutputFile(DocPart.PROPERTIES.postElement());
 
 		for (Section section : sections) {
-			lw.debug("Writing " + section.getDocPart().name() + " " + section.getName() + " (" + section.getIdAttr(t) + ")");
+			lw.fine("Writing " + section.getDocPart().name() + " " + section.getName() + " (" + section.getIdAttr(t) + ")");
 			writeToOutputFile(section.getDocPart().preElement());
 			writeToOutputFile(section.getDivOpenTag(t));
 			switch (section.getDocPart()) {
@@ -157,11 +157,11 @@ public class SingleInterimFile implements InterimFileHandler {
 	private void writeContentSection(ChapterSection section, Properties metaData, TOC t) throws IOException, URISyntaxException {
 		writeToOutputFile(DocPart.CHAPTERS.preElement());
 		for (Chapter c : section.getChapters()) {
-			lw.debug("Writing CHAPTER: " + c.getFragmentURI().toString() + " (" + c.getIdAttr(t) + ")");
+			lw.fine("Writing CHAPTER: " + c.getFragmentURI().toString() + " (" + c.getIdAttr(t) + ")");
 			writeToOutputFile(DocPart.CHAPTER.preElement());
 			
 			writeToOutputFile(c.getDivOpenTag(t));
-			writeToOutputFile(c.getAsHtml(t, lw));
+			writeToOutputFile(c.getAsHtml(t));
 			writeToOutputFile(c.getDivCloseTag());
 			
 			writeToOutputFile(DocPart.CHAPTER.postElement());
@@ -174,12 +174,12 @@ public class SingleInterimFile implements InterimFileHandler {
 	private void writeMetaElements(ElementsSection section, Properties metaData, TOC t) throws IOException {
 		for (String[] e : section.getElements()) {
 			writeToOutputFile(DocPart.ELEMENT.preElement());
-			writeToOutputFile("<div key=\"" + e[0] + "\">" + ApplyKeyValue.resolve(metaData, e[1], lw) + "</div>\n");
+			writeToOutputFile("<div key=\"" + e[0] + "\">" + ApplyKeyValue.resolve(metaData, e[1]) + "</div>\n");
 			writeToOutputFile(DocPart.ELEMENT.postElement());
 		}
 	}
 	
 	private void writePseudoSection(GeneratedSection section, TOC t) throws IOException {
-		writeToOutputFile(section.getAsHtml(t, lw));
+		writeToOutputFile(section.getAsHtml(t));
 	}
 }

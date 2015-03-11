@@ -96,7 +96,7 @@ public class StandardHandler extends AssemblyHandlerAdapter implements TOC, Asse
 		
 		int chapterLevelOffset = fragmentLevel == null ? 0 : Integer.valueOf(fragmentLevel);
 		
-		getCurrentContentSection().addChapter(currentFragmentName, chapterConfig, this, getRepos().get(fragmentRepo), chapterLevelOffset, chapterRotate, lw);
+		getCurrentContentSection().addChapter(currentFragmentName, chapterConfig, this, getRepos().get(fragmentRepo), chapterLevelOffset, chapterRotate);
 	}
 
 	@Override

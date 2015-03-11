@@ -3,7 +3,6 @@ package net.toften.docmaker.toc;
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.output.InterimFileHandler;
 
-
 public interface Section {
 	/**
 	 * Return the {@link DocPart} that correspond to the section type.

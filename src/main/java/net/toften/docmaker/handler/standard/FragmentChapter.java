@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import net.toften.docmaker.DocPart;
-import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.Repo;
 import net.toften.docmaker.postprocessors.PostProcessor;
@@ -21,7 +20,7 @@ public class FragmentChapter extends BaseSection implements Chapter {
 	private int chapterLevelOffset;
 	private String fragmentAsHtml;
 
-	public FragmentChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
+	public FragmentChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated) throws Exception {
 		super(name, isRotated);
 		
 		this.section = section;
@@ -40,7 +39,7 @@ public class FragmentChapter extends BaseSection implements Chapter {
 		
 		// Load and process the fragment
 		InputStream fragmentIs = getRepo().getFragmentInputStream(fragmentFilename);
-		fragmentAsHtml = handler.getMarkupProcessor(extension).process(fragmentIs, config, handler, lw);
+		fragmentAsHtml = handler.getMarkupProcessor(extension).process(fragmentIs, config, handler);
 		fragmentIs.close();
 	}
 		
@@ -56,7 +55,7 @@ public class FragmentChapter extends BaseSection implements Chapter {
 		return chapterLevelOffset;
 	}
 	
-	public String getAsHtml(TOC t, LogWrapper lw) {
+	public String getAsHtml(TOC t) {
 		return fragmentAsHtml;
 	}
 	
@@ -79,13 +78,13 @@ public class FragmentChapter extends BaseSection implements Chapter {
 	}
 
 	@Override
-	public String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply, LogWrapper lw) {
-		String htmlFragment = getAsHtml(t, lw);
+	public String runPostProcessors(List<PostProcessor> postProcessors, TOC t, boolean apply) {
+		String htmlFragment = getAsHtml(t);
 		
 		// Run postprocessors
 		for (PostProcessor pp : postProcessors) {
 			StringBuffer out = new StringBuffer();
-			pp.processFragment(this, htmlFragment, out, t, lw);
+			pp.processFragment(this, htmlFragment, out, t);
 			
 			htmlFragment = out.toString();
 		}

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.NoMarkupProcessor;
 import net.toften.docmaker.toc.TOC;
@@ -41,7 +40,6 @@ public interface AssemblyHandler {
 	/**
 	 * Parse a TOC file and convert it into the interim file.
 	 * 
-	 * @param lw 
 	 * @param tocStream the {@link InputStream} from where to read the TOC
 	 * @param tocName the name to use for the TOC
 	 * @param defaultExtension the new default file extension
@@ -50,7 +48,7 @@ public interface AssemblyHandler {
 	 * @param cssFilePath List of CSS files to include
 	 * @throws Exception
 	 */
-	TOC parse(LogWrapper lw, InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> processors, Properties baseProperties, List<String> cssFilePath) throws Exception;
+	TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> processors, Properties baseProperties, List<String> cssFilePath) throws Exception;
 	
 	/**
 	 * @return the title of the document
