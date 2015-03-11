@@ -162,7 +162,7 @@ public class CsvProcessor implements MarkupProcessor {
         List<String[]> contents = reader.readAll();
         lw.debug("Contents size: " + contents.size());
 
-		StringBuffer asHtml = new StringBuffer().append(format.equals("t") ? "<table>" : "");
+		StringBuffer asHtml = new StringBuffer().append(format.equals("t") ? "<table class=\"csv\">\n" : "");
 		List<Integer> headerColumnIndex = new LinkedList<Integer>();
 		List<Integer> headerLevelIndex = new LinkedList<Integer>();
 		Map<Integer, Pattern> filterColumnIndex = new HashMap<Integer, Pattern>();
@@ -203,16 +203,16 @@ public class CsvProcessor implements MarkupProcessor {
 	        	
 	        	if (format.equals("t")) {
 		        	// Write column headers
-			        asHtml.append("<thead>");
-			        asHtml.append("<tr>");
+			        asHtml.append("<thead>\n");
+			        asHtml.append("<tr>\n");
 			        
 		        	for (Integer c : headerColumnIndex) {
-						asHtml.append("<th>" + currentLine[c] + "</th>");
+						asHtml.append("<th>" + currentLine[c] + "</th>\n");
 					}
 		        	
-			        asHtml.append("</tr>");
-			        asHtml.append("</thead>");
-			        asHtml.append("<tbody>");
+			        asHtml.append("</tr>\n");
+			        asHtml.append("</thead>\n");
+			        asHtml.append("<tbody>\n");
 	        	}
 	        	lw.debug("Headers to output: " + headerColumnIndex.toString());
 	        } else {
@@ -227,26 +227,24 @@ public class CsvProcessor implements MarkupProcessor {
 	        	
 	        	if (include) {
 		        	if (format.equals("t")) {
-		        		asHtml.append("<tr>");
+		        		asHtml.append("<tr>\n");
 				        
 			        	for (Integer c : headerColumnIndex) {
 			        		if (c < currentLine.length)
-			        			asHtml.append("<td>" + processMarkup(currentLine[c], mp, config, handler, lw) + "</td>");
+			        			asHtml.append("<td>" + processMarkup(currentLine[c], mp, config, handler, lw) + "</td>\n");
 			        		else
-			        			asHtml.append("<td></td>");
+			        			asHtml.append("<td></td>\n");
 						}
 			        	
-				        asHtml.append("</tr>");
+				        asHtml.append("</tr>\n");
 		        	} else if (format.equals("h")) {
 		        		for (int i = 0; i < headerColumnIndex.size(); i++) {
 		        			if (headerLevelIndex.get(i) > 0) {
-		        				asHtml.append("<h").append(headerLevelIndex.get(i)).append(">");
-		        				asHtml.append(currentLine[headerColumnIndex.get(i)]);
-		        				asHtml.append("</h").append(headerLevelIndex.get(i)).append(">");
+		        				asHtml.append("<h").append(headerLevelIndex.get(i)).append(">\n");
+		        				asHtml.append(currentLine[headerColumnIndex.get(i)] + "\n");
+		        				asHtml.append("</h").append(headerLevelIndex.get(i)).append(">\n");
 		        			} else {
-		        				asHtml.append("<p>");
-		        				asHtml.append(processMarkup(currentLine[headerColumnIndex.get(i)], mp, config, handler, lw));
-		        				asHtml.append("</p>");
+		        				asHtml.append("<p>" + processMarkup(currentLine[headerColumnIndex.get(i)], mp, config, handler, lw) + "</p>\n");
 		        			}
 		        		}
 		        	}
@@ -255,9 +253,9 @@ public class CsvProcessor implements MarkupProcessor {
 	        
 	        lineCount++;
 	    }
-		asHtml.append(format.equals("t") ? "</tbody></table>" : "");
+		asHtml.append(format.equals("t") ? "</tbody>\n</table>\n" : "");
 	    reader.close();
-	    
+	    lw.debug("Final output: " + asHtml.toString());
 	    return asHtml.toString();
 	}
 	
