@@ -302,7 +302,7 @@ public class DocMakerMain {
             throw new DocMakerException("Could not parse file " + tocFile.getAbsolutePath(), e);
         }
         
-        lw.debug("Properties pre TOC parsing: " + t.getMetaData().toString());
+        lw.debug("Properties post TOC parsing: " + t.getMetaData().toString());
         
         // Process the output		
         for (String op : outputProcessors) {

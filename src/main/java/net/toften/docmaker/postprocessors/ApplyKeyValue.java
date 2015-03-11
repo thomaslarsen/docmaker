@@ -4,6 +4,8 @@ import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import net.toften.docmaker.LogWrapper;
+
 public class ApplyKeyValue extends RegexPostProcessor {
     private static final String REGEX = "\\$\\{(.*?)\\}";
     private static final Pattern p = Pattern.compile(REGEX);
@@ -17,30 +19,32 @@ public class ApplyKeyValue extends RegexPostProcessor {
 		this.keyValue = keyValue;
 	}
 
-    public static String processFragment(final Properties keyValue, final String fragmentAsHtml) {
+    public static String resolve(final Properties props, final String value, final LogWrapper lw) {
+		String resolvedValue = value;
+
     	boolean matchFound = true;
-
-		String value = fragmentAsHtml;
-
     	while (matchFound) {
             StringBuffer out = new StringBuffer();
     		matchFound = false;
-    		Matcher m = p.matcher(value);
+    		Matcher m = p.matcher(resolvedValue);
 
     		while (m.find()) {
     			String foundKey = m.group(1);
     			
-    			String replaceValue = keyValue.containsKey(foundKey) ? keyValue.getProperty(foundKey) : "KEY: <b>" + foundKey + "</b> NOT FOUND";
+    			String replaceValue = props.containsKey(foundKey) ? props.getProperty(foundKey) : "KEY: <b>" + foundKey + "</b> NOT FOUND";
 
     			m.appendReplacement(out, Matcher.quoteReplacement(replaceValue));
     			matchFound = true;
+    			lw.debug(foundKey + " -> " + replaceValue);
     		}
 
     		m.appendTail(out);
-			value = out.toString();
+			resolvedValue = out.toString();
     	}
     	
-    	return value;
+    	lw.debug("Processed fragment \"" + value + "\" with properties " + props.toString() + ", returning " + resolvedValue);
+    	
+    	return resolvedValue;
     }
 
 	@Override
@@ -50,6 +54,11 @@ public class ApplyKeyValue extends RegexPostProcessor {
 
 	@Override
 	protected String getReplacement(Matcher m) {
-		return processFragment(keyValue == null ? getTOC().getMetaData() : keyValue, m.group(1));
+		Properties props = keyValue == null ? getTOC().getMetaData() : keyValue;
+		String value = m.group(1);
+		
+		lw.debug("Found key: " + value + " in " + getCurrentChapter().getName());
+		
+		return resolve(props, "${" + value + "}", lw);
 	}
 }
