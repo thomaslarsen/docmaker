@@ -9,6 +9,13 @@ import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
 
+/**
+ * This abstract class is provided as an adapter when developing implementations
+ * of the {@link MarkupProcessor} interface.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public abstract class MarkupProcessorAdapter implements MarkupProcessor {
 
 	private String encoding;

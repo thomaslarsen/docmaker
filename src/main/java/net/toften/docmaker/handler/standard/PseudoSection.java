@@ -1,8 +1,8 @@
-package net.toften.docmaker.pseudosections;
+package net.toften.docmaker.handler.standard;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.LogWrapper;
-import net.toften.docmaker.handler.standard.BaseSection;
+import net.toften.docmaker.pseudosections.PseudoSectionHandler;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.TOC;
 

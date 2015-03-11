@@ -3,16 +3,31 @@ package net.toften.docmaker.handler.standard;
 import java.util.LinkedList;
 import java.util.List;
 
+import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.handler.AssemblyHandlerAdapter;
-import net.toften.docmaker.headersections.HeaderSection;
-import net.toften.docmaker.pseudosections.PseudoSection;
 import net.toften.docmaker.toc.GeneratedSection;
 import net.toften.docmaker.toc.Section;
+import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
-public class StandardHandler extends AssemblyHandlerAdapter {
+/**
+ * This is the standard implementation of the {@link AssemblyHandler}.
+ * <p>
+ * It will parse the TOC XML and implement the {@link TOC} interface.
+ * <p>
+ * After the TOC has been processed, it will run the following {@link net.toften.docmaker.postprocessors.PostProcessor}s:
+ * <ul>
+ * <li>{@link net.toften.docmaker.postprocessors.HeaderIncrementPostProcessor}</li>
+ * <li>{@link net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor}</li>
+ * <li>{@link net.toften.docmaker.postprocessors.AdjustImageHrefPostProcessor}</li>
+ * <li>{@link net.toften.docmaker.postprocessors.ApplyKeyValue}</li>
+ * </ul>
+ * 
+ * @author thomaslarsen
+ *
+ */
+public class StandardHandler extends AssemblyHandlerAdapter implements TOC, AssemblyHandler {
 	private List<Section> sections = new LinkedList<Section>();
 	private List<GeneratedSection> headerSections = new LinkedList<GeneratedSection>();
 
@@ -26,7 +41,7 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	}
 	
 	@Override
-	public void endDocument() throws SAXException {
+	public void endDocument() {
 		/*
 		 * Run all the postprocessors for the document
 		 * 
@@ -43,24 +58,17 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	
 	@Override
 	protected void handleContentSectionElement(Attributes attributes) throws Exception {
-		if (attributes.getValue(SECTION_LEVEL) == null)
-			throw new SAXException("Section level attribute not specified");
-		
 		sections.add(new ContentSection(getCurrentSectionName(), getCurrentSectionLevel(), isCurrentSectionRotated()));
 	}
 	
 	@Override
 	protected void handlePseudoSection(Attributes attributes) throws Exception {
-		String pseudoSectionClassname = attributes.getValue(SECTION_CLASSNAME);
-		
-		sections.add(new PseudoSection(getCurrentSectionName(), pseudoSectionClassname, attributes, isCurrentSectionRotated()));
+		sections.add(new PseudoSection(getCurrentSectionName(), attributes.getValue(SECTION_CLASSNAME), attributes, isCurrentSectionRotated()));
 	}
 	
 	@Override
 	protected void handleHeaderSection(Attributes attributes) throws Exception {
-		String pseudoSectionClassname = attributes.getValue(SECTION_CLASSNAME);
-		
-		headerSections.add(new HeaderSection(pseudoSectionClassname, attributes));
+		headerSections.add(new HeaderSection(attributes.getValue(SECTION_CLASSNAME), attributes));
 	}
 	
 	@Override
@@ -71,20 +79,20 @@ public class StandardHandler extends AssemblyHandlerAdapter {
 	
 	@Override
 	protected void handleChapterElement(Attributes attributes) throws Exception {
-		String currentFragmentName = attributes.getValue(CHAPTER_FRAGMENT);
-		String fragmentRepo = attributes.getValue(CHAPTER_REPO);
-		String fragmentLevel = attributes.getValue(CHAPTER_LEVEL);
-		String chapterConfig = attributes.getValue(CHAPTER_CONFIG);
-		boolean chapterRotate = attributes.getValue(CHAPTER_ROTATE) != null;
+		String currentFragmentName	= attributes.getValue(CHAPTER_FRAGMENT);
+		String fragmentRepo			= attributes.getValue(CHAPTER_REPO);
+		String fragmentLevel		= attributes.getValue(CHAPTER_LEVEL);
+		String chapterConfig		= attributes.getValue(CHAPTER_CONFIG);
+		boolean chapterRotate		= attributes.getValue(CHAPTER_ROTATE) != null;
 		
 		if (currentFragmentName == null)
-			throw new SAXException("Chapter fragment attribute not specified");
+			throw new IllegalArgumentException("Chapter fragment attribute not specified");
 
 		if (fragmentRepo == null)
-			throw new SAXException("Chapter repo attribute not specified");
+			throw new IllegalArgumentException("Chapter repo attribute not specified");
 
 		if (!getRepos().containsKey(fragmentRepo))
-			throw new SAXException("Chapter repo " + fragmentRepo + " does not exist");
+			throw new IllegalArgumentException("Chapter repo " + fragmentRepo + " does not exist");
 		
 		int chapterLevelOffset = fragmentLevel == null ? 0 : Integer.valueOf(fragmentLevel);
 		

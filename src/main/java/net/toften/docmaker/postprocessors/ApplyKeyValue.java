@@ -5,19 +5,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import net.toften.docmaker.LogWrapper;
+import net.toften.docmaker.toc.TOC;
 
+/**
+ * This {@link PostProcessor} applied a list of key/value pairs.
+ * <p>
+ * It will look for a string with the pattern: "${<key>}" and replace this
+ * with a value looked up in the {@link TOC#getMetaData() TOC metadata}.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public class ApplyKeyValue extends RegexPostProcessor {
     private static final String REGEX = "\\$\\{(.*?)\\}";
     private static final Pattern p = Pattern.compile(REGEX);
-    private Properties keyValue;
-
-    public ApplyKeyValue() {
-    	keyValue = null;
-    }
-    
-    public ApplyKeyValue(Properties keyValue) {
-		this.keyValue = keyValue;
-	}
 
     public static String resolve(final Properties props, final String value, final LogWrapper lw) {
 		String resolvedValue = value;
@@ -54,11 +55,10 @@ public class ApplyKeyValue extends RegexPostProcessor {
 
 	@Override
 	protected String getReplacement(Matcher m) {
-		Properties props = keyValue == null ? getTOC().getMetaData() : keyValue;
 		String value = m.group(1);
 		
 		lw.debug("Found key: " + value + " in " + getCurrentChapter().getName());
 		
-		return resolve(props, "${" + value + "}", lw);
+		return resolve(getTOC().getMetaData(), "${" + value + "}", lw);
 	}
 }

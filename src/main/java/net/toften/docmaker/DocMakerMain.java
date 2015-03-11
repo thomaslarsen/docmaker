@@ -17,7 +17,6 @@ import java.util.Properties;
 
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
-import net.toften.docmaker.maven.DocMakerMojo;
 import net.toften.docmaker.output.OutputProcessor;
 import net.toften.docmaker.toc.TOC;
 
@@ -61,7 +60,7 @@ public class DocMakerMain {
 	 * 
 	 * Syntax is "<file extension>:<markup processor classname>"
 	 */
-	@Parameter(names = "-markupProcessors", description = "List of MarkupProcessor class name mappings to file extensions")
+	@Parameter(names = { "-markupProcessor", "-mp" }, description = "List of MarkupProcessor class name mappings to file extensions")
 	private List<String> markupProcessors;
 	
 	/**
@@ -77,9 +76,9 @@ public class DocMakerMain {
 	private String defaultExtension = "md";
 	
     /**
-     * The class name of the {@link OutputProcessor}
+     * List of {@link OutputProcessor} class names.
      */
-    @Parameter(names = "-outputProcessor -op", description = "The class name of the OutputProcessor")
+    @Parameter(names = { "-outputProcessor", "-op" }, description = "List of OutputProcessor class names.")
     private List<String> outputProcessors = Arrays.asList(new String[]{"net.toften.docmaker.output.pdf.flyingsaucer.FlyingSaucerOutputProcessor"});
 
     /**
@@ -97,7 +96,7 @@ public class DocMakerMain {
     /**
      * Specifies a list of property files for key/value replacement.
      */
-    @Parameter (names = "-keys", description = "Specifies a list of property files for key/value replacement.")
+    @Parameter (names = { "-keys", "-k" }, description = "Specifies a list of property files for key/value replacement.")
     private List<String> propFilenames;
 
     /**
@@ -113,16 +112,11 @@ public class DocMakerMain {
     private boolean help;
     
 	private LogWrapper lw;
-
 	private Map<String, MarkupProcessor> processors = new HashMap<String, MarkupProcessor>();
 	private URI baseURI = new File(".").toURI();
-
     private Map<String, String> markupProcessorsMap;
-
 	private Properties props;
-
 	private String actualEncoding;
-
 
     public static void main(final String[] args) throws Exception {
         DocMakerMain mojo = new DocMakerMain();
@@ -172,22 +166,22 @@ public class DocMakerMain {
     	// To use with the jCommander parser
     }
     
-    public DocMakerMain(LogWrapper lw, String encoding2, File outputDir2,
-			String fragmentURI2, Map<String, String> markupProcessors,
-			String markupProcessorClassname2, List<String> outputProcessorClassname2,
-			String assemblyHandlerClassname2, String tocFileExt2,
-			List<String> cssFilePath2, String defaultExtension2,
+    public DocMakerMain(LogWrapper lw, String encoding, File outputDir,
+			String fragmentURI, Map<String, String> markupProcessors,
+			String markupProcessorClassname, List<String> outputProcessors,
+			String assemblyHandlerClassname, String tocFileExt,
+			List<String> cssFilePaths, String defaultExtension,
 			List<String> filters) throws DocMakerException {
 		this.lw = lw;
-		this.encoding = encoding2;
-		this.outputDir = outputDir2;
-		this.fragmentURI = fragmentURI2;
-		this.markupProcessorClassname = markupProcessorClassname2;
-		this.outputProcessors = outputProcessorClassname2;
-		this.assemblyHandlerClassname = assemblyHandlerClassname2;
-		this.tocFileExt = tocFileExt2;
-		this.cssFilePath = cssFilePath2;
-		this.defaultExtension = defaultExtension2;
+		this.encoding = encoding;
+		this.outputDir = outputDir;
+		this.fragmentURI = fragmentURI;
+		this.markupProcessorClassname = markupProcessorClassname;
+		this.outputProcessors = outputProcessors;
+		this.assemblyHandlerClassname = assemblyHandlerClassname;
+		this.tocFileExt = tocFileExt;
+		this.cssFilePath = cssFilePaths;
+		this.defaultExtension = defaultExtension;
 		this.markupProcessorsMap = markupProcessors;
 		this.propFilenames = filters;
 		
@@ -222,7 +216,7 @@ public class DocMakerMain {
 		if (markupProcessors == null) {
 			MarkupProcessor markupProcessor;
 			try {
-				markupProcessor = DocMakerMojo.newInstance(MarkupProcessor.class, markupProcessorClassname);
+				markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
 				markupProcessor.setEncoding(actualEncoding);
 				
 				processors.put(defaultExtension, markupProcessor);
@@ -234,7 +228,7 @@ public class DocMakerMain {
 			for (String extension : markupProcessorsMap.keySet()) {
 				MarkupProcessor markupProcessor;
 				try {
-					markupProcessor = DocMakerMojo.newInstance(MarkupProcessor.class, markupProcessorsMap.get(extension));
+					markupProcessor = newInstance(MarkupProcessor.class, markupProcessorsMap.get(extension));
 					markupProcessor.setEncoding(actualEncoding);
 					
 					processors.put(extension, markupProcessor);
@@ -263,8 +257,12 @@ public class DocMakerMain {
         }
     }
 	
-	public void run(String toc) throws DocMakerException {
-        File tocFile = new File(toc);
+	/**
+	 * @param tocFilename the path of the TOC file, or directory containing TOC files
+	 * @throws DocMakerException
+	 */
+	public void run(String tocFilename) throws DocMakerException {
+        File tocFile = new File(tocFilename);
 
         if (tocFile.isFile() && tocFile.getName().endsWith(tocFileExt)) {
             parseAndProcessFile(tocFile);
@@ -277,14 +275,13 @@ public class DocMakerMain {
         }
     }
 
-    private void parseAndProcessFile(final File tocFile)
-            throws DocMakerException {
+    private void parseAndProcessFile(final File tocFile) throws DocMakerException {
         String outputFilename = tocFile.getName().replaceFirst("[.][^.]+$", ""); // remove the extension
 
         // Instantiate the AssemblyHandler
         AssemblyHandler ah;
         try {
-            ah = DocMakerMojo.newInstance(AssemblyHandler.class, assemblyHandlerClassname);
+            ah = newInstance(AssemblyHandler.class, assemblyHandlerClassname);
         } catch (Exception e) {
             throw new DocMakerException("Could not create TOC handler " + tocFile.getAbsolutePath(), e);
         }
@@ -309,7 +306,7 @@ public class DocMakerMain {
         	// Instantiate the outputprocessor
         	OutputProcessor outputProcessor;
 	        try {
-	            outputProcessor = DocMakerMojo.newInstance(OutputProcessor.class, op);
+	            outputProcessor = newInstance(OutputProcessor.class, op);
 	            lw.info("Using " + outputProcessors + " as the " + OutputProcessor.class.getName());
 	        } catch (Exception e) {
 	            throw new DocMakerException("Can not create OutputProcessor", e);
@@ -355,5 +352,17 @@ public class DocMakerMain {
         lw.warn("Using platform encoding (" + platformEncoding
                 + " actually) to read doc files, i.e. build is platform dependent!");
         return platformEncoding;
+    }
+
+    /**
+     * Utility method to instantiate a class, given an interface.
+     *
+     * @param type the interface type to use as return type
+     * @param className the name of the class (implementing the interface) to instantiate
+     * @return an instance of the class, returned as the interface type
+     * @throws Exception
+     */
+    private static <K> K newInstance(final Class<K> type, final String className) throws Exception {
+    	return ((Class<K>) Class.forName(className)).newInstance();
     }
 }

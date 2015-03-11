@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
+import net.toften.docmaker.markup.markdown.MarkupProcessorAdapter;
 import au.com.bytecode.opencsv.CSVReader;
 
 /**
@@ -75,14 +76,7 @@ import au.com.bytecode.opencsv.CSVReader;
  * <code>.*Platform.*</code> Regex will be included</li>
  * </ul>
  */
-public class CsvProcessor implements MarkupProcessor {
-
-	private String encoding;
-
-	protected String getEncoding() {
-		return encoding;
-	}
-
+public class CsvProcessor extends MarkupProcessorAdapter implements MarkupProcessor {
 	@Override
 	public String process(File inFile, String config, AssemblyHandler handler, LogWrapper lw) throws IOException {
 		return process(new CSVReader(new FileReader(inFile)), config, handler, lw);
@@ -266,10 +260,5 @@ public class CsvProcessor implements MarkupProcessor {
 	@Override
 	public String getFileExtension() {
 		return "cvs";
-	}
-
-	@Override
-	public void setEncoding(String encodingString) {
-		this.encoding = encodingString;
 	}
 }

@@ -7,6 +7,10 @@ import org.xml.sax.Attributes;
 
 public enum DocPart {
 	//			TOC ELEMENT		HTML TAG	ADD DIV?
+	
+	/**
+	 * This is the top level element in the TOC descriptor
+	 */
 	DOCUMENT 	("document", 	"html", 	false) {
 		@Override
 		public String preElement() {
@@ -62,25 +66,35 @@ public enum DocPart {
 		return lookup.get(qName);
 	}
 
+	/**
+	 * @return the name of the XML element in the TOC
+	 */
 	public String getName() {
 		return name;
 	}
 	
-	public String getTag() {
+	private String getTag() {
 		return tag;
 	}
 	
 	/**
-	 * The default pre element method will insert a <div> tag with the doc part
-	 * as the class. For example the SECTION will insert:
+	 * The default pre element method will return a <div> tag with the TOC XML
+	 * element name as the class.
+	 * <p>
+	 * If the element is specified to not write a <div>, then this method will
+	 * return only the html tag if specified.
+	 * 
+	 * For example the SECTION will insert:
 	 * 
 	 * {@code
 	 * 	<div class="section">
+	 *  <html tag>
 	 * }
 	 * 
 	 * @return
 	 * 
 	 * @see #writeDiv
+	 * @see #getName()
 	 */
 	public String preElement() {
 		return concat(writeDiv ? "<div class=\"" + getName() + "\">" : null, getTag(), "");

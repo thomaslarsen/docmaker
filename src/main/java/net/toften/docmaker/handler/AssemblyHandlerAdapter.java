@@ -25,6 +25,14 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+/**
+ * This abstract class is provided as an adapter when developing implementations
+ * of the {@link AssemblyHandler} interface.
+ * It provides a number of helper classes and a framework for parsing the TOC XML file.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		AssemblyHandler, TOC {
 
@@ -82,17 +90,6 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		}
 	};
 
-	public AssemblyHandlerAdapter() {
-	}
-	
-	protected Map<String, Repo> getRepos() {
-		return repos;
-	}
-	
-	protected  List<PostProcessor> getPostProcessors() {
-		return postProcessors;
-	}
-	
 	@Override
 	public Properties getMetaData() {
 		return metaData;
@@ -150,18 +147,6 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	@Override
 	public String getDefaultExtension() {
 		return defaultExtension;
-	}
-	
-	protected String getCurrentSectionName() {
-		return currentSectionName;
-	}
-
-	protected Integer getCurrentSectionLevel() {
-		return currentSectionLevel;
-	}
-	
-	protected boolean isCurrentSectionRotated() {
-		return currentSectionRotate;
 	}
 
 	@Override
@@ -242,13 +227,25 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 			}
 		}
 	}	
-	
-	protected void handleUnknownElement(DocPart dp, Attributes attributes) {
-		// Empty
-	}
-	
-	protected void handleHeaderSection(Attributes attributes) throws Exception  {
-		// Empty
+
+	/**
+	 * This method will extract basic section attributes from any TOC section element.
+	 * 
+	 * @param dp the TOC DocPart
+	 * @param attributes the XML attributes
+	 * @throws Exception
+	 */
+	protected void initSection(DocPart dp, Attributes attributes) throws Exception {
+		if (attributes.getValue(SECTION_TITLE) == null)
+			throw new SAXException("Section title attribute not specified");
+		
+		currentSectionName = attributes.getValue(SECTION_TITLE);
+
+		if (attributes.getValue(SECTION_LEVEL) != null)
+			currentSectionLevel = Integer.valueOf(attributes.getValue(SECTION_LEVEL));
+		else
+			currentSectionLevel = null;
+		currentSectionRotate = attributes.getValue(SECTION_ROTATE) != null;
 	}
 
 	protected abstract void handleChapterElement(Attributes attributes) throws Exception;
@@ -260,6 +257,14 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	protected abstract void handleContentSectionElement(Attributes attributes) throws Exception;
 
 	protected abstract void handleElementElement(Attributes attributes) throws Exception;
+	
+	protected void handleUnknownElement(DocPart dp, Attributes attributes) throws Exception {
+		// Empty
+	}
+	
+	protected void handleHeaderSection(Attributes attributes) throws Exception  {
+		// Empty
+	}
 
 	protected void handlePostProcessor(Attributes attributes) throws Exception {
 		PostProcessor pp = (PostProcessor) Class.forName(attributes.getValue(POSTPROCESSOR_CLASSNAME)).newInstance();
@@ -276,19 +281,6 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		if (!repos.containsKey(repoId)) {
 			repos.put(repoId, new Repo(repoId, baseURI, repoURIPath));
 		}
-	}
-
-	protected void initSection(DocPart dp, Attributes attributes) throws Exception {
-		if (attributes.getValue(SECTION_TITLE) == null)
-			throw new SAXException("Section title attribute not specified");
-		
-		currentSectionName = attributes.getValue(SECTION_TITLE);
-
-		if (attributes.getValue(SECTION_LEVEL) != null)
-			currentSectionLevel = Integer.valueOf(attributes.getValue(SECTION_LEVEL));
-		else
-			currentSectionLevel = null;
-		currentSectionRotate = attributes.getValue(SECTION_ROTATE) != null;
 	}
 
 	protected void handlePropertyElement(Attributes attributes) throws Exception {
@@ -326,7 +318,7 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		}
 	}
 
-	protected void handleHeadElement(String qName, Attributes attributes) {
+	protected void handleHeadElement(String qName, Attributes attributes) throws Exception {
 		Map<String, String> meta = new HashMap<String, String>();
 		
 		for (int i = 0; i < attributes.getLength(); i++) {
@@ -336,11 +328,37 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		htmlMeta.put(qName, meta);
 	}
 
-	protected void handleHeaderElement(Attributes attributes) {
+	protected void handleHeaderElement(Attributes attributes) throws Exception {
 		documentTitle = attributes.getValue(HEADER_TITLE);
 		metaData.put(HEADER_TITLE, getDocumentTitle());
 	}
 	
+	protected Map<String, Repo> getRepos() {
+		return repos;
+	}
+	
+	protected List<PostProcessor> getPostProcessors() {
+		return postProcessors;
+	}
+	
+	protected String getCurrentSectionName() {
+		return currentSectionName;
+	}
+
+	protected Integer getCurrentSectionLevel() {
+		return currentSectionLevel;
+	}
+	
+	protected boolean isCurrentSectionRotated() {
+		return currentSectionRotate;
+	}
+	
+	/**
+	 * This method will run all post processors against the {@link Chapter}s found
+	 * in the TOC
+	 * 
+	 * @param apply
+	 */
 	protected void runPostProcessors(boolean apply) {
 		for (Section s : getSections()) {
 			if (s.getDocPart() == DocPart.SECTION) {

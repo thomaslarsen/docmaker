@@ -4,6 +4,7 @@ import java.util.regex.Matcher;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.LogWrapper;
+import net.toften.docmaker.postprocessors.RegexPostProcessor;
 import net.toften.docmaker.pseudosections.TOCPseudoSection;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
@@ -57,7 +58,7 @@ public class TOCBookmarkSection extends TOCPseudoSection {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<bookmark name=\"" + headerText + "\" href=\"#").
-					append((chapter.getIdAttr(t) + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
+					append(RegexPostProcessor.calcHeaderId(t, chapter, headerText)).
 					append("\" />\n");
 				}
 			}

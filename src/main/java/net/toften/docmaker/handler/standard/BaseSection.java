@@ -3,27 +3,32 @@ package net.toften.docmaker.handler.standard;
 import net.toften.docmaker.toc.Section;
 import net.toften.docmaker.toc.TOC;
 
+/**
+ * This abstract class is the base for all {@link Section} implementations
+ * part of the {@link StandardHandler} implementation.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public abstract class BaseSection implements Section {
-	private String name;
-	private boolean isRotated;
+	private final String name;
+	private final boolean isRotated;
 
 	public BaseSection(String sectionName, boolean isRotated) {
 		this.name = sectionName;
 		this.isRotated = isRotated;
 	}
 	
-	public String getName() {
+	public final String getName() {
 		return name;
 	}
 
-	public boolean isRotated() {
+	public final boolean isRotated() {
 		return isRotated;
 	}
 	
 	public String getDivOpenTag(TOC t) {
-		String classAttr = getDivClassName() + (isRotated() ? " rotate" : "");
-		
-		return constructDivOpenTag(classAttr, getIdAttr(t), getName());
+		return constructDivOpenTag(getDivClassName() + (isRotated() ? " rotate" : ""), getIdAttr(t), getName());
 	}
 	
 	public String getDivCloseTag() {
@@ -34,6 +39,14 @@ public abstract class BaseSection implements Section {
 		return (t.getTocFileName() + "-" + getName()).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "");
 	}
 	
+	/**
+	 * Must return the class name(s) to use in the <div> open tag.
+	 * <p>
+	 * This defaults to the name of the section element in the TOC XML 
+	 * 
+	 * @return class name to use in the <div> open tag
+	 * @see net.toften.docmaker.DocPart#getName()
+	 */
 	protected String getDivClassName() {
 		return getDocPart().getName();
 	}

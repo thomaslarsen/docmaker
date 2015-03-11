@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.output.OutputProcessor;
+import net.toften.docmaker.output.SingleInterimFile;
 import net.toften.docmaker.toc.TOC;
 
 import org.xhtmlrenderer.pdf.ITextRenderer;

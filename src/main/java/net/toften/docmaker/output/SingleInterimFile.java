@@ -1,4 +1,4 @@
-package net.toften.docmaker.output.pdf.flyingsaucer;
+package net.toften.docmaker.output;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,7 +16,6 @@ import java.util.Scanner;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.LogWrapper;
-import net.toften.docmaker.output.InterimFileHandler;
 import net.toften.docmaker.postprocessors.ApplyKeyValue;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;

@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.xml.parsers.SAXParser;
-
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.markup.MarkupProcessor;
 import net.toften.docmaker.markup.NoMarkupProcessor;
@@ -17,7 +15,6 @@ import net.toften.docmaker.toc.TOC;
  * The {@link AssemblyHandler} is responsible for converting the TOC into the
  * {@link TOC TOC model}.
  * <p>
- * The AssemblyHandler will use a {@link SAXParser} to process the TOC XML file.
  * 
  * <h2>Fragments</h2>
  * The fragments defined in the TOC will be written in markup.

@@ -6,6 +6,14 @@ import java.util.List;
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.toc.ElementsSection;
 
+/**
+ * This section captures the {@link DocPart#METASECTION metasection} element
+ * of the TOC.
+ * <p>
+ * 
+ * @author thomaslarsen
+ *
+ */
 public class MetaSection extends BaseSection implements ElementsSection {
 	private List<String[]> elements = new LinkedList<String[]>();
 

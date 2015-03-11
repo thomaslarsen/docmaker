@@ -1,20 +1,12 @@
 package net.toften.docmaker;
 
+/**
+ * This interface is used as a facade to any underlying logging framework.
+ * 
+ * @author thomaslarsen
+ *
+ */
 public interface LogWrapper {
-	public static final class NullLogWrapper implements LogWrapper {
-
-		@Override
-		public void debug(String message) {
-		}
-
-		@Override
-		public void info(String message) {
-		}
-
-		@Override
-		public void warn(String message) {
-		}
-	}
 	
 	void debug(String message);
 	

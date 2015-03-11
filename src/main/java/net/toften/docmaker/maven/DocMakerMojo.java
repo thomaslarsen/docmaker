@@ -127,16 +127,4 @@ public class DocMakerMojo extends AbstractMojo {
             throw new MojoExecutionException(e.getMessage(), e.getCause());
         }
     }
-
-    /**
-     * Utility method to instantiate a class, given an interface.
-     *
-     * @param type the interface type to use as return type
-     * @param className the name of the class (implementing the interface) to instantiate
-     * @return an instance of the class, returned as the interface type
-     * @throws Exception
-     */
-    public static <K> K newInstance(final Class<K> type, final String className) throws Exception {
-    	return ((Class<K>) Class.forName(className)).newInstance();
-    }
 }

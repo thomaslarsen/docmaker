@@ -13,7 +13,7 @@ import net.toften.docmaker.postprocessors.PostProcessor;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.TOC;
 
-public class TOCChapter extends BaseSection implements Chapter {
+public class FragmentChapter extends BaseSection implements Chapter {
 	public static final int EFFECTIVE_LEVEL_ADJUSTMENT = 2;
 	
 	private ContentSection section;
@@ -21,7 +21,7 @@ public class TOCChapter extends BaseSection implements Chapter {
 	private int chapterLevelOffset;
 	private String fragmentAsHtml;
 
-	public TOCChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
+	public FragmentChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
 		super(name, isRotated);
 		
 		this.section = section;

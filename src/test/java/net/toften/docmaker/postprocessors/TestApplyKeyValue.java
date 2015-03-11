@@ -1,4 +1,4 @@
-package net.toften.docmaker.preprocessor;
+package net.toften.docmaker.postprocessors;
 
 import static org.junit.Assert.*;
 
@@ -37,9 +37,7 @@ public class TestApplyKeyValue {
         Properties p = new Properties();
         p.put("key", "World");
 
-        ApplyKeyValue akv = new ApplyKeyValue(p);
-
-        assertEquals("Hello World", akv.resolve(p, text, lw));
+        assertEquals("Hello World", ApplyKeyValue.resolve(p, text, lw));
     }
 
     @Test
@@ -49,9 +47,7 @@ public class TestApplyKeyValue {
         p.put("key", "World");
         p.put("home", "London");
 
-        ApplyKeyValue akv = new ApplyKeyValue(p);
-
-        assertEquals("Hello World\nI live in London", akv.resolve(p, text, lw));
+        assertEquals("Hello World\nI live in London", ApplyKeyValue.resolve(p, text, lw));
     }
 
     @Test
@@ -61,9 +57,7 @@ public class TestApplyKeyValue {
         p.put("key", "World");
         p.put("home", "London");
 
-        ApplyKeyValue akv = new ApplyKeyValue(p);
-
-        assertEquals("Hello London\nI live in London", akv.resolve(p, text, lw));
+        assertEquals("Hello London\nI live in London", ApplyKeyValue.resolve(p, text, lw));
     }
 
     @Test
@@ -73,8 +67,6 @@ public class TestApplyKeyValue {
         p.put("home", "London");
         p.put("key", "${home} City");
 
-        ApplyKeyValue akv = new ApplyKeyValue(p);
-
-        assertEquals("Hello London City", akv.resolve(p, text, lw));
+        assertEquals("Hello London City", ApplyKeyValue.resolve(p, text, lw));
     }
 }

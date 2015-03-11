@@ -16,11 +16,15 @@ public class ContentSection extends MetaSection implements ChapterSection {
 
 	public ContentSection(String sectionName, Integer sectionLevel, boolean isRotated) {
 		super(sectionName, isRotated);
+
+		if (sectionLevel == null)
+			throw new IllegalArgumentException("Provided section level is null");
+		
 		this.sectionLevel = sectionLevel;
 	}
 	
 	public void addChapter(String fragmentName, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated, LogWrapper lw) throws Exception {
-		chapters.add(new TOCChapter(this, fragmentName, config, handler, repo, chapterLevelOffset, isRotated, lw));
+		chapters.add(new FragmentChapter(this, fragmentName, config, handler, repo, chapterLevelOffset, isRotated, lw));
 	}
 	
 	public List<Chapter> getChapters() {

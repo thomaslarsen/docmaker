@@ -7,6 +7,7 @@ import net.toften.docmaker.DocPart;
 import net.toften.docmaker.LogWrapper;
 import net.toften.docmaker.postprocessors.InjectHeaderIdPostProcessor;
 import net.toften.docmaker.postprocessors.PostProcessor;
+import net.toften.docmaker.postprocessors.RegexPostProcessor;
 import net.toften.docmaker.toc.Chapter;
 import net.toften.docmaker.toc.ChapterSection;
 import net.toften.docmaker.toc.Section;
@@ -110,7 +111,7 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 				if (effectiveLevel <= getMaxLevel()) {
 					out.
 					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
-					append((chapter.getIdAttr(t) + "-" + headerText).trim().toLowerCase().replaceAll("[ _]",  "-").replaceAll("[^\\dA-Za-z\\-]", "")).
+					append(RegexPostProcessor.calcHeaderId(t, chapter, headerText)).
 					append("\">").
 					append(headerText).
 					append("</a>\n");

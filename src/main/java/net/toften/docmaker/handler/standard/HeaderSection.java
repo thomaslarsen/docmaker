@@ -1,6 +1,5 @@
-package net.toften.docmaker.headersections;
+package net.toften.docmaker.handler.standard;
 
-import net.toften.docmaker.pseudosections.PseudoSection;
 import net.toften.docmaker.toc.TOC;
 
 import org.xml.sax.Attributes;
