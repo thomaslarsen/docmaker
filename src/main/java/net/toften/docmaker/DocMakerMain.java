@@ -11,6 +11,7 @@ import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 
 import net.toften.docmaker.handler.AssemblyHandler;
 import net.toften.docmaker.markup.MarkupProcessor;
+import net.toften.docmaker.output.BrokenLinks;
 import net.toften.docmaker.output.OutputProcessor;
 import net.toften.docmaker.toc.TOC;
 
@@ -257,6 +259,10 @@ public class DocMakerMain {
         		throw new DocMakerException("Can not load key file", e);
         	}
         }
+        
+        // Add default output processors
+        outputProcessors = new LinkedList<String>(outputProcessors);
+        outputProcessors.add(0, BrokenLinks.class.getName());
     }
 	
 	/**
