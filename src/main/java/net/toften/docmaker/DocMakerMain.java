@@ -215,7 +215,7 @@ public class DocMakerMain {
         }
 
         // Instantiate the markup processors
-		if (markupProcessors == null) {
+		if (markupProcessorsMap == null) {
 			MarkupProcessor markupProcessor;
 			try {
 				markupProcessor = newInstance(MarkupProcessor.class, markupProcessorClassname);
@@ -309,7 +309,7 @@ public class DocMakerMain {
         	OutputProcessor outputProcessor;
 	        try {
 	            outputProcessor = newInstance(OutputProcessor.class, op);
-	            lw.info("Using " + outputProcessors + " as the " + OutputProcessor.class.getName());
+	            lw.info("Using " + op + " as the " + OutputProcessor.class.getName());
 	        } catch (Exception e) {
 	            throw new DocMakerException("Can not create OutputProcessor", e);
 	        }

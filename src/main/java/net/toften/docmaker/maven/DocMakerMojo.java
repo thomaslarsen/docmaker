@@ -75,7 +75,7 @@ public class DocMakerMojo extends AbstractMojo {
     /**
      * List of {@link OutputProcessor} classnames
      */
-    @Parameter
+    @Parameter(required = true)
     private List<String> outputProcessors;
     
     /**
@@ -93,7 +93,7 @@ public class DocMakerMojo extends AbstractMojo {
     /**
      * Path to the CSS file to be used to style the generated output
      */
-    @Parameter
+    @Parameter (required = true)
     private String[] cssFilePaths;
     
     @Parameter(defaultValue = "${project.filters}")

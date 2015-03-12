@@ -44,10 +44,6 @@ public class Repo {
 		if (!repoURI.isAbsolute()) {
 			throw new DocMakerException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
 		}
-
-		if (repoURI.getAuthority() != null) {
-			throw new DocMakerException("Repo URI " + repoURI.toString() + " has an authority (" + repoURI.getAuthority() + "), given " + repoURIPath);
-		}
 	}
 
 	public String getId() {
