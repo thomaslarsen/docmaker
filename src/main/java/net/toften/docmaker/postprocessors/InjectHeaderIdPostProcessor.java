@@ -16,7 +16,7 @@ import net.toften.docmaker.handler.standard.FragmentChapter;
  *
  */
 public class InjectHeaderIdPostProcessor extends RegexPostProcessor {
-	public static final String HEADER_SEARCH_REGEX = "<h(\\d)>(.*?)</h\\d>";
+	public static final String HEADER_SEARCH_REGEX = "<h(\\d)(.*?)>(.*?)</h\\d>";
 	
 	@Override
 	protected String getRegex() {
@@ -30,6 +30,6 @@ public class InjectHeaderIdPostProcessor extends RegexPostProcessor {
 	 */
 	@Override
 	protected String getReplacement(Matcher m) {
-		return "<h$1 id=\"" + calcElementId(m.group(2)) + "\">$2</h$1>";
+		return "<h$1 id=\"" + calcElementId(m.group(3)) + "\">$3</h$1>";
 	}
 }

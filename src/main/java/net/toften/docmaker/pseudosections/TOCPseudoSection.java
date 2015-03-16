@@ -1,5 +1,6 @@
 package net.toften.docmaker.pseudosections;
 
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +54,8 @@ import org.xml.sax.Attributes;
  *
  */
 public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
+	private static Logger lw = Logger.getLogger(TOCPseudoSection.class.getName());	
+
 	protected static Pattern p = Pattern.compile(InjectHeaderIdPostProcessor.HEADER_SEARCH_REGEX);
 
 	private int maxLevel;
@@ -68,23 +71,26 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 	
 	@Override
 	public String getSectionAsHtml(TOC t) {
+		lw.info("Writing TOC section, max level " + maxLevel);
+		
 		StringBuffer asHtml = new StringBuffer("<div class=\"toc\">\n");
 
-		for (Section metaSection : t.getSections()) {
-			if (metaSection.getDocPart() == DocPart.SECTION) {
-				ChapterSection s = (ChapterSection)metaSection;
-				int sectionLevel = s.getSectionLevel();
+		for (Section s : t.getSections()) {
+			if (s.getDocPart() == DocPart.SECTION) {
+				ChapterSection cs = (ChapterSection)s;
+				int level = cs.getSectionLevel();
 
-				if (sectionLevel <= getMaxLevel()) {
+				lw.fine("TOC section (level " + level + ")" + (level > getMaxLevel() ? "[SKIPPED]" : "") +": " + cs.getName());
+				if (level <= getMaxLevel()) {
 					asHtml.
-					append("<a class=\"toc-section level" + sectionLevel + "\" href=\"#").
-					append(s.getIdAttr(t)).
+					append("<a class=\"toc-section level" + level + "\" href=\"#").
+					append(cs.getIdAttr(t)).
 					append("\">").
-					append(s.getName()).
+					append(cs.getName()).
 					append("</a>\n");
 				}
 
-				for (Chapter c : s.getChapters()) {
+				for (Chapter c : cs.getChapters()) {
 					processFragment(c, c.getAsHtml(t), asHtml, t);
 				}
 			}
@@ -103,13 +109,15 @@ public class TOCPseudoSection implements PseudoSectionHandler, PostProcessor {
 		while (m.find()) {
 			if (m.group(0).charAt(1) != '/') {	// Check it is not the close tag
 				int hLevel = Integer.parseInt(m.group(1));
-				String headerText = m.group(2);
+				String headerText = m.group(3);
 				
-				int effectiveLevel = hLevel + chapterEffectiveLevel;
+				int level = hLevel + chapterEffectiveLevel;
 
-				if (effectiveLevel <= getMaxLevel()) {
+				lw.fine("TOC chapter (level " + level + "/" + hLevel + "/" + chapterEffectiveLevel + ")" + (level > getMaxLevel() ? "[SKIPPED]" : "") +": " + chapter.getName());
+				
+				if (level <= getMaxLevel()) {
 					out.
-					append("<a class=\"toc-section level" + effectiveLevel + "\" href=\"#").
+					append("<a class=\"toc-section level" + level + "\" href=\"#").
 					append(RegexPostProcessor.calcHeaderId(t, chapter, headerText)).
 					append("\">").
 					append(headerText).
