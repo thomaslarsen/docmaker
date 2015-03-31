@@ -83,21 +83,23 @@ public class SingleInterimFile implements InterimFileHandler {
 		}
 		
 		// Embed stylesheets
-		for (String cssFile : t.getStyleSheets()) {
-			URI cssURI = new URI(cssFile);
-			if (!cssURI.isAbsolute()) {
-				cssURI = t.getBaseURI().resolve(cssURI);
+		if (t.getStyleSheets() != null) {
+			for (String cssFile : t.getStyleSheets()) {
+				URI cssURI = new URI(cssFile);
+				if (!cssURI.isAbsolute()) {
+					cssURI = t.getBaseURI().resolve(cssURI);
+				}
+				
+				lw.fine("Writing CSS file: " + cssURI.toString());
+				
+				InputStream is = cssURI.toURL().openStream();
+				String text = new Scanner(is, encoding).useDelimiter("\\A").next();
+				// Apply any potential property value to the metadata
+				text = ApplyKeyValue.resolve(t.getMetaData(), text);
+				writeToOutputFile("<style>\n");
+				writeToOutputFile(text + "\n");
+				writeToOutputFile("</style>\n");
 			}
-			
-			lw.fine("Writing CSS file: " + cssURI.toString());
-			
-			InputStream is = cssURI.toURL().openStream();
-			String text = new Scanner(is, encoding).useDelimiter("\\A").next();
-			// Apply any potential property value to the metadata
-			text = ApplyKeyValue.resolve(t.getMetaData(), text);
-			writeToOutputFile("<style>\n");
-			writeToOutputFile(text + "\n");
-			writeToOutputFile("</style>\n");
 		}
 		
 		for (GeneratedSection section : headerSections) {
