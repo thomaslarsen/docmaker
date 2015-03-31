@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import java.util.logging.Logger;
 
 import net.toften.docmaker.DocPart;
 import net.toften.docmaker.handler.AssemblyHandler;
@@ -14,28 +15,47 @@ import net.toften.docmaker.toc.TOC;
 
 public class FragmentChapter extends BaseSection implements Chapter {
 	public static final int EFFECTIVE_LEVEL_ADJUSTMENT = 2;
+	private static final Logger lw = Logger.getLogger(FragmentChapter.class.getName());
 	
-	private ContentSection section;
-	private Repo repo;
-	private int chapterLevelOffset;
+	private final ContentSection section;
+	private final Repo repo;
+	private final int chapterLevelOffset;
 	private String fragmentAsHtml;
+	private String fragmentFilename;
 
 	public FragmentChapter(ContentSection section, String name, String config, AssemblyHandler handler, Repo repo, int chapterLevelOffset, boolean isRotated) throws Exception {
 		super(name, isRotated);
+
+		if (handler == null)
+			throw new NullPointerException("AssemblyHandler for chapter " + name + " is null");
+		
+		if (section == null)
+			throw new NullPointerException("Parent section for chapter " + name + " is null");
+		
+		if (repo == null)
+			throw new NullPointerException("Repo for chapter " + name + " is null");
 		
 		this.section = section;
 		this.repo = repo;
 		this.chapterLevelOffset = chapterLevelOffset;
 		
 		// Normalise the fragment file extension
-		String fragmentFilename = getName();
+		fragmentFilename = name;
 		String extension = handler.getDefaultExtension();
-		int i = getName().lastIndexOf('.');
+		int i = name.lastIndexOf('.');
 		if (i > 0) {
-		    extension = getName().substring(i + 1);
+		    extension = name.substring(i + 1);
 		} else {
 			fragmentFilename += "." + extension;
 		}
+		
+		lw.fine("Chapter " + name + " has been initialised\n"
+				+ "File name: " + fragmentFilename + "\n"
+ 				+ "Parent: " + section.getName() + "\n"
+				+ "Repo: " + repo.getId() + "\n"
+				+ "Level offset: " + chapterLevelOffset + "\n"
+				+ "Effective level: " + calcEffectiveLevel() + "\n"
+				+ "Rotated: " + isRotated);
 		
 		// Load and process the fragment
 		InputStream fragmentIs = getRepo().getFragmentInputStream(fragmentFilename);

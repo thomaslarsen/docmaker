@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -53,6 +54,8 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	public static final String CHAPTER_REPO = "repo";
 	public static final String CHAPTER_FRAGMENT = "fragment";
 	
+	private static final Logger lw = Logger.getLogger(AssemblyHandlerAdapter.class.getName());
+	
 	private Map<String, Map<String, String>> htmlMeta;
 	private Properties metaData;
 	private List<String> cssFiles;
@@ -95,9 +98,27 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	@Override
 	public TOC parse(InputStream tocStream, String tocName, String defaultExtension, URI baseURI, Map<String, MarkupProcessor> markupProcessor, Properties baseProperties, List<String> cssFiles) 
 			throws Exception {
+		if (tocStream == null)
+			throw new NullPointerException("TOC stream is null");
+		
+		if (baseURI == null)
+			throw new NullPointerException("Base URI is null");
+		
+		if (markupProcessor == null)
+			throw new NullPointerException("Markup processors are null");
+
 		if (!baseURI.isAbsolute())
 			throw new IllegalArgumentException("The base URI " + baseURI.toString() + " is not absolute");
-
+		
+		lw.info("Parsing " + tocName);
+		lw.fine("Parameters\n"
+				+ "TOC InputStream: " + tocStream.toString() + "\n"
+				+ "Default extension: " + defaultExtension + "\n"
+				+ "Base URI: " + baseURI.toString() + "\n"
+				+ "Markup Processors: " + markupProcessor.toString() + "\n"
+				+ "Properties (key/values): " + (baseProperties == null ? "empty" : baseProperties.toString()) + "\n"
+				+ "CSS files: " + (cssFiles == null ? "empty" : cssFiles.toString()));
+		
 		// Initialise handler
 		htmlMeta = new HashMap<String, Map<String, String>>();
 		metaData = new Properties();
@@ -220,6 +241,8 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		else
 			currentSectionLevel = null;
 		currentSectionRotate = attributes.getValue(SECTION_ROTATE) != null;
+		
+		lw.fine("Initialised section: " + currentSectionName + " Level: " + currentSectionLevel + " Rotate: " + currentSectionRotate);
 	}
 
 	protected abstract void handleChapterElement(Attributes attributes) throws Exception;
@@ -241,8 +264,11 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 	}
 
 	protected void handlePostProcessor(Attributes attributes) throws Exception {
-		PostProcessor pp = (PostProcessor) Class.forName(attributes.getValue(POSTPROCESSOR_CLASSNAME)).newInstance();
+		String postProcessorClassname = attributes.getValue(POSTPROCESSOR_CLASSNAME);
+		PostProcessor pp = (PostProcessor) Class.forName(postProcessorClassname).newInstance();
 		pp.init(attributes);
+		
+		lw.info("Adding PostProcessor: " + postProcessorClassname);
 		
 		postProcessors.add(pp);
 	}
@@ -254,7 +280,8 @@ public abstract class AssemblyHandlerAdapter extends DefaultHandler implements
 		
 		if (!repos.containsKey(repoId)) {
 			repos.put(repoId, new Repo(repoId, baseURI, repoURIPath));
-		}
+		} else
+			lw.warning("Repo " + repoId + " has already been added");
 	}
 
 	protected void handlePropertyElement(Attributes attributes) throws Exception {

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.logging.Logger;
 
 import net.toften.docmaker.DocMakerException;
 
@@ -16,6 +17,8 @@ import net.toften.docmaker.DocMakerException;
  *
  */
 public class Repo {
+	private static final Logger lw = Logger.getLogger(Repo.class.getName());
+	
 	private URI repoURI;
 	private String id;
 
@@ -44,6 +47,8 @@ public class Repo {
 		if (!repoURI.isAbsolute()) {
 			throw new DocMakerException("Repo URI " + repoURI.toString() + " is not absolute, given " + repoURIPath);
 		}
+		
+		lw.info("Added repo: " + id + " with (full) URI: " + repoURI.toString());
 	}
 
 	public String getId() {
