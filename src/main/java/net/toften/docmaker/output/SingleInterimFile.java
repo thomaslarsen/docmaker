@@ -175,8 +175,8 @@ public class SingleInterimFile implements InterimFileHandler {
 
 	private void writeMetaElements(ElementsSection section, Properties metaData, TOC t) throws IOException {
 		for (String[] e : section.getElements()) {
-			writeToOutputFile(DocPart.ELEMENT.preElement());
-			writeToOutputFile("<div key=\"" + e[0] + "\">" + ApplyKeyValue.resolve(metaData, e[1]) + "</div>\n");
+			writeToOutputFile(DocPart.ELEMENT.preElement(new String[][]{{ "key", e[0]}}, true));
+			writeToOutputFile(ApplyKeyValue.resolve(metaData, e[1]) + "\n");
 			writeToOutputFile(DocPart.ELEMENT.postElement());
 		}
 	}
