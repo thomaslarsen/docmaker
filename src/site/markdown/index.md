@@ -1,10 +1,10 @@
 # What is docmaker?
 
-Docmaker is a [Maven](http://maven.apache.org) plugin that can convert a set of markup documents into a single output file, defined by a table of contents XML file and styled using CSS.
+Docmaker is a [Maven](http://maven.apache.org) plugin and a command line tool that can convert a set of markup documents into a single output file, defined by a table of contents XML file and styled using CSS.
 
 Docmaker is made up of a number of elements:
 
-* The **document** it the generated output, usually a PDF but can be other formats
+* The **document** it the generated output, usually a PDF but can be other formats such as a set of HTML files
 * A **fragment** contains the actual contents and is a part of one or more *documents*. Usually written in [Markdown](http://daringfireball.net/projects/markdown/syntax), but can be other formats
 * The [**TOC**](toc.html) is an XML file that describes the *fragments* in the *document*
 * A **transient HTML document** comprising all the *fragments* will be styled using a **CSS** document

@@ -2,9 +2,9 @@
 
 The **TOC** is an XML document that describes:
 
-* The list of sections and fragments that makes up the generated document
-* A list of fragment repositories
-* A set of properties, which can be injected into the generated document
+* The list of **sections** and **chapters** that makes up the **output file**
+* A list of **document repositories**
+* A set of **properties**, which can be injected into the **output file**, the **TOC** or the **CSS files**
 
 The TOC structure is:
 
@@ -21,6 +21,7 @@ The TOC structure is:
 		
 		<properties>
 			<property key=".." value=".." />
+			<property src=".." />
 		</properties>
 		
 		<sections>
