@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -23,7 +24,7 @@ public class AssemblyHandlerAdapterTest {
 	String 	tocName = "test", 
 			defaultExtension = "md";
 	URI		baseURI = new File("").toURI(); 
-	Map<String, MarkupProcessor> markupProcessor = null; 
+	Map<String, MarkupProcessor> markupProcessor = new HashMap<String, MarkupProcessor>(); 
 	Properties baseProperties = null; 
 	List<String> cssFiles = null;
 	

@@ -27,7 +27,7 @@ public class StandardHandlerTest {
 	String 	tocName = "test", 
 			defaultExtension = "md";
 	URI		baseURI = new File(".").toURI(); 
-	Map<String, MarkupProcessor> markupProcessor = null; 
+	Map<String, MarkupProcessor> markupProcessor = new HashMap<String, MarkupProcessor>(); 
 	Properties baseProperties = null; 
 	List<String> cssFiles = null;
 
