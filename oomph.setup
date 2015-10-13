@@ -7,9 +7,8 @@
     xmlns:maven="http://www.eclipse.org/oomph/setup/maven/1.0"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore"
-    name="docmaker"
+    name="net.toften.docmaker"
     label="Docmaker IDE">
-  <project name="docmaker">
     <setupTask
         xsi:type="git:GitCloneTask"
         id=""
@@ -24,9 +23,8 @@
     <stream
         name="master"
         label="Master"/>
-  </project>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
-      href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='net.toften']"/>
   <description>Eclipse IDE for Docmaker development</description>
 </setup:Project>
