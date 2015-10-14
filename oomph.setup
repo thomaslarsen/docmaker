@@ -7,8 +7,8 @@
     xmlns:maven="http://www.eclipse.org/oomph/setup/maven/1.0"
     xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore"
-    name="net.toften.docmaker"
-    label="Docmaker IDE">
+    name="docmaker"
+    label="Docmaker">
     <setupTask
         xsi:type="git:GitCloneTask"
         id=""
