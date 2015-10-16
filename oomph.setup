@@ -9,20 +9,25 @@
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/maven/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Maven.ecore"
     name="docmaker"
     label="Docmaker">
-    <setupTask
-        xsi:type="git:GitCloneTask"
-        id=""
-        location="${workspace.location}/${scope.project.name}"
-        remoteURI="https://toften@bitbucket.org/toften/docmaker.git"/>
-    <setupTask
-        xsi:type="maven:MavenImportTask"
-        projectNameTemplate="">
-      <sourceLocator
-          rootFolder="${workspace.location}/${scope.project.name}"/>
-    </setupTask>
-    <stream
-        name="master"
-        label="Master"/>
+  <setupTask
+      xsi:type="git:GitCloneTask"
+      id=""
+      location="${workspace.location}/${scope.project.name}"
+      remoteURI="https://toften@bitbucket.org/toften/docmaker.git"/>
+  <setupTask
+      xsi:type="maven:MavenImportTask"
+      projectNameTemplate="">
+    <sourceLocator
+        rootFolder="${workspace.location}/${scope.project.name}"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      id=""
+      option="-Doomph.redirection.docmaker"
+      value="=https://bitbucket.org/toften/docmaker/raw/master/oomph.setup->${docmaker.git.clone.location|uri}/oomph.setup"
+      vm="true"/>
+  <stream name="master"
+      label="Master"/>
   <logicalProjectContainer
       xsi:type="setup:ProjectCatalog"
       href="index:/org.eclipse.setup#//@projectCatalogs[name='net.toften']"/>
